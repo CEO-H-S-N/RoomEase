@@ -1,0 +1,594 @@
+Fogort Page Tsx
+import { useState } from "react";
+import { Home, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
+import '../styles/login.css';
+
+interface Props {
+  onSubmitEmail: (email: string) => void;
+  onNavigateToLogin: () => void;
+}
+
+export function ForgotPasswordPage({ onSubmitEmail, onNavigateToLogin }: Props) {
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmitEmail(email);
+    setIsSubmitted(true);
+  };
+
+  return (
+    <div className="container-fluid vh-100 p-0 login-container-modern">
+      <div className="row g-0 h-100">
+
+        {/* Left Side - Visual */}
+        <div className="col-lg-6 d-none d-lg-flex position-relative bg-teal p-0 login-visual-side animated fade-in-left">
+          <div className="visual-overlay"></div>
+          <div className="d-flex flex-column align-items-center justify-content-center w-100 h-100 text-white z-2 p-5 text-center">
+            <div className="mb-4 d-flex align-items-center gap-2">
+              <Home size={48} strokeWidth={2.5} />
+              <span className="h1 fw-bold mb-0">RoomEase</span>
+            </div>
+            <h1 className="display-4 fw-bold mb-3">Password Help</h1>
+            <p className="lead px-4 opacity-75">
+              It happens to the best of us. Enter your email and we'll help you get back into your account in no time.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="col-lg-6 d-flex align-items-center justify-content-center bg-white animated fade-in-right">
+          <div className="login-form-wrapper w-100 p-4 p-md-5" style={{ maxWidth: '480px' }}>
+
+            <div className="d-lg-none text-center mb-4 text-teal">
+              <Home size={40} className="mb-2" />
+              <h2 className="fw-bold">RoomEase</h2>
+            </div>
+
+            <div className="mb-5">
+              <h2 className="fw-bold text-dark mb-2">Forgot Password?</h2>
+              {!isSubmitted ? (
+                <p className="text-muted">No worries! Enter your email formatting and we'll share a reset link.</p>
+              ) : (
+                <p className="text-muted">We've sent a recovery link to your email.</p>
+              )}
+            </div>
+
+            {!isSubmitted ? (
+              <form onSubmit={handleSubmit}>
+                <div className="mb-4">
+                  <label htmlFor="email" className="form-label fw-semibold text-dark">Email Address</label>
+                  <div className="position-relative">
+                    <input
+                      id="email"
+                      type="email"
+                      className="form-control form-control-lg bg-light border-0 ps-5"
+                      placeholder="you@example.com"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      required
+                      autoFocus
+                      style={{ fontSize: '0.95rem' }}
+                    />
+                    <Mail size={20} className="position-absolute text-muted" style={{ left: '15px', top: '50%', transform: 'translateY(-50%)' }} />
+                  </div>
+                </div>
+
+                <button type="submit" className="btn btn-teal btn-lg w-100 mb-4 shadow-sm hover-elevate">
+                  Send Reset Link
+                </button>
+              </form>
+            ) : (
+              <div className="text-center py-4">
+                <CheckCircle size={64} className="text-teal mb-3" />
+                <p className="text-muted mb-4">
+                  Check <strong>{email}</strong> for instructions on how to reset your password.
+                </p>
+                <button
+                  onClick={() => setIsSubmitted(false)}
+                  className="btn btn-outline-secondary btn-sm"
+                >
+                  Try another email?
+                </button>
+              </div>
+            )}
+
+            <div className="text-center">
+              <button
+                onClick={onNavigateToLogin}
+                className="btn btn-link text-muted text-decoration-none d-inline-flex align-items-center gap-2"
+              >
+                <ArrowLeft size={16} /> Back to Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Csss
+
+/* Container */
+.forgot-password-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+/* Card */
+.forgot-password-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 440px;
+  width: 100%;
+  padding: 48px 40px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.card-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  margin-bottom: 24px;
+}
+
+.lock-icon {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.card-header h2 {
+  margin: 0 0 12px 0;
+  color: #1a202c;
+}
+
+.subtitle {
+  margin: 0;
+  color: #718096;
+  line-height: 1.6;
+}
+
+/* Form */
+.forgot-password-form {
+  margin-bottom: 24px;
+}
+
+.input-group {
+  margin-bottom: 24px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-group input::placeholder {
+  color: #a0aec0;
+}
+
+/* Buttons */
+.submit-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+/* Success Message */
+.success-message {
+  text-align: center;
+  padding: 32px 0;
+  margin-bottom: 24px;
+}
+
+.success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: #48bb78;
+  border-radius: 50%;
+  margin-bottom: 16px;
+  animation: scaleIn 0.4s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.success-icon svg {
+  width: 32px;
+  height: 32px;
+  color: white;
+}
+
+.success-message p {
+  margin: 0;
+  color: #2d3748;
+  font-weight: 500;
+}
+
+/* Footer */
+.footer-link {
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: #667eea;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.back-button:hover {
+  background: #f7fafc;
+  color: #764ba2;
+}
+
+.arrow-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .forgot-password-card {
+    padding: 32px 24px;
+  }
+
+  .card-header h2 {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+}
+
+ResetPasswordts.page
+import { useState } from "react";
+import { Home, Eye, EyeOff, ArrowLeft, Lock } from 'lucide-react';
+import '../styles/login.css'; // Reuse the main login styles
+
+interface Props {
+  email: string;
+  onResetPassword: (password: string) => void;
+  onNavigateToLogin?: () => void;
+}
+
+export function ResetPasswordPage({ email, onResetPassword, onNavigateToLogin }: Props) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (password !== confirm) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    onResetPassword(password);
+  };
+
+  return (
+    <div className="container-fluid vh-100 p-0 login-container-modern">
+      <div className="row g-0 h-100">
+
+        {/* Left Side - Visual */}
+        <div className="col-lg-6 d-none d-lg-flex position-relative bg-teal p-0 login-visual-side animated fade-in-left">
+          <div className="visual-overlay"></div>
+          <div className="d-flex flex-column align-items-center justify-content-center w-100 h-100 text-white z-2 p-5 text-center">
+            <div className="mb-4 d-flex align-items-center gap-2">
+              <Home size={48} strokeWidth={2.5} />
+              <span className="h1 fw-bold mb-0">RoomEase</span>
+            </div>
+            <h1 className="display-4 fw-bold mb-3">Security First</h1>
+            <p className="lead px-4 opacity-75">
+              Create a strong password to keep your account safe.
+              We make sure your personal details are always protected.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="col-lg-6 d-flex align-items-center justify-content-center bg-white animated fade-in-right">
+          <div className="login-form-wrapper w-100 p-4 p-md-5" style={{ maxWidth: '480px' }}>
+
+            <div className="d-lg-none text-center mb-4 text-teal">
+              <Home size={40} className="mb-2" />
+              <h2 className="fw-bold">RoomEase</h2>
+            </div>
+
+            <div className="mb-5">
+              <h2 className="fw-bold text-dark mb-2">Reset Password</h2>
+              <p className="text-muted">Set a new password for <span className="fw-bold text-teal">{email}</span></p>
+            </div>
+
+            {error && <div className="alert alert-danger mb-4 border-0 rounded-3 shadow-sm">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+
+              <div className="mb-3">
+                <label className="form-label fw-semibold text-dark">New Password</label>
+                <div className="position-relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="form-control form-control-lg bg-light border-0 ps-5"
+                    placeholder="Enter new password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    required
+                    style={{ fontSize: '0.95rem', paddingRight: '40px' }}
+                  />
+                  <Lock size={20} className="position-absolute text-muted" style={{ left: '15px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="btn border-0 position-absolute top-50 end-0 translate-middle-y text-muted pe-3"
+                    style={{ zIndex: 10 }}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label fw-semibold text-dark">Confirm Password</label>
+                <div className="position-relative">
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    className="form-control form-control-lg bg-light border-0 ps-5"
+                    placeholder="Confirm new password"
+                    value={confirm}
+                    onChange={e => setConfirm(e.target.value)}
+                    required
+                    style={{ fontSize: '0.95rem', paddingRight: '40px' }}
+                  />
+                  <Lock size={20} className="position-absolute text-muted" style={{ left: '15px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm(!showConfirm)}
+                    className="btn border-0 position-absolute top-50 end-0 translate-middle-y text-muted pe-3"
+                    style={{ zIndex: 10 }}
+                  >
+                    {showConfirm ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" className="btn btn-teal btn-lg w-100 mb-4 shadow-sm hover-elevate">
+                Update Password
+              </button>
+
+            </form>
+
+            <div className="text-center">
+              {onNavigateToLogin && (
+                <button
+                  type="button"
+                  onClick={onNavigateToLogin}
+                  className="btn btn-link text-muted text-decoration-none d-inline-flex align-items-center gap-2"
+                >
+                  <ArrowLeft size={16} /> Back to Login
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+Css
+/* ===========================
+   Container
+=========================== */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+/* ===========================
+   Card
+=========================== */
+.login-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  max-width: 440px;
+  width: 100%;
+  padding: 48px 40px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===========================
+   Header
+=========================== */
+.login-card h2 {
+  text-align: center;
+  margin: 0 0 12px 0;
+  color: #1a202c;
+}
+
+.login-card p {
+  text-align: center;
+  margin: 0 0 32px 0;
+  color: #718096;
+  line-height: 1.6;
+}
+
+/* ===========================
+   Form
+=========================== */
+.login-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.login-card input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.login-card input::placeholder {
+  color: #a0aec0;
+}
+
+/* ===========================
+   Button
+=========================== */
+.login-card button {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.login-card button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.login-card button:active {
+  transform: translateY(0);
+}
+
+/* ===========================
+   Responsive
+=========================== */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .login-card h2 {
+    font-size: 24px;
+  }
+
+  .login-card p {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,157 @@
+/* Property Owner SettingPage.css - Same as User Settings */
+
+.setting-page-wrapper {
+    min-height: 100vh;
+    background-color: #ffffff;
+    /* White background for unified look */
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- Shared Navbar Styles (Matched to Dashboard) --- */
+.navbar-brand {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #6B7280;
+    /* text-secondary */
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #14919B !important;
+    /* primary-color */
+}
+
+/* Sidebar Navigation Tabs */
+.active-tab {
+    background-color: transparent !important;
+    color: #14919B !important;
+    border-bottom: 3px solid #14919B !important;
+    border-radius: 0 !important;
+    font-weight: 600;
+}
+
+.list-group-item {
+    border: none;
+    margin-bottom: 4px;
+    border-radius: 8px !important;
+    color: #4b5563;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+/* Form Controls Polish */
+.form-control:focus {
+    border-color: #14919B;
+    box-shadow: 0 0 0 4px rgba(20, 145, 155, 0.1);
+}
+
+.btn-primary {
+    background-color: #14919B;
+    border-color: #14919B;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #0e7c85;
+    border-color: #0e7c85;
+}
+
+.form-check-input:checked {
+    background-color: #14919B;
+    border-color: #14919B;
+}
+
+/* Standard Button Copy */
+.btn-standard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    border: 1px solid #111827;
+    border-radius: 50px;
+    background: transparent;
+    color: #111827;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn-standard:hover {
+    background: #f3f4f6;
+    color: #111827 !important;
+    border-color: #111827;
+    transform: translateY(-1px);
+}
+
+/* --- Header Section (Matched to Dashboard) --- */
+.dashboard-header {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.header-title-group h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.025em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-subtitle {
+    color: #6B7280;
+    margin: 0;
+    font-size: 15px;
+}
+
+/* --- Animations --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Smooth Input Focus Transition */
+.form-control,
+.form-check-input {
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Hover Scale for Profile Images/Buttons */
+.hover-scale {
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}

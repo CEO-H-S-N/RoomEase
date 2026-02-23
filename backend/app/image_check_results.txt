@@ -1,0 +1,101 @@
+================================================================================
+HOUSING LISTINGS IMAGE CHECK
+================================================================================
+Database: Flat-Waley
+Collection: housing
+Total Listings Found: 89
+
+================================================================================
+THUMBNAIL ANALYSIS:
+================================================================================
+Total unique thumbnails: 89
+
+✅ Good: Listings have 89 different thumbnails
+
+1. https://loremflickr.com/800/600/apartment,building?lock=100
+   Used by 1 listing(s): H-0001
+
+2. https://loremflickr.com/800/600/apartment,building?lock=101
+   Used by 1 listing(s): H-0002
+
+3. https://loremflickr.com/800/600/apartment,building?lock=102
+   Used by 1 listing(s): H-0003
+
+4. https://loremflickr.com/800/600/apartment,building?lock=103
+   Used by 1 listing(s): H-0004
+
+5. https://loremflickr.com/800/600/apartment,building?lock=104
+   Used by 1 listing(s): H-0005
+
+================================================================================
+IMAGES ANALYSIS:
+================================================================================
+Total unique image URLs: 178
+
+✅ Good: Listings have 178 different images
+
+================================================================================
+SAMPLE LISTINGS (First 10):
+================================================================================
+
+Listing 1: H-0001 (Multan, Gulgasht Colony)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=100
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=100
+    - https://loremflickr.com/1200/800/bedroom,home?lock=600
+
+Listing 2: H-0002 (Islamabad, Blue Area)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=101
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=101
+    - https://loremflickr.com/1200/800/bedroom,home?lock=601
+
+Listing 3: H-0003 (Multan, Shah Rukn-e-Alam)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=102
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=102
+    - https://loremflickr.com/1200/800/bedroom,home?lock=602
+
+Listing 4: H-0004 (Lahore, Gulberg)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=103
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=103
+    - https://loremflickr.com/1200/800/bedroom,home?lock=603
+
+Listing 5: H-0005 (Multan, Gulgasht Colony)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=104
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=104
+    - https://loremflickr.com/1200/800/bedroom,home?lock=604
+
+Listing 6: H-0006 (Lahore, Wapda Town)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=105
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=105
+    - https://loremflickr.com/1200/800/bedroom,home?lock=605
+
+Listing 7: H-0007 (Karachi, Gulshan-e-Iqbal)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=106
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=106
+    - https://loremflickr.com/1200/800/bedroom,home?lock=606
+
+Listing 8: H-0008 (Islamabad, F-8)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=107
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=107
+    - https://loremflickr.com/1200/800/bedroom,home?lock=607
+
+Listing 9: H-0009 (Multan, Shah Rukn-e-Alam)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=108
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=108
+    - https://loremflickr.com/1200/800/bedroom,home?lock=608
+
+Listing 10: H-0010 (Peshawar, Hayatabad)
+  Thumbnail: https://loremflickr.com/800/600/apartment,building?lock=109
+  Images (2):
+    - https://loremflickr.com/1200/800/livingroom,interior?lock=109
+    - https://loremflickr.com/1200/800/bedroom,home?lock=609
+
+================================================================================

@@ -1,0 +1,890 @@
+Login Page Selectuon tsx
+import { ArrowLeft } from 'lucide-react';
+import '../styles/LoginSelectionPage.css';
+
+interface LoginSelectionPageProps {
+    onBack: () => void;
+    onSelectRole: (role: 'admin' | 'user' | 'property-owner') => void;
+}
+
+export function LoginSelectionPage({ onBack, onSelectRole }: LoginSelectionPageProps) {
+    return (
+        <div className="login-selection-bg">
+            <div className="glass-wrapper" style={{ maxWidth: '400px', padding: '40px' }}>
+
+                {/* Back Button */}
+                <button
+                    onClick={onBack}
+                    className="back-button"
+                >
+                    <ArrowLeft size={20} />
+                    <span>Back</span>
+                </button>
+
+                <div className="login-header">
+                    <h2>Login Options</h2>
+                    <p className="subtitle">Please select your login type</p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <button
+                        className="btn-option"
+                        onClick={() => onSelectRole('admin')}
+                    >
+                        Admin Login
+                    </button>
+
+                    <button
+                        className="btn-option"
+                        onClick={() => onSelectRole('user')}
+                    >
+                        User Login
+                    </button>
+
+                    <button
+                        className="btn-option"
+                        onClick={() => onSelectRole('property-owner')}
+                    >
+                        Property Owner Login
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    );
+}
+
+Css
+/* ===========================
+   Login Selection Theme
+=========================== */
+
+/* ===== Background ===== */
+.login-selection-bg {
+    min-height: 100vh;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* Center the selection card */
+
+    /* Apartment Background */
+    background-image: url('/assets/images/istockphoto-1299730469-612x612\ \(Login\ OPtion\ pic\ 2\).webp');
+    background-size: 100% 100%;
+    /* Stretch to fit without zoom/crop */
+    background-position: center;
+    background-repeat: no-repeat;
+
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ===== Dark Card ===== */
+.glass-wrapper {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+
+    background-color: #0f172a !important;
+    /* Dark Blue/Black */
+    border-radius: 20px;
+
+    /* Clean shadow */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid #1e293b;
+
+    text-align: left;
+    color: #ffffff !important;
+    /* White text */
+
+    /* No glass effect */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    opacity: 1 !important;
+
+    /* Entrance Animation */
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Back Button ===== */
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    color: #ffffff !important;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.back-button:hover {
+    color: #fbbf24 !important;
+    /* Yellow hover */
+}
+
+/* ... skipped ... */
+
+.login-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    /* White */
+    margin-bottom: 8px;
+    letter-spacing: -0.025em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* ... skipped ... */
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #ffffff !important;
+    /* White - User Request */
+    font-weight: 400;
+}
+
+/* ===== Login Option Buttons ===== */
+.btn-option {
+    width: 100%;
+    height: 50px;
+
+    background-color: #fbbf24;
+    /* Amber/Yellow - Match reference */
+    color: #111827;
+    /* Dark text for contrast */
+
+    border: none;
+    border-radius: 12px;
+
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-option:hover {
+    background-color: #f59e0b;
+    /* Darker Amber on hover */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    /* Yellow glow */
+} 
+Lgoin Tsx
+import { useState } from 'react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import '../styles/login.css';
+
+interface LoginPageProps {
+  role?: 'admin' | 'user' | 'property-owner';
+  onLoginSuccess?: (email: string, password: string) => void;
+  onNavigateToSignup?: () => void;
+  onNavigateToForgotPassword?: () => void;
+  onBack?: () => void;
+}
+
+export function LoginPage({ role = 'user', onLoginSuccess, onNavigateToSignup, onNavigateToForgotPassword, onBack }: LoginPageProps) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+
+  const getTitle = () => {
+    switch (role) {
+      case 'admin': return 'Admin Login';
+      case 'property-owner': return 'Property Owner Login';
+      default: return 'Login';
+    }
+  };
+
+  const getBgClass = () => {
+    switch (role) {
+      case 'admin': return 'bg-admin';
+      case 'property-owner': return 'bg-owner';
+      default: return 'bg-user';
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    onLoginSuccess?.(email, password);
+  };
+
+  return (
+    <div className={`agent-login-page ${getBgClass()}`}>
+      <div className="glass-wrapper">
+        {/* Back Button */}
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="back-button"
+          >
+            <ArrowLeft size={20} />
+            <span>Back</span>
+          </button>
+        )}
+
+        <div className="login-header">
+          <h2>{getTitle()}</h2>
+          <p className="subtitle">Please enter your details</p>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="alert-error">
+              {error}
+            </div>
+          )}
+
+          <div className="input-group-custom">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="text"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Jonathan_Reichert07"
+              className="custom-input"
+            />
+          </div>
+
+          <div className="input-group-custom">
+            <label htmlFor="password">Password</label>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="custom-input"
+                style={{ paddingRight: '50px' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="password-toggle-btn"
+              >
+                {showPassword ? <EyeOff size={18} color="#666" /> : <Eye size={18} color="#666" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="forgot-password">
+            <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToForgotPassword?.(); }}>
+              Forgot password?
+            </a>
+          </div>
+
+          <button type="submit" className="btn-dark-pill">
+            Log In
+          </button>
+        </form>
+
+        <div className="register-link">
+          <span>Are you new? </span>
+          <a href="#" onClick={(e) => {
+            e.preventDefault();
+            onNavigateToSignup?.();
+          }}>
+            Create an Account
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Css
+/* ===========================
+   Agent Login Theme (Dark & Yellow)
+=========================== */
+
+/* ===== Background ===== */
+/* Base Layout for Login Page */
+.agent-login-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  padding: 0;
+
+  /* Default Positioning */
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+
+/* ===== Role-Based Backgrounds ===== */
+.bg-user {
+  background-image: url('/assets/images/Securemessaging.jpg');
+}
+
+.bg-owner {
+  background-image: url('/assets/images/photo-1515263487990-61b07816b324 (flat).avif');
+}
+
+.bg-admin {
+  background-image: url('/assets/images/istockphoto-914788014-612x612 (Login Optiion Page).webp');
+}
+
+/* On mobile, center it back */
+@media (max-width: 900px) {
+  .agent-login-page {
+    padding: 20px;
+    align-items: center;
+  }
+}
+
+/* ===== Dark Card ===== */
+.glass-wrapper {
+  width: 100%;
+  max-width: 420px;
+  /* Match Selection Page Width */
+  padding: 40px;
+
+  background-color: #0f172a !important;
+  /* Dark Blue/Black */
+  border-radius: 20px;
+
+  /* Clean shadow */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #1e293b;
+
+  text-align: left;
+  color: #ffffff;
+  /* White text */
+
+  /* No glass effect */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* ===== Header ===== */
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  /* White */
+  margin-bottom: 8px;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #9ca3af !important;
+  /* Gray-400 */
+  font-weight: 400;
+}
+
+/* ===== Back Button ===== */
+.back-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  color: #ffffff !important;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.back-button:hover {
+  color: #fbbf24 !important;
+  /* Yellow hover */
+}
+
+.back-button span {
+  margin-left: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ===== Inputs (Label above input) ===== */
+.input-group-custom {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.input-group-custom label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #d1d5db;
+  /* Gray-300 */
+  margin-bottom: 8px;
+  display: block;
+  width: 100%;
+}
+
+.custom-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+
+  border: 1px solid #374151;
+  /* Gray-700 */
+  border-radius: 8px;
+  background-color: #1f2937;
+  /* Gray-800 */
+
+  font-size: 0.95rem;
+  color: #ffffff;
+  /* White text */
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.custom-input:focus {
+  border-color: #fbbf24;
+  /* Yellow Focus */
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.2);
+}
+
+.custom-input::placeholder {
+  color: #6b7280;
+  /* Gray-500 */
+}
+
+/* ===== Forgot Password ===== */
+.forgot-password {
+  text-align: right;
+  margin-top: -4px;
+  margin-bottom: 24px;
+}
+
+.forgot-password a {
+  font-size: 0.85rem;
+  color: #fbbf24;
+  /* Yellow Link */
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.forgot-password a:hover {
+  color: #f59e0b;
+  text-decoration: underline;
+}
+
+/* ===== Button ===== */
+.btn-dark-pill {
+  width: 100%;
+  height: 50px;
+
+  background-color: #fbbf24;
+  /* Yellow */
+  color: #111827;
+  /* Black Text */
+
+  border: none;
+  border-radius: 12px;
+
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-dark-pill:hover {
+  background-color: #f59e0b;
+  /* Darker Yellow */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+/* ===== Register Link (Outside Card) ===== */
+.register-link {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 0.9rem;
+  color: #9ca3af;
+  /* Gray-400 */
+  width: 100%;
+}
+
+.register-link a {
+  color: #fbbf24;
+  /* Yellow */
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Error Alert ===== */
+.alert-error {
+  background-color: #450a0a;
+  /* Dark Red */
+  color: #fca5a5;
+  /* Light Red Text */
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid #7f1d1d;
+}
+
+/* Toast Styles preserved */
+.toast-notification {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #22c55e;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1050;
+  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 500;
+  white-space: nowrap;
+  justify-content: center;
+  width: fit-content !important;
+  max-width: 90vw !important;
+}
+
+@keyframes slideDown {
+  from {
+    top: -60px;
+    opacity: 0;
+  }
+
+  to {
+    top: 30px;
+    opacity: 1;
+  }
+}
+
+/* ===== Password Toggle Button ===== */
+.password-toggle-btn {
+  position: absolute;
+  right: 16px !important;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #9ca3af;
+  /* Gray-400 */
+  transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+  color: #ffffff;
+} 
+
+Signup Tsx
+import React, { useState } from 'react';
+import '../styles/SettingPage.css';
+
+interface User {
+    email: string;
+    fullName: string;
+}
+
+interface SettingProps {
+    user: User;
+    onLogout: () => void;
+    onNavigateToDashboard: () => void;
+    onNavigateToMatches: () => void;
+    onNavigateToMessages: () => void;
+    onNavigateToAnalytics: () => void;
+    onNavigateToCreateProfile: () => void;
+    onNavigateToVerification: () => void;
+    onNavigateToRedFlagAlert: () => void;
+}
+
+export const Setting: React.FC<SettingProps> = ({
+    user,
+    onLogout,
+    onNavigateToDashboard,
+    onNavigateToMatches,
+    onNavigateToMessages,
+    onNavigateToAnalytics,
+    onNavigateToCreateProfile,
+    onNavigateToVerification,
+    onNavigateToRedFlagAlert
+}) => {
+    const [name, setName] = useState(user.fullName);
+    const [email, setEmail] = useState(user.email);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+    const handleSave = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        // Validation logic for password if user is trying to change it
+        if (newPassword || confirmPassword) {
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+            if (!currentPassword) {
+                alert('Please enter your current password to change it.');
+                return;
+            }
+        }
+
+        // Logic to save profile and/or password
+        alert('Settings updated successfully!');
+
+        // Clear sensitive fields
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+    };
+
+    return (
+        <div className="setting-page-container">
+            {/* Navbar */}
+            <nav className="setting-navbar">
+                <div className="nav-left">
+                    <div className="logo-section">
+                        <span className="logo-text">RoomEase</span>
+                    </div>
+                </div>
+
+                <div className="nav-center">
+                    <button className="nav-link" onClick={onNavigateToDashboard}>Home</button>
+                    <button className="nav-link" onClick={onNavigateToCreateProfile}>Create Profile</button>
+                    <button className="nav-link" onClick={onNavigateToMatches}>Match</button>
+                    <button className="nav-link">Map</button>
+                    <button className="nav-link">Listing</button>
+                    <button className="nav-link" onClick={onNavigateToMessages}>Message</button>
+                    <button className="nav-link" onClick={onNavigateToRedFlagAlert}>Red Flag Alert</button>
+                </div>
+
+                <div className="nav-right">
+                    <button className="nav-link active" style={{ marginRight: '20px' }} onClick={(e) => e.preventDefault()}>Setting</button>
+                    <button className="logout-btn" onClick={onLogout}>Logout</button>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <main className="setting-content">
+                <header className="setting-header">
+                    <div>
+                        <h1 className="setting-title">Settings</h1>
+                        <p className="setting-subtitle">Manage your account settings and preferences</p>
+                    </div>
+                    <button className="verify-profile-btn" onClick={onNavigateToVerification}>Verify Your Profile</button>
+                </header>
+
+                {/* Personal Information */}
+                {/* Account Settings */}
+                <section className="setting-card">
+                    <h2 className="card-title">Account Settings</h2>
+                    <form onSubmit={handleSave}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>Personal Information</h3>
+                        <div className="form-group">
+                            <label className="form-label">Full Name</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Email Address</label>
+                            <input
+                                type="email"
+                                className="form-input"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+
+                        <div style={{ margin: '32px 0', borderBottom: '1px solid #E5E7EB' }}></div>
+
+                        <h3 style={{ fontSize: '16px', fontWeight: 600, color: '#374151', marginBottom: '16px' }}>Change Password</h3>
+                        <div className="form-group">
+                            <label className="form-label">Current Password</label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                value={currentPassword}
+                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                placeholder="Leave blank to keep current password"
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">New Password</label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Confirm New Password</label>
+                            <input
+                                type="password"
+                                className="form-input"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="form-actions">
+                            <button type="submit" className="save-btn">Save Changes</button>
+                        </div>
+                    </form>
+                </section>
+            </main>
+        </div>
+    );
+};
+
+csss
+/* ===========================
+   Toast Notification
+=========================== */
+/* ===========================
+   Signup Specific Overrides
+   =========================== */
+/* Hide native password styling to prevent duplicates */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+.input-group-custom {
+  align-items: flex-start !important;
+  text-align: left !important;
+}
+
+.input-group-custom label {
+  text-align: left !important;
+  width: 100%;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 20px !important;
+  /* Reduced to 20px */
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #6b7280;
+}
+
+.toast-notification {
+  position: fixed;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #22c55e;
+  /* Green for success */
+  color: white;
+  padding: 10px 24px;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1050;
+  animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-weight: 500;
+  white-space: nowrap;
+  justify-content: center;
+  width: fit-content !important;
+  max-width: 90vw !important;
+}
+
+to {
+  top: 30px;
+  opacity: 1;
+}
+}
+
+/* ===== Terms & Privacy ===== */
+.terms-label {
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #ffffff !important;
+  /* White - User Request */
+}
+
+.terms-link {
+  text-decoration: underline;
+  color: #fbbf24 !important;
+  /* Yellow Link */
+  margin: 0 4px;
+  cursor: pointer;
+}
+
+.terms-link:hover {
+  color: #f59e0b !important;
+}

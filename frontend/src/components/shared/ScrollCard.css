@@ -1,0 +1,107 @@
+.scroll-card-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+    padding: 1rem;
+}
+
+.scroll-card {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+    min-height: 400px;
+    padding: var(--space-8);
+    background: rgba(255, 255, 255, 0.5);
+    /* Matching lighter step-card style */
+    border: 1px solid rgba(212, 116, 94, 0.1);
+    backdrop-filter: blur(16px) saturate(120%);
+    /* Optimized blur */
+    /* Heavy blur for "very blurry" effect */
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+    /* GPU promotion */
+    overflow: hidden;
+}
+
+.scroll-card:hover {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(212, 116, 94, 0.3);
+    backdrop-filter: blur(32px) saturate(150%);
+    -webkit-backdrop-filter: blur(32px) saturate(150%);
+    transform: translateZ(40px);
+}
+
+.scroll-card-visual {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+    transition: transform 0.5s ease;
+}
+
+.scroll-card:hover .scroll-card-visual {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.feature-icon-svg {
+    width: 64px;
+    height: 64px;
+    color: var(--color-primary);
+    stroke-width: 1.5px;
+}
+
+.scroll-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.scroll-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.scroll-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-dark, #000);
+}
+
+.scroll-card-description {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--color-gray-dark, #555);
+    opacity: 0.8;
+}
+
+.scroll-card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(212, 116, 94, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.scroll-card:hover .scroll-card-glow {
+    opacity: 1;
+}
+
+/* Base adjustment for the features grid to handle 3d */
+.features-grid {
+    perspective: 2000px;
+}

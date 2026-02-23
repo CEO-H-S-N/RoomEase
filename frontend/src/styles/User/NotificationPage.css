@@ -1,0 +1,180 @@
+/* NotificationPage.css - Drood Theme (Light Variation) */
+
+.notification-page-modern {
+    min-height: 100vh;
+    /* Allow natural growth */
+    /* Fixed height for internal scrolling */
+    background-color: #F4EBE6;
+    /* Light Warm Brown / Beige Background */
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+    color: #2C1810;
+    /* Dark Brown Text */
+    /* overflow: hidden; Removed to allow page scroll */
+    /* Prevent body scroll */
+}
+
+.notification-main-content {
+    flex: 1;
+    padding-top: 140px;
+    /* Increased space for fixed navbar */
+    padding-bottom: 40px;
+    padding-left: 20px;
+    padding-right: 20px;
+    display: flex;
+    justify-content: center;
+    /* overflow-y: auto; Removed to allow page scroll */
+    /* Enable vertical scrolling for content */
+}
+
+.notification-container {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 60px;
+    /* Extra space for scrolling */
+}
+
+/* Header Section */
+.notification-header-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #E6DCC3;
+    /* Light border */
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2C1810;
+    /* Dark Brown */
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+.notification-count {
+    background: #D4745E;
+    color: #FFFFFF;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Notification List Grid */
+.notification-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Notification Item Card */
+.notification-item {
+    background: #FFFFFF;
+    /* White cards for contrast */
+    border: 1px solid rgba(44, 24, 16, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    /* Subtle shadow */
+}
+
+.notification-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(44, 24, 16, 0.08);
+    /* Warm shadow */
+    border-color: rgba(212, 116, 94, 0.4);
+}
+
+.notification-item.unread {
+    background: #FFF8F6;
+    /* Very light tint for unread */
+    border-left: 4px solid #D4745E;
+}
+
+/* Icon Box */
+.notification-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #F4EBE6;
+    /* Match bg */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #D4745E;
+    flex-shrink: 0;
+}
+
+.notification-item.unread .notification-icon-box {
+    background: #D4745E;
+    color: #FFFFFF;
+}
+
+/* Content Box */
+.notification-content-box {
+    flex: 1;
+}
+
+.notification-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.notification-item-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2C1810;
+    margin: 0;
+}
+
+.notification-timestamp {
+    font-size: 0.85rem;
+    color: #8C7B75;
+    /* Muted warm gray */
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.notification-text {
+    font-size: 0.95rem;
+    color: #5D4037;
+    /* Medium brown */
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Unread Dot */
+.unread-dot {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 10px;
+    height: 10px;
+    background-color: #D4745E;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(212, 116, 94, 0.6);
+}
+
+/* Footer (Matching Dashboard) */
+.dashboard-footer {
+    background-color: #150d0c;
+    /* Slightly darker than main bg */
+    border-top: 1px solid #3d2b27;
+    padding: 2rem 0;
+    margin-top: auto;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.9rem;
+}

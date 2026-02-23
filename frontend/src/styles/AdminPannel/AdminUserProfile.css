@@ -1,0 +1,320 @@
+/* AdminUserProfile.css */
+
+.admin-profile-container {
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.admin-profile-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.back-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: #4b5563;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: #3b82f6;
+}
+
+/* Profile Header Card */
+.profile-header-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    border-left: 6px solid #3b82f6;
+}
+
+.profile-main-info {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.detail-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e5e7eb;
+}
+
+.detail-text h1 {
+    font-size: 28px;
+    margin: 0 0 4px 0;
+    color: #111827;
+}
+
+.detail-text p {
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+.badge-row {
+    display: flex;
+    gap: 10px;
+}
+
+.role-badge {
+    padding: 4px 12px;
+    background: #f3f4f6;
+    color: #4b5563;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.verified-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #ecfdf5;
+    color: #059669;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.header-stats {
+    display: flex;
+    gap: 40px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Grid Layout */
+.profile-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 30px;
+}
+
+.detail-section {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.section-header h2 {
+    font-size: 18px;
+    margin: 0;
+    color: #374151;
+}
+
+.section-icon.star {
+    color: #f59e0b;
+}
+
+.section-icon.history {
+    color: #3b82f6;
+}
+
+.section-icon.alert {
+    color: #ef4444;
+}
+
+/* Reviews List */
+.review-card {
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.review-top {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.review-author {
+    font-weight: 600;
+    color: #111827;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.review-comment {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* History List */
+.history-item {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 20px;
+    position: relative;
+}
+
+.history-item:last-child {
+    padding-bottom: 0;
+}
+
+.history-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 12px;
+    bottom: 0;
+    width: 2px;
+    background: #e5e7eb;
+}
+
+.history-dot {
+    width: 10px;
+    height: 10px;
+    background: #3b82f6;
+    border-radius: 50%;
+    margin-top: 5px;
+    z-index: 1;
+}
+
+.history-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.history-action {
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* Red Flags */
+.red-flag-section {
+    border-top: 4px solid #ef4444;
+}
+
+.red-flag-card {
+    background: #fef2f2;
+    padding: 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border-left: 3px solid #ef4444;
+}
+
+.red-flag-type {
+    font-weight: 700;
+    color: #991b1b;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.red-flag-desc {
+    font-size: 13px;
+    color: #b91c1c;
+    margin-bottom: 8px;
+}
+
+.red-flag-date {
+    font-size: 11px;
+    color: #f87171;
+}
+
+.no-flags {
+    color: #6b7280;
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Admin Actions */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-btn.approve {
+    background: #10b981;
+    color: white;
+}
+
+.admin-btn.suspend {
+    background: #f59e0b;
+    color: white;
+}
+
+.admin-btn.ban {
+    background: #374151;
+    color: white;
+}
+
+.admin-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Error Page */
+.admin-profile-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}

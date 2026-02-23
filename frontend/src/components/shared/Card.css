@@ -1,0 +1,36 @@
+.card-modern {
+    border-radius: var(--border-radius-xl);
+    padding: var(--space-6);
+    transition: all var(--transition-base);
+}
+
+.card-default {
+    background: var(--color-white);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm);
+}
+
+.card-glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: var(--shadow-md);
+}
+
+.card-elevated {
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+}
+
+.card-hover:hover {
+    box-shadow: var(--shadow-xl);
+}
+
+.card-clickable {
+    cursor: pointer;
+}
+
+.card-clickable:active {
+    transform: scale(0.98);
+}

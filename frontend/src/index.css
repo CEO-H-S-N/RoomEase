@@ -1,0 +1,86 @@
+* {
+  box-sizing: border-box;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Ensure the whole page uses the same gray background and no default body margin */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background-color: #f5f5f7;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.app-content-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.sections-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- Global Button Styles --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  /* Pill shape */
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+  text-decoration: none;
+  border: 1px solid transparent;
+  /* default border */
+}
+
+/* Primary Button: Dark Background, White Text */
+.btn-primary {
+  background-color: #1C2B33;
+  color: #ffffff;
+  border: 1px solid #1C2B33;
+}
+
+.btn-primary:hover {
+  background-color: #0d161a;
+  border-color: #0d161a;
+  transform: translateY(-1px);
+}
+
+/* Secondary Button: White Background, Dark Border, Dark Text */
+.btn-secondary {
+  background-color: #ffffff;
+  color: #1C2B33;
+  border: 1px solid #1C2B33;
+}
+
+.btn-secondary:hover {
+  background-color: #f5f5f7;
+  transform: translateY(-1px);
+}

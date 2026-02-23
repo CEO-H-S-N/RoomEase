@@ -1,0 +1,166 @@
+/* Global Theme Variables - Brown Color Scheme */
+:root {
+    /* Primary Brown Colors */
+    --primary-color: #D4745E;
+    --primary-hover: #C26652;
+    --primary-light: rgba(212, 116, 94, 0.1);
+    --primary-alpha: rgba(212, 116, 94, 0.08);
+
+    /* Dark Brown Colors */
+    --secondary-color: #2D1812;
+    --navbar-bg: rgba(45, 24, 18, 0.9);
+    --dark-brown: #3E241E;
+
+    /* Background */
+    --background-gradient: linear-gradient(180deg, rgba(212, 116, 94, 0.08) 0%, rgba(255, 255, 255, 0) 100%);
+    --background-color: #FFFFFF;
+    --card-bg: #FFFFFF;
+
+    /* Text Colors */
+    --text-main: #111827;
+    --text-secondary: #6B7280;
+    --text-light: #9CA3AF;
+    --text-white: #FFFFFF;
+
+    /* Border & Divider */
+    --border-color: #E5E7EB;
+    --border-light: rgba(212, 116, 94, 0.2);
+
+    /* Status Colors */
+    --success-color: #047857;
+    --success-bg: #ECFDF5;
+    --error-color: #991B1B;
+    --error-bg: #FEF2F2;
+    --warning-color: #D97706;
+    --warning-bg: #FEF3C7;
+
+    /* Spacing */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+
+    /* Border Radius */
+    --border-radius-sm: 0.375rem;
+    --border-radius-md: 0.5rem;
+    --border-radius-lg: 0.75rem;
+    --border-radius-xl: 1rem;
+    --border-radius-2xl: 1.5rem;
+    --border-radius-full: 9999px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+
+    /* Z-index */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal: 1040;
+    --z-popover: 1050;
+    --z-tooltip: 1060;
+
+    /* Transitions */
+    --transition-fast: 150ms ease;
+    --transition-base: 200ms ease;
+    --transition-slow: 300ms ease;
+
+    /* Font Sizes */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+
+    /* Font Weights */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+
+    /* Line Heights */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--text-main);
+    background: var(--background-gradient);
+    min-height: 100vh;
+}
+
+/* Utility Classes */
+.gradient-text {
+    background: linear-gradient(135deg, #FFF 0%, var(--primary-color) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brown-gradient-bg {
+    background: var(--background-gradient);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border: none;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--border-radius-lg);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--border-radius-lg);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-light);
+}

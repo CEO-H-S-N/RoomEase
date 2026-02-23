@@ -1,0 +1,250 @@
+/* Glass Theme - Signup (Refactored to Light Teal Theme) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-teal: #B85D47;
+    --primary-dark: #8B4513;
+    --primary-gradient: linear-gradient(135deg, #8B4513 0%, #B85D47 100%);
+    --bg-off-white: #FAF8F5;
+    --text-main: #3E3731;
+    --text-muted: #8B8378;
+    --border-light: #F5F1EC;
+    --card-shadow: 0 16px 32px rgba(139, 69, 19, 0.1);
+}
+
+.agent-login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: var(--bg-off-white);
+    background-image: none !important;
+    font-family: 'Poppins', sans-serif;
+    position: relative;
+    padding: 20px;
+}
+
+
+
+/* Main Card - Mapped from .glass-wrapper to Light Theme .box style */
+.glass-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+
+    background-color: #ffffff !important;
+    border-radius: 20px;
+
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-light);
+
+    text-align: left;
+    color: var(--text-main);
+    backdrop-filter: none;
+}
+
+/* Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+    margin-top: 0;
+}
+
+.login-header h2 {
+    color: var(--text-main);
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 1.75rem;
+    letter-spacing: -0.025em;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+/* Inputs */
+.input-group-custom {
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: left;
+    position: relative;
+}
+
+.input-group-custom label {
+    display: block;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.custom-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    background: #F9FAFB;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s;
+    box-shadow: none;
+}
+
+.custom-input::placeholder {
+    color: #9CA3AF;
+}
+
+.custom-input:focus {
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 0 3px rgba(20, 145, 155, 0.1);
+    background: #ffffff;
+}
+
+/* Force Autofill Styles */
+.custom-input:-webkit-autofill,
+.custom-input:-webkit-autofill:hover,
+.custom-input:-webkit-autofill:focus,
+.custom-input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #F9FAFB inset !important;
+    -webkit-text-fill-color: var(--text-main) !important;
+}
+
+/* Password Toggle */
+.password-toggle-btn {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    /* Center in input */
+    transform: translateY(10%);
+    /* Adjust because label is above */
+    /* Wait, structure is label + div(input+btn). If button is sibling of input inside a div, 50% is relative to that div. */
+    /* Let's check TSX: label is sibling to div which contains input and button. */
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #9CA3AF;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle-btn:hover {
+    color: var(--primary-teal);
+}
+
+/* Terms */
+.forget {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+}
+
+.terms-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-main);
+    font-size: 0.85rem;
+}
+
+.terms-label input {
+    margin-right: 8px;
+    accent-color: var(--primary-teal) !important;
+}
+
+.terms-link {
+    color: var(--primary-teal);
+    text-decoration: none;
+    font-weight: 600;
+    margin: 0 4px;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+/* Submit Button */
+.btn-dark-pill {
+    width: 100%;
+    height: 50px;
+    background: var(--primary-gradient);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.15);
+}
+
+.btn-dark-pill:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(20, 145, 155, 0.2);
+}
+
+.btn-dark-pill:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Register Link */
+.register-link {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.register-link a {
+    color: var(--primary-teal);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+/* Toast */
+.toast-notification {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #22c55e;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 50px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1050;
+    animation: slideDown 0.4s ease-out;
+    font-weight: 500;
+}
+
+@keyframes slideDown {
+    from {
+        top: -60px;
+        opacity: 0;
+    }
+
+    to {
+        top: 30px;
+        opacity: 1;
+    }
+}

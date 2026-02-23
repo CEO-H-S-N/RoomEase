@@ -1,0 +1,87 @@
+2026-02-16 01:25:39.684754 - POST /users/register
+    -> Status: 200
+2026-02-16 01:25:45.439499 - GET /users/69922bc4907164d99b0d14b0/profile
+    -> Status: 404
+2026-02-16 01:26:03.353797 - POST /profiles/
+2026-02-16 01:28:11.989338 - POST /users/register
+    -> Status: 200
+2026-02-16 01:28:18.510438 - POST /users/login
+    -> Status: 200
+2026-02-16 01:28:21.239472 - POST /profiles
+    -> Status: 422
+2026-02-16 01:31:47.555866 - GET /users/me
+2026-02-16 01:31:47.665595 - GET /users/me
+    -> Status: 200
+    -> Status: 200
+2026-02-16 01:31:47.902606 - GET /ai/housing_listings
+2026-02-16 01:31:47.934863 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:31:48.343618 - GET /ai/housing_listings
+    -> Status: 200
+2026-02-16 01:31:48.610074 - GET /ai/housing_listings
+    -> Status: 200
+2026-02-16 01:31:48.766952 - GET /ai/housing_listings
+    -> Status: 200
+    -> Status: 200
+2026-02-16 01:31:49.210255 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:31:49.502162 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:31:49.781222 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:32:18.248774 - OPTIONS /users/register
+    -> Status: 200
+2026-02-16 01:32:18.556766 - POST /users/register
+    -> Status: 200
+2026-02-16 01:32:23.564152 - GET /users/69922d530a48bd7db3180a14/profile
+    -> Status: 404
+2026-02-16 01:32:37.435866 - OPTIONS /profiles
+    -> Status: 200
+2026-02-16 01:32:37.455626 - POST /profiles
+2026-02-16 01:34:19.437974 - GET /users/me
+2026-02-16 01:34:19.445949 - GET /users/me
+    -> Status: 200
+    -> Status: 200
+2026-02-16 01:34:19.789376 - GET /ai/housing_listings
+2026-02-16 01:34:19.792483 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:34:20.215789 - GET /ai/housing_listings
+    -> Status: 200
+2026-02-16 01:34:20.351002 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:34:20.378010 - GET /ai/housing_listings
+    -> Status: 200
+2026-02-16 01:34:20.546351 - GET /ai/housing_listings
+    -> Status: 200
+2026-02-16 01:34:20.647430 - GET /profiles/
+    -> Status: 200
+    -> Status: 200
+2026-02-16 01:34:20.956736 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:34:24.676900 - GET /users/698ed17a546bb586e8ea3ac7/profile
+    -> Status: 404
+2026-02-16 01:34:24.829454 - GET /users/698ed17a546bb586e8ea3ac7/profile
+    -> Status: 404
+2026-02-16 01:34:29.627731 - GET /ai/housing_listings
+2026-02-16 01:34:29.634585 - GET /profiles/
+    -> Status: 200
+2026-02-16 01:34:30.090850 - GET /ai/housing_listings
+    -> Status: 200
+2026-02-16 01:34:30.208733 - GET /profiles/
+    -> Status: 200
+    -> Status: 200
+2026-02-16 01:36:23.669118 - POST /users/register
+    -> Status: 200
+2026-02-16 01:36:29.651435 - GET /users/69922e4852a0641c271c8ca6/profile
+2026-02-16 01:36:54.655850 - POST /profiles
+2026-02-16 01:38:26.522530 - POST /users/register
+    -> Status: 200
+2026-02-16 01:38:31.833509 - GET /users/69922ec35b08e12c8afff2fd/profile
+    -> Status: 404
+2026-02-16 01:38:48.663416 - POST /profiles
+2026-02-16 01:40:01.152438 - POST /users/register
+    -> Status: 200
+2026-02-16 01:40:08.150876 - POST /users/login
+    -> Status: 200
+2026-02-16 01:40:11.121302 - POST /profiles
+    -> Status: 200

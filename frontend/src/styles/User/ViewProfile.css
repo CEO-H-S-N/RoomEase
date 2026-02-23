@@ -1,0 +1,285 @@
+/* src/styles/User/ViewProfile.css */
+
+.view-profile-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #ffffff;
+    /* Changed to white to match Settings */
+    font-family: 'Inter', sans-serif;
+}
+
+.view-profile-content {
+    flex: 1;
+    padding: 32px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Independent Layout */
+.profile-container-fluid {
+    width: 100%;
+}
+
+.profile-main-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Tabs Styling (Copied from SettingPage.css for Independence) */
+.active-tab {
+    background-color: transparent !important;
+    color: var(--primary-color) !important;
+    border-bottom: 3px solid var(--primary-color) !important;
+    border-radius: 0 !important;
+    font-weight: 600;
+}
+
+.text-muted {
+    color: #6B7280 !important;
+}
+
+/* Animations (Copied from SettingPage.css) */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Personal Details Section */
+.profile-header-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.profile-identity-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.profile-large-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.profile-identity h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.verified-badge-large {
+    font-size: 14px;
+    background-color: rgba(212, 116, 94, 0.1);
+    color: var(--primary-color);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.profile-location {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.section-block {
+    margin-bottom: 32px;
+}
+
+.section-block h3,
+.info-grid-section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 16px;
+}
+
+.profile-bio {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 800px;
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 24px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-item .label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.info-item .value {
+    font-size: 16px;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.info-item .value.highlight {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Habits Tags */
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.profile-tag {
+    background-color: #F3F4F6;
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #E5E7EB;
+}
+
+.preference-list {
+    list-style-type: disc;
+    padding-left: 20px;
+    color: var(--text-secondary);
+}
+
+.preference-list li {
+    margin-bottom: 8px;
+}
+
+/* Navbar Styles Copied from DashboardPage.css for Independence */
+:root {
+    --primary-color: #D4745E;
+    --text-main: #111827;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary-color);
+}
+
+.btn-standard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 16px;
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--text-main);
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn-standard:hover {
+    background-color: #F3F4F6;
+    color: #000000 !important;
+    border-color: #000000;
+    transform: translateY(-1px);
+}
+
+/* Prominent CTA Button (Added for Message Button) */
+.btn-prominent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 32px;
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--text-main);
+    border-radius: 9999px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.btn-prominent:hover {
+    background-color: #F3F4F6;
+    color: #000000 !important;
+    border-color: #000000;
+    transform: translateY(-1px);
+}
+
+/* Navigation Arrow Buttons */
+.nav-arrow-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border-color);
+    background-color: white;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-arrow-btn:hover {
+    background-color: #F3F4F6;
+    color: var(--text-main);
+    border-color: var(--text-main);
+    transform: translateY(-1px);
+}

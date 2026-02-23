@@ -1,0 +1,292 @@
+/* Property Owner Dashboard Styles - Drood Theme */
+:root {
+    --drood-bg: #1A1110;
+    --drood-card-bg: #2C1E1C;
+    --drood-text: #FFFFFF;
+    --drood-text-muted: #9CA3AF;
+    --drood-accent: #D4745E;
+    --drood-border: rgba(255, 255, 255, 0.08);
+    --drood-hover: rgba(212, 116, 94, 0.1);
+}
+
+.dashboard-container {
+    min-height: 100vh;
+    background: var(--drood-bg);
+    color: var(--drood-text);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Navbar Overrides */
+.navbar {
+    background: var(--drood-bg) !important;
+    border-bottom: 1px solid var(--drood-border) !important;
+}
+
+.navbar-brand .brand-text {
+    color: var(--drood-text) !important;
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand .brand-icon {
+    color: var(--drood-accent);
+}
+
+.navbar-toggler {
+    border-color: var(--drood-border);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.header-title-group h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--drood-text);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-subtitle {
+    color: var(--drood-text-muted);
+    margin-top: 0.25rem;
+}
+
+.verified-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(212, 116, 94, 0.15);
+    color: var(--drood-accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid rgba(212, 116, 94, 0.3);
+}
+
+.header-stats {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* Buttons */
+.btn-standard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    border: 1px solid var(--drood-border);
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--drood-text);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-standard:hover {
+    background: var(--drood-hover);
+    border-color: var(--drood-accent);
+    color: var(--drood-text);
+}
+
+.btn-prominent {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--drood-accent);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-prominent:hover {
+    background: #b95d46;
+    /* Darker accent */
+    transform: translateY(-1px);
+}
+
+/* Cards */
+.card {
+    background: var(--drood-card-bg);
+    border: 1px solid var(--drood-border);
+}
+
+.section-title {
+    color: var(--drood-text);
+}
+
+.text-dark {
+    color: var(--drood-text) !important;
+}
+
+.text-secondary {
+    color: var(--drood-text-muted) !important;
+}
+
+.text-white {
+    color: var(--drood-text) !important;
+}
+
+/* Listings Section */
+.saved-listings-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Stats Styling */
+.stat-icon-bg {
+    background: rgba(212, 116, 94, 0.1) !important;
+}
+
+.stat-icon {
+    color: var(--drood-accent) !important;
+}
+
+.stat-mini-icon-bg {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--drood-border);
+}
+
+.stat-mini-icon {
+    stroke: var(--drood-text-muted);
+}
+
+.hover-scale {
+    transition: transform 0.2s ease, background 0.2s;
+}
+
+.hover-scale:hover {
+    background: var(--drood-hover);
+    transform: translateY(-2px);
+}
+
+.hover-scale:hover .stat-mini-icon {
+    stroke: var(--drood-accent);
+}
+
+.hover-scale:hover .fw-bold {
+    color: var(--drood-accent);
+}
+
+/* Listing Cards */
+.listing-card-modern {
+    background: var(--drood-card-bg);
+    border: 1px solid var(--drood-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.listing-card-modern:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    border-color: var(--drood-accent);
+}
+
+.listing-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.listing-card-modern:hover .listing-img {
+    opacity: 1;
+}
+
+.listing-details {
+    padding: 1rem;
+}
+
+.listing-title {
+    font-weight: 600;
+    font-size: 15px !important;
+    color: var(--drood-text);
+    margin-bottom: 0.2rem;
+    line-height: 1.3 !important;
+}
+
+.listing-price {
+    color: var(--drood-accent);
+    font-weight: 600;
+    font-size: 14px !important;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--drood-text) !important;
+    border: 1px solid var(--drood-border);
+    font-weight: 500;
+}
+
+.badge.bg-success {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.badge.bg-primary {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #60a5fa !important;
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Footer */
+.footer {
+    background: #150D0C;
+    /* Slightly darker than bg */
+    border-top: 1px solid var(--drood-border);
+    color: var(--drood-text-muted);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.footer-bottom p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--drood-text-muted);
+    opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-title-group h1 {
+        font-size: 1.5rem;
+    }
+}

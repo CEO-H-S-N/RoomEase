@@ -1,0 +1,413 @@
+import { useEffect } from 'react';
+import { Home } from "lucide-react";
+import AOS from 'aos';
+import '../styles/LandingPage.css';
+
+interface LandingPageProps {
+  onNavigateToLogin: () => void;
+  onNavigateToSignup?: () => void;
+}
+
+
+export function LandingPage({
+  onNavigateToLogin,
+  onNavigateToSignup,
+}: LandingPageProps) {
+
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      easing: 'ease-in-out',
+      once: true,
+      mirror: false
+    });
+  }, []);
+
+  return (
+    <div className="landing-container">
+      {/* Navigation Bar */}
+      <nav className="navbar">
+        <div className="nav-brand">
+          <Home size={28} strokeWidth={2.5} className="text-teal" />
+          <span>RoomEase</span>
+        </div>
+
+        <div className="nav-actions">
+          <button className="nav-btn nav-btn-login" onClick={onNavigateToLogin}>
+            Login
+          </button>
+          <button className="nav-btn nav-btn-signup" onClick={onNavigateToSignup}>
+            Sign Up
+          </button>
+        </div>
+      </nav>
+
+      <main>
+        {/* Hero Section */}
+        <section className="hero-section">
+          <div className="hero-overlay"></div>
+          <div className="hero-content">
+            <h1 className="hero-title" data-aos="fade-up">Find Your Perfect Roommate</h1>
+            <p className="hero-subtitle" data-aos="fade-up" data-aos-delay="100">
+              Swipe to Connect with your compatible roomie.
+            </p>
+            <div className="hero-cta-group" data-aos="fade-up" data-aos-delay="200">
+              {/* CTA Buttons would go here if needed */}
+            </div>
+          </div>
+        </section>
+
+        {/* Discover Section */}
+        <section className="discover-section">
+          <div className="discover-container">
+            <div className="discover-text" data-aos="fade-right">
+              <h2 className="discover-heading">Discover and<br />Connect with<br />Potential<br />Roommates</h2>
+              <p className="discover-description">
+                RoomEase offers a seamless way to find people who match your lifestyle and preferences. Say goodbye to awkward interviews and endless searching. Our intelligent matching system does the hard work for you, so you can focus on connecting with individuals who could be your ideal roommate.
+              </p>
+            </div>
+            <div className="discover-image-wrapper" data-aos="zoom-in">
+              <img
+                src="/assets/images/pexels-rotwe1n-ordinyuki-392997481-35133662.jpg"
+                alt="Group of friends"
+                className="discover-image"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Key Features Section */}
+        <section className="key-features-section">
+          <h2 className="key-features-title" data-aos="fade-up">Key Features Designed for Easier Roommate Finding</h2>
+
+          <div className="features-grid">
+            {/* Feature 1 */}
+            <div className="feature-card" data-aos="fade-up" data-aos-delay="100">
+              <div className="mb-4 rounded-4 overflow-hidden" style={{ height: '250px' }}>
+                <img src="/assets/images/Messaging.jpg" alt="Secure Messaging" className="img-fluid w-100 h-100 object-fit-cover feature-img" />
+              </div>
+              <h3 className="h4 fw-bold mb-3">Secure In-App Messaging</h3>
+              <p className="text-muted">Connect and chat directly with potential roommates within the app to get to know them better.</p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="feature-card" data-aos="fade-up" data-aos-delay="200">
+              <div className="mb-4 rounded-4 overflow-hidden" style={{ height: '250px' }}>
+                <img src="/assets/images/feature_matching.png" alt="Detailed Preference Matching" className="img-fluid w-100 h-100 object-fit-cover feature-img" />
+              </div>
+              <h3 className="h4 fw-bold mb-3">Detailed Preference Matching</h3>
+              <p className="text-muted">Tell us about your lifestyle, habits, and preferences, and we'll find roommates who align with your criteria.</p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="feature-card" data-aos="fade-up" data-aos-delay="300">
+              <div className="mb-4 rounded-4 overflow-hidden" style={{ height: '250px' }}>
+                <img src="/assets/images/feature_swipe.png" alt="Intuitive Swipe Interface" className="img-fluid w-100 h-100 object-fit-cover feature-img" />
+              </div>
+              <h3 className="h4 fw-bold mb-3">Intuitive Swipe Interface</h3>
+              <p className="text-muted">Browse potential roommates effortlessly. Swipe right to express interest or left to move on.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* How to Get Started Section */}
+        <section className="key-features-section bg-white" style={{ paddingTop: '0' }}>
+          <div className="container" data-aos="fade-up">
+            <div className="text-center mb-5">
+              <h2 className="fw-bold display-5">How to Get Started?</h2>
+            </div>
+            <div className="row gy-4">
+              <div className="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div className="match-card h-100 p-4 text-white text-center rounded-4" style={{ backgroundColor: '#008C9E' }}>
+                  <h3 className="h4 fw-bold mb-3">Create a Profile</h3>
+                  <p className="mb-0 opacity-75">Start by building your personalized profile. Share your lifestyle, interests, and living preferences.</p>
+                </div>
+              </div>
+              <div className="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div className="match-card h-100 p-4 text-white text-center rounded-4" style={{ backgroundColor: '#008C9E' }}>
+                  <h3 className="h4 fw-bold mb-3">Set your preferences</h3>
+                  <p className="mb-0 opacity-75">Customize your search with specific preferences like budget, location, and living habits.</p>
+                </div>
+              </div>
+              <div className="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div className="match-card h-100 p-4 text-white text-center rounded-4" style={{ backgroundColor: '#008C9E' }}>
+                  <h3 className="h4 fw-bold mb-3">Swipe and Match</h3>
+                  <p className="mb-0 opacity-75">Browse through potential roommates with ease! Swipe through profiles and connect.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  );
+}
+
+/* RoomEase Landing Page Styles */
+
+:root {
+  /* Teal Theme Palette */
+  --primary-teal: #14919B;
+  --primary-dark: #0E656D;
+  --primary-light: #4ACBD6;
+  --accent-orange: #FF7F50;
+  --bg-white: #ffffff;
+  --bg-off-white: #f5fcfd;
+  --text-main: #1C2B33;
+  --text-muted: #5A6B75;
+  --border-light: #E0E8EB;
+  --shadow-sm: 0 2px 4px rgba(20, 145, 155, 0.1);
+  --shadow-md: 0 8px 16px rgba(20, 145, 155, 0.15);
+  --shadow-lg: 0 16px 32px rgba(20, 145, 155, 0.2);
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --font-main: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Page fade-in animation */
+body {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.landing-container {
+  min-height: 100vh;
+  font-family: var(--font-main);
+  background-color: var(--bg-white);
+  color: var(--text-main);
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1rem 2rem;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.5s ease;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-teal);
+}
+
+.nav-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.nav-btn-login,
+.nav-btn-signup {
+  background-color: #374151;
+  /* Gray-700 */
+  color: white;
+  border: none;
+  /* No border as per selection button style */
+}
+
+.nav-btn-login:hover,
+.nav-btn-signup:hover {
+  background-color: #111827;
+  /* Darker Gray Hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Hero Section --- */
+.hero-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  width: 100%;
+  min-height: 80vh;
+  background-image: url('/assets/images/Securemessaging.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: white;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.hero-cta-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+/* --- Discover Section --- */
+.discover-section {
+  padding: 6rem 2rem;
+  background-color: #f0f8fa;
+}
+
+.discover-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  flex-direction: row;
+}
+
+.discover-text {
+  flex: 1;
+  text-align: left;
+}
+
+.discover-heading {
+  font-size: 3.5rem;
+  line-height: 1.2;
+  color: var(--primary-teal);
+  font-weight: 900;
+  margin-bottom: 2rem;
+  letter-spacing: -1px;
+}
+
+.discover-description {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #666666;
+  font-weight: 500;
+}
+
+.discover-image-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.discover-image {
+  width: 100%;
+  max-width: 600px;
+  height: 450px;
+  border-radius: 28px;
+  border: 6px solid #14919B;
+  box-shadow: 0 16px 40px rgba(20, 145, 155, 0.2);
+  object-fit: cover;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.discover-image:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(20, 145, 155, 0.3);
+}
+
+/* --- Key Features Section --- */
+.key-features-section {
+  padding: 5rem 2rem;
+  background-color: var(--bg-white);
+  text-align: center;
+}
+
+.key-features-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--text-main);
+  margin-bottom: 4rem;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  text-align: left;
+  border-radius: var(--radius-lg);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-img {
+  transition: transform 0.5s ease;
+}
+
+.feature-card:hover .feature-img {
+  transform: scale(1.05);
+}
+
+/* --- How to Get Started Section --- */
+.match-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.match-card:hover {
+  transform: translateY(-6px);
+}

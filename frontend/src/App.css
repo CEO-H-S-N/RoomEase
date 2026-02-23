@@ -1,0 +1,98 @@
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #f9fafb;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.app-content-inner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.sections-container {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Preloader CSS from User */
+body .swm-loader-holder {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 999999;
+  top: 0;
+  left: 0;
+  --swm-loader-color-dark: #222;
+  /* Default fallback */
+  --swm-loader-color-body: #fff;
+  /* Default fallback */
+  --swm-loader-color-light: #eee;
+  background: var(--swm-loader-color-body);
+}
+
+body.swm-page-preloader-dark .swm-loader-holder {
+  /* Dark mode overrides if body class is present */
+  background: #121212;
+}
+
+.swm-loader-inner {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+}
+
+.swm-circular-spin {
+  height: 60px;
+  width: 60px;
+  animation: swm-circular-spin 1s infinite linear;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-radius: 100%;
+}
+
+body.swm-page-preloader-dark .swm-circular-spin {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.swm-circular-spin:before {
+  content: "";
+  display: block;
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  height: 100%;
+  width: 100%;
+  border-top: 3px solid #333;
+  /* Fallback color */
+  border-left: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-radius: 100%;
+  box-sizing: content-box;
+}
+
+@keyframes swm-circular-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}

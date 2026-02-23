@@ -1,0 +1,653 @@
+/* MessagePage.css - Professional Messaging Redesign */
+
+:root {
+    --mp-primary: #D4745E;
+    --mp-primary-dark: #B55B4B;
+    --mp-primary-light: rgba(212, 116, 94, 0.1);
+    --mp-bg-soft: #F9FAFB;
+    --mp-border: #E5E7EB;
+    --mp-text-primary: #111827;
+    --mp-text-secondary: #6B7280;
+    --mp-white: #FFFFFF;
+    --mp-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --mp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.message-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 100vw;
+    background-color: #F8F9FA;
+    /* Neutral professional background */
+    color: var(--mp-text-primary);
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.mp-content-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 74px);
+    max-width: 100%;
+    margin: 0;
+    width: 100%;
+    padding: 1.5rem 2.5rem;
+    gap: 2.5rem;
+}
+
+/* --- Sidebar Styling (Left) --- */
+.mp-sidebar {
+    width: 400px;
+    /* Slimmer left sidebar */
+    background: var(--mp-white);
+    border: 1px solid var(--mp-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--mp-shadow-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.mp-sidebar-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--mp-border);
+    background-color: var(--mp-white);
+}
+
+.mp-search-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.mp-search-input {
+    width: 100%;
+    background: var(--mp-bg-soft);
+    border: 1px solid var(--mp-border);
+    color: var(--mp-text-primary);
+    padding: 0.65rem 1rem 0.65rem 2.5rem;
+    /* Space for icon */
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.mp-search-input:focus {
+    background: var(--mp-white);
+    border-color: var(--mp-primary);
+    box-shadow: 0 0 0 3px var(--mp-primary-light);
+}
+
+.mp-tabs {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--mp-text-secondary);
+    cursor: pointer;
+    padding-bottom: 0.25rem;
+}
+
+.mp-tab {
+    padding-bottom: 0.5rem;
+    transition: color 0.2s, border-bottom 0.2s;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+}
+
+.mp-tab:hover {
+    color: var(--mp-text-primary);
+}
+
+.mp-tab.active {
+    color: var(--mp-primary);
+    border-bottom-color: var(--mp-primary);
+    font-weight: 600;
+}
+
+.mp-contact-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+}
+
+.mp-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.mp-contact-item:hover {
+    background-color: var(--mp-bg-soft);
+}
+
+.mp-contact-item.selected {
+    background-color: var(--mp-primary-light);
+    border-left-color: var(--mp-primary);
+}
+
+/* Avatar styling */
+.mp-avatar-container {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.mp-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--mp-border);
+}
+
+.mp-status-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #10B981;
+    /* Success green */
+    border: 2px solid var(--mp-white);
+}
+
+.mp-status-indicator.offline {
+    background-color: var(--mp-text-secondary);
+}
+
+/* Contact Info */
+.mp-contact-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.mp-contact-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.mp-contact-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--mp-text-primary);
+}
+
+.mp-last-msg-time {
+    font-size: 0.75rem;
+    color: var(--mp-text-secondary);
+}
+
+.mp-last-msg-preview {
+    font-size: 0.85rem;
+    color: var(--mp-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-unread-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--mp-primary);
+    border-radius: 50%;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+}
+
+.mp-contact-item.selected .mp-contact-name {
+    color: var(--mp-primary-dark);
+}
+
+/* --- Chat Area Styling (Center) --- */
+.mp-main-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-width: 0;
+    /* Important for flex child with overflow */
+}
+
+.mp-chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--mp-white);
+    border: 1px solid var(--mp-border);
+    border-radius: 12px;
+    box-shadow: var(--mp-shadow-sm);
+    overflow: hidden;
+}
+
+.mp-chat-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--mp-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--mp-white);
+    height: 80px;
+    flex-shrink: 0;
+}
+
+.mp-chat-header-user {
+    display: flex;
+    align-items: center;
+}
+
+.mp-header-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--mp-text-primary);
+    line-height: 1.2;
+}
+
+.mp-header-status {
+    font-size: 0.8rem;
+    color: #10B981;
+    font-weight: 500;
+}
+
+.mp-header-actions {
+    display: flex;
+    gap: 1rem;
+    color: var(--mp-text-secondary);
+}
+
+.mp-header-icon {
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.mp-header-icon:hover {
+    color: var(--mp-primary);
+}
+
+/* Messages List */
+.mp-messages-list {
+    flex: 1;
+    padding: 1.5rem 2rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background-color: #F8F9FA;
+    /* subtle pattern or plain */
+}
+
+.mp-message-row {
+    display: flex;
+    gap: 1rem;
+    max-width: 70%;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mp-message-row.received {
+    align-self: flex-start;
+}
+
+.mp-message-row.sent {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.mp-msg-avatar-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Message Bubbles */
+.mp-msg-bubble {
+    padding: 1.25rem 2rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.mp-message-row.received .mp-msg-bubble {
+    background: var(--mp-white);
+    color: #374151;
+    border: 1px solid var(--mp-border);
+    border-top-left-radius: 2px;
+}
+
+.mp-message-row.sent .mp-msg-bubble {
+    background: var(--mp-primary);
+    color: white;
+    box-shadow: var(--mp-shadow-md);
+    border-top-right-radius: 2px;
+}
+
+.mp-msg-time-footer {
+    display: block;
+    font-size: 0.7rem;
+    margin-top: 4px;
+    opacity: 0.8;
+    text-align: right;
+}
+
+/* Date Divider */
+.mp-date-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem 0 1rem;
+    position: relative;
+}
+
+.mp-date-divider::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--mp-border);
+    z-index: 1;
+}
+
+.mp-date-text {
+    background-color: #F8F9FA;
+    padding: 0.25rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mp-text-secondary);
+    border-radius: 20px;
+    border: 1px solid var(--mp-border);
+    position: relative;
+    z-index: 2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Input Area */
+.mp-input-area {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--mp-border);
+    background-color: var(--mp-white);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mp-input-wrapper {
+    flex: 1;
+    background: var(--mp-bg-soft);
+    border: 1px solid var(--mp-border);
+    border-radius: 24px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.2s;
+}
+
+.mp-input-wrapper:focus-within {
+    background: var(--mp-white);
+    border-color: var(--mp-primary);
+    box-shadow: 0 0 0 3px var(--mp-primary-light);
+}
+
+.mp-chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--mp-text-primary);
+    outline: none;
+    font-size: 0.95rem;
+}
+
+.mp-input-icon {
+    font-size: 1.2rem;
+    color: var(--mp-text-secondary);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.mp-input-icon:hover {
+    color: var(--mp-primary);
+}
+
+.mp-send-btn-custom {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--mp-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(212, 116, 94, 0.3);
+}
+
+.mp-send-btn-custom:hover {
+    background: var(--mp-primary-dark);
+    transform: scale(1.05);
+}
+
+/* --- Profile Sidebar (Right) --- */
+.mp-profile-sidebar {
+    width: 380px;
+    background: var(--mp-white);
+    border: 1px solid var(--mp-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--mp-shadow-sm);
+    overflow: hidden;
+    flex-shrink: 0;
+    animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.mp-ps-header {
+    padding: 2rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--mp-border);
+}
+
+.mp-ps-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 3px solid var(--mp-white);
+    box-shadow: var(--mp-shadow-md);
+}
+
+.mp-ps-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--mp-text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.mp-ps-status {
+    font-size: 0.85rem;
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.mp-ps-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.mp-ps-section {
+    margin-bottom: 1.5rem;
+}
+
+.mp-ps-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--mp-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.mp-ps-text {
+    font-size: 0.9rem;
+    color: var(--mp-text-primary);
+    line-height: 1.4;
+}
+
+.mp-ps-badge-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.mp-ps-badge {
+    background: var(--mp-bg-soft);
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: var(--mp-text-primary);
+    border: 1px solid var(--mp-border);
+}
+
+.mp-ps-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--mp-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.btn-ps-action {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-ps-view-profile {
+    background: var(--mp-primary);
+    color: var(--mp-white);
+    border: none;
+}
+
+.btn-ps-view-profile:hover {
+    background: var(--mp-primary-dark);
+}
+
+.btn-ps-block {
+    background: var(--mp-white);
+    color: #EF4444;
+    border: 1px solid #FEE2E2;
+}
+
+.btn-ps-block:hover {
+    background: #FEF2F2;
+}
+
+/* Scrollbar styling */
+.mp-contact-list::-webkit-scrollbar,
+.mp-messages-list::-webkit-scrollbar,
+.mp-ps-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mp-contact-list::-webkit-scrollbar-track,
+.mp-messages-list::-webkit-scrollbar-track,
+.mp-ps-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mp-contact-list::-webkit-scrollbar-thumb,
+.mp-messages-list::-webkit-scrollbar-thumb,
+.mp-ps-body::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+}
+
+.mp-contact-list::-webkit-scrollbar-thumb:hover,
+.mp-messages-list::-webkit-scrollbar-thumb:hover,
+.mp-ps-body::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.mp-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--mp-text-secondary);
+    background-color: var(--mp-bg-soft);
+    border-radius: 12px;
+    border: 1px solid var(--mp-border);
+    text-align: center;
+    padding: 2rem;
+}
+
+.mp-empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: var(--mp-text-secondary);
+    opacity: 0.3;
+}
+
+.mp-empty-state h3 {
+    margin-bottom: 0.5rem;
+    color: var(--mp-text-primary);
+}
+
+/* Footer override */
+.footer {
+    display: none;
+}
