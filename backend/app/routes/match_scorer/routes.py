@@ -7,16 +7,27 @@ from .match_response_schemas import RichMatchResult
 from routes.profiles.profiles_response_schemas import ProfileResponse
 from routes.users.users_response_schemas import UserResponse
 from typing import List
+import asyncio
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+import time
 
 router = APIRouter(prefix="/ai", tags=["Match"])
 
+# Thread pool for running blocking pipeline calls without blocking the event loop
+_executor = ThreadPoolExecutor(max_workers=4)
+
+def _run_pipeline_sync(user_profile: dict, top_n: int) -> list:
+    """Runs the blocking pipeline in a thread."""
+    return match_pipeline.get_best_matches(user_profile, top_n=top_n)
+
 @router.get("/best_matches", response_model=List[RichMatchResult])
-def best_matches_route(
+async def best_matches_route(
     current_user: UserResponse = Depends(get_user_from_cookie),
     top_n: int = 5
 ):
     """
     Get top N best matching roommate profiles for the logged-in user using the 4-agent pipeline.
+    Runs asynchronously so it never blocks the server.
     """
     if not match_pipeline:
         raise HTTPException(status_code=503, detail="Match pipeline not initialized")
@@ -35,7 +46,7 @@ def best_matches_route(
 
     profile_id = user_doc.get("profile_id")
     if not profile_id:
-        raise HTTPException(status_code=404, detail="No profile assigned to this user")
+        raise HTTPException(status_code=404, detail="No profile assigned to this user. Please complete your profile first.")
 
     # Fetch user's profile
     try:
@@ -62,10 +73,22 @@ def best_matches_route(
         "full_name": profile_doc.get("full_name"),
     }
 
-    # Get best matches using the pipeline
+    # Run the blocking pipeline in a thread pool with a 60s timeout
+    loop = asyncio.get_event_loop()
+    start = time.time()
     try:
-        results = match_pipeline.get_best_matches(user_profile, top_n=top_n)
+        results = await asyncio.wait_for(
+            loop.run_in_executor(_executor, _run_pipeline_sync, user_profile, top_n),
+            timeout=60.0
+        )
+        elapsed = time.time() - start
+        print(f"[INFO] Pipeline completed in {elapsed:.1f}s, returned {len(results)} matches")
         return results
+    except asyncio.TimeoutError:
+        raise HTTPException(
+            status_code=504,
+            detail="Match pipeline timed out (>60s). The AI agents are busy - please try again in a moment."
+        )
     except Exception as e:
-        print(f"Error in match pipeline: {e}")
+        print(f"[ERROR] Match pipeline error: {e}")
         raise HTTPException(status_code=500, detail=f"Match pipeline error: {e}")

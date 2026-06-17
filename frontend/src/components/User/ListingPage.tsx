@@ -47,7 +47,6 @@ export const ListingPage: React.FC<ListingPageProps> = ({
     onNavigateToVerification,
     onNavigateToListing,
     onNavigateToProfiles,
-    onNavigateToMap,
     onNavigateToListingDetails
 }) => {
     const [listings, setListings] = useState<PropertyListing[]>([]);
@@ -60,16 +59,6 @@ export const ListingPage: React.FC<ListingPageProps> = ({
         maxPrice: '',
         minRooms: ''
     });
-
-    // Parse search query from URL on mount
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const cityParam = params.get('city');
-        if (cityParam) {
-            setFilters(prev => ({ ...prev, city: cityParam }));
-            setShowFilters(true); // Optional: show filters if we are searching
-        }
-    }, []);
 
     // Fetch listings from backend
     useEffect(() => {
@@ -124,14 +113,13 @@ export const ListingPage: React.FC<ListingPageProps> = ({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'chat': window.location.href = '/messages'; break; // Workaround if onNavigateToMessages is missing
             case 'profiles': onNavigateToProfiles?.(); break;
             case 'profile': onNavigateToSetting?.(); break;
             case 'edit-profile': onNavigateToSetting?.(); break;
             case 'change-password': onNavigateToChangePassword?.(); break;
             case 'verification': onNavigateToVerification?.(); break;
-            case 'map': onNavigateToMap(); break;
         }
     };
 

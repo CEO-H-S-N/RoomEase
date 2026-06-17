@@ -1,7 +1,14 @@
+import sys
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 import os
+
+# Force UTF-8 output so Unicode characters in print() never crash on Windows
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', errors='replace')
 
 load_dotenv()
 
@@ -26,6 +33,7 @@ app = FastAPI(
 # ------------------ CORS ------------------
 origins = [
     "http://localhost:5173",  # Frontend origin (Vite default)
+    "http://localhost:5174",  # Frontend alternative port
     "http://localhost:9002",  # Legacy frontend origin
 ]
 
@@ -43,9 +51,9 @@ from db.mongo import check_connection
 @app.on_event("startup")
 def startup_db_check():
     if check_connection():
-        print("✅ MongoDB connected successfully")
+        print("[OK] MongoDB connected successfully")
     else:
-        print("❌ Failed to connect to MongoDB")
+        print("[ERROR] Failed to connect to MongoDB")
 
 # ------------------ Routers ------------------
 from routes.users.routes import router as users_router
@@ -56,8 +64,15 @@ from routes.red_flag.route import router as flag_router
 from routes.room_hunt.routes import router as room_hunter_router  
 from routes.wingman.routes import router as wingman_router
 from routes.auth.google_auth import router as google_auth_router
+from routes.verification.routes import router as verification_router
+from routes.housing.routes import router as housing_router
+from fastapi.staticfiles import StaticFiles
+
+os.makedirs("uploads", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Include routers
+app.include_router(verification_router)
 app.include_router(users_router)
 app.include_router(profiles_router)
 app.include_router(parse_router)
@@ -66,3 +81,4 @@ app.include_router(flag_router)
 app.include_router(room_hunter_router)  # NEW: Housing matches
 app.include_router(wingman_router)
 app.include_router(google_auth_router)  # NEW: Google OAuth
+app.include_router(housing_router)

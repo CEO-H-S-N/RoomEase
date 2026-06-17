@@ -101,6 +101,14 @@ export function PropertyOwnerLoginPage({ onLoginSuccess }: PropertyOwnerLoginPag
                                 Login
                             </button>
 
+                            <button
+                                type="button"
+                                className="btn-standard"
+                                style={{ flex: 1, justifyContent: 'center' }}
+                                onClick={() => window.location.href = 'mailto:'}
+                            >
+                                Login with Email
+                            </button>
                         </div>
 
                         <div className="footer-links" style={{ marginTop: '1.5rem' }}>

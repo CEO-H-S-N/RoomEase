@@ -7,7 +7,7 @@ class User(BaseModel):
     password: str
     token: Optional[str] = None
     is_verified: bool = False
-    is_admin: bool = True  # ✅ Everyone is Admin by default
+    is_admin: bool = True  # [OK] Everyone is Admin by default
     profile_id: str
     listing_id: str
 

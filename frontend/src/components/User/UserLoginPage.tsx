@@ -170,7 +170,7 @@ export const UserLoginPage: React.FC<UserLoginPageProps> = ({ onLoginSuccess }) 
 
                                 {/* Forgot Password */}
                                 <div className="form-options">
-                                    <a href="#" className="link">Forgot password?</a>
+                                    <a onClick={() => navigate('/user-forgot-password')} className="link" style={{cursor: 'pointer'}}>Forgot password?</a>
                                 </div>
 
                                 {/* Submit Button */}

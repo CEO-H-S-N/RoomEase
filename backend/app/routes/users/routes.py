@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Path, Depends, Response, Query, status
 from models.user import UserCreate
-from routes.users.users_response_schemas import UserResponse, LoginRequest, LoginResponse, EmailRequest, GoogleAuthSchema, UserLikes, ChangePasswordRequest, ChangePasswordResponse
+from routes.users.users_response_schemas import UserResponse, LoginRequest, LoginResponse, EmailRequest, GoogleAuthSchema, UserLikes
 from routes.profiles.profiles_response_schemas import ProfileResponse
 from utils.jwt_utils import create_access_token, get_user_from_cookie
 from db.mongo import get_users_collection, get_user_likes_collection, get_profiles_collection
@@ -89,7 +89,7 @@ def register_user(request: UserCreate):
     user = UserCreate(
         username=request.username,
         password=hashed_password,
-        email=request.email,   # ✅ make sure UserCreate has this
+        email=request.email,   # [OK] make sure UserCreate has this
         listing_id="",
         profile_id="",
         is_verified=False
@@ -112,10 +112,10 @@ def register_user(request: UserCreate):
     try:
         send_verification_email(email_request)
     except Exception as e:
-        print(f"⚠️ Email sending failed: {e}")
+        print(f"[WARNING] Email sending failed: {e}")
         # In dev, print the link manually
         verification_link = f"http://localhost:9002/verify-email?token={verification_token}&email={db_user['email']}"
-        print(f"🔗 Verification Link: {verification_link}")
+        print(f" Verification Link: {verification_link}")
 
     return UserResponse(
         id=str(db_user["_id"]),
@@ -131,7 +131,7 @@ def register_user(request: UserCreate):
 def send_verification_email(request: EmailRequest):
     users = get_users_collection()
 
-    # ✅ Save token in DB
+    # [OK] Save token in DB
     users.update_one(
         {"email": request.email},
         {"$set": {"verification_token": request.token}}
@@ -190,13 +190,13 @@ def verify_email(token: str = Query(...), email: str = Query(...)):
         print(f"Token mismatch for user: {email}")
         raise HTTPException(status_code=400, detail="Invalid verification token")
     
-    # ✅ Mark verified
+    # [OK] Mark verified
     users.update_one(
         {"email": email},
         {"$set": {"is_verified": True}, "$unset": {"verification_token": ""}}
     )
     
-    # ✅ Create new JWT token with updated verification status
+    # [OK] Create new JWT token with updated verification status
     new_token = create_access_token(
         str(user["_id"]),
         user["username"],
@@ -206,7 +206,7 @@ def verify_email(token: str = Query(...), email: str = Query(...)):
         True  # Now verified
     )
     
-    # ✅ Update user with new JWT token
+    # [OK] Update user with new JWT token
     users.update_one(
         {"email": email},
         {"$set": {"token": new_token}}
@@ -279,29 +279,30 @@ def register_user_public(username: str, password: str, listing_id: str = None, p
 def login_user(request: LoginRequest, response: Response):
     users_collection = get_users_collection()
 
-    # 🔑 Look up by email instead of username
+    # Look up by email instead of username
     user_data = users_collection.find_one({"email": request.email})
     if not user_data:
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # ✅ Check password
+    # [OK] Check password
     if not bcrypt.checkpw(request.password.encode("utf-8"), user_data["password"].encode("utf-8")):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # ✅ Create access token
+    # [OK] Create access token
     token = create_access_token(
         str(user_data["_id"]),
         user_data["username"],
         user_data["email"],
         user_data.get("listing_id"),
         user_data.get("profile_id"),
-        is_verified=user_data.get("is_verified", False)
+        is_verified=user_data.get("is_verified", False),
+        is_admin=user_data.get("is_admin", True)
     )
 
-    # ✅ Save token in DB
+    # [OK] Save token in DB
     users_collection.update_one({"_id": user_data["_id"]}, {"$set": {"token": token}})
 
-    # ✅ Set cookie
+    # [OK] Set cookie
     response.set_cookie(
         key="access_token",
         value=token,
@@ -310,7 +311,7 @@ def login_user(request: LoginRequest, response: Response):
         samesite="lax"  # Or "none" if cross-site
     )
 
-    # ✅ Return response
+    # [OK] Return response
     return LoginResponse(
         id=str(user_data["_id"]),
         username=user_data["username"],
@@ -419,7 +420,7 @@ def google_login(payload: GoogleAuthSchema, response: Response):
             detail="Google auth not configured"
         )
 
-    # ✅ Verify Google token
+    # [OK] Verify Google token
     try:
         idinfo = google_id_token.verify_oauth2_token(
             payload.id_token,
@@ -441,7 +442,7 @@ def google_login(payload: GoogleAuthSchema, response: Response):
             detail="Google token missing required claims"
         )
 
-    # ✅ Check if user exists in Mongo
+    # [OK] Check if user exists in Mongo
     user = users_collection.find_one({"email": email})
 
     if not user:
@@ -457,14 +458,15 @@ def google_login(payload: GoogleAuthSchema, response: Response):
         result = users_collection.insert_one(new_user)
         user = users_collection.find_one({"_id": result.inserted_id})
 
-    # ✅ Generate token
+    # [OK] Generate token
     token = create_access_token(
         str(user["_id"]),
         user["username"],
         user["email"],
         user.get("listing_id"),
         user.get("profile_id"),
-        user.get("is_verified", True)  # Google users are automatically verified
+        is_verified=user.get("is_verified", True),  # Google users are automatically verified
+        is_admin=user.get("is_admin", False)
     )
 
     # Update user with token in database
@@ -482,39 +484,6 @@ def google_login(payload: GoogleAuthSchema, response: Response):
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.post("/change-password", response_model=ChangePasswordResponse)
-def change_password(request: ChangePasswordRequest, current_user: UserResponse = Depends(get_user_from_cookie)):
-    users_collection = get_users_collection()
-    
-    # 1. Fetch full user document (need password hash)
-    user = users_collection.find_one({"_id": ObjectId(current_user.id)})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-        
-    # 2. Verify current password
-    # Google users might not have a password set, handle that case
-    stored_password = user.get("password")
-    if not stored_password:
-         raise HTTPException(status_code=400, detail="No password set for this account (e.g. Google Login). Please use 'Forgot Password' to set one.")
-
-    if not bcrypt.checkpw(request.current_password.encode("utf-8"), stored_password.encode("utf-8")):
-        raise HTTPException(status_code=400, detail="Incorrect current password")
-        
-    # 3. Hash new password
-    new_hashed_password = bcrypt.hashpw(request.new_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    
-    # 4. Update password in DB
-    result = users_collection.update_one(
-        {"_id": ObjectId(current_user.id)},
-        {"$set": {"password": new_hashed_password}}
-    )
-    
-    if result.modified_count == 0:
-         raise HTTPException(status_code=500, detail="Failed to update password")
-         
-    return ChangePasswordResponse(message="Password changed successfully")
-
-
 @router.post("/like-profile/{profile_id}")
 def like_profile(profile_id: str, current_user: UserResponse = Depends(get_user_from_cookie)):
     """Add a profile to the user's liked list"""
@@ -530,6 +499,7 @@ def like_profile(profile_id: str, current_user: UserResponse = Depends(get_user_
 
     return {"message": f"Profile {profile_id} liked successfully"}
 
+
 @router.post("/unlike-profile/{profile_id}")
 def unlike_profile(profile_id: str, current_user: UserResponse = Depends(get_user_from_cookie)):
     """Remove a profile from the user's liked list"""
@@ -543,3 +513,137 @@ def get_liked_profiles(current_user: UserResponse = Depends(get_user_from_cookie
     collection = get_user_likes_collection()
     user_likes = collection.find_one({"user_id": current_user.id})
     return user_likes.get("liked_profile_ids", []) if user_likes else []
+
+@router.get('/liked-profiles-details')
+def get_liked_profiles_details(current_user: UserResponse = Depends(get_user_from_cookie)):
+    """Get full profile details for all liked profiles"""
+    likes_col = get_user_likes_collection()
+    profiles_col = get_profiles_collection()
+    
+    user_likes = likes_col.find_one({'user_id': current_user.id})
+    if not user_likes:
+        return []
+        
+    liked_ids = user_likes.get('liked_profile_ids', [])
+    if not liked_ids:
+        return []
+        
+    obj_ids = []
+    for lid in liked_ids:
+        try:
+            obj_ids.append(ObjectId(lid))
+        except:
+            continue
+            
+    profiles = list(profiles_col.find({'_id': {'$in': obj_ids}}))
+    
+    result = []
+    for p in profiles:
+        result.append({
+            'id': str(p['_id']),
+            'full_name': p.get('full_name', 'User'),
+            'city': p.get('city', ''),
+            'area': p.get('area', ''),
+            'budget_PKR': p.get('budget_PKR', 0),
+            'profile_photo': p.get('profile_photo', ''),
+            'occupation': p.get('occupation', ''),
+            'rating': p.get('rating', 0)
+        })
+    return result
+
+
+# ── History & Ratings ────────────────────────────────────────────────
+
+from db.mongo import get_stay_history_collection, get_ratings_collection
+from datetime import datetime
+from pydantic import BaseModel
+from typing import Optional
+
+class RatingRequest(BaseModel):
+    target_id: str
+    target_type: str         # "housing" or "roommate"
+    rating: float            # 1-5
+    comment: Optional[str] = ""
+
+class AddStayRequest(BaseModel):
+    target_id: str
+    target_type: str         # "housing" or "roommate"
+    target_name: str
+    target_image: Optional[str] = ""
+    target_location: Optional[str] = ""
+    duration: Optional[str] = ""
+    move_in: Optional[str] = ""
+    move_out: Optional[str] = ""
+
+
+@router.get("/stay-history")
+def get_stay_history(current_user: UserResponse = Depends(get_user_from_cookie)):
+    """Get the current user's stay history (past houses + roommates)."""
+    col = get_stay_history_collection()
+    ratings_col = get_ratings_collection()
+    stays = list(col.find({"user_id": current_user.id}, {"_id": 0}))
+
+    for stay in stays:
+        existing = ratings_col.find_one({
+            "user_id": current_user.id,
+            "target_id": stay.get("target_id"),
+            "target_type": stay.get("target_type")
+        })
+        stay["user_rating"] = existing["rating"] if existing else None
+        stay["user_comment"] = existing.get("comment", "") if existing else ""
+
+    return stays
+
+
+@router.post("/stay-history")
+def add_to_history(body: AddStayRequest, current_user: UserResponse = Depends(get_user_from_cookie)):
+    """Add a stay to history."""
+    col = get_stay_history_collection()
+    existing = col.find_one({"user_id": current_user.id, "target_id": body.target_id, "target_type": body.target_type})
+    if existing:
+        return {"message": "Already in history"}
+    col.insert_one({
+        "user_id": current_user.id,
+        "target_id": body.target_id,
+        "target_type": body.target_type,
+        "target_name": body.target_name,
+        "target_image": body.target_image,
+        "target_location": body.target_location,
+        "duration": body.duration,
+        "move_in": body.move_in,
+        "move_out": body.move_out,
+        "added_at": datetime.utcnow().isoformat()
+    })
+    return {"message": "Added to history"}
+
+
+@router.post("/rate")
+def rate_target(body: RatingRequest, current_user: UserResponse = Depends(get_user_from_cookie)):
+    """Rate a past housing stay or roommate (1-5 stars, upsert)."""
+    if not (1 <= body.rating <= 5):
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+    if body.target_type not in ("housing", "roommate"):
+        raise HTTPException(status_code=400, detail="target_type must be 'housing' or 'roommate'")
+
+    ratings_col = get_ratings_collection()
+    ratings_col.update_one(
+        {"user_id": current_user.id, "target_id": body.target_id, "target_type": body.target_type},
+        {"$set": {
+            "rating": body.rating,
+            "comment": body.comment,
+            "updated_at": datetime.utcnow().isoformat()
+        }},
+        upsert=True
+    )
+
+    if body.target_type == "roommate":
+        profiles_col = get_profiles_collection()
+        all_ratings = list(ratings_col.find({"target_id": body.target_id, "target_type": "roommate"}))
+        if all_ratings:
+            avg = sum(r["rating"] for r in all_ratings) / len(all_ratings)
+            try:
+                profiles_col.update_one({"_id": ObjectId(body.target_id)}, {"$set": {"rating": round(avg, 2)}})
+            except Exception:
+                pass
+
+    return {"message": "Rating saved", "rating": body.rating}

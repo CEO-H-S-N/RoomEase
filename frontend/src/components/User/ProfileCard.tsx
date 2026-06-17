@@ -1,5 +1,4 @@
-import React from 'react';
-import { MapPin, DollarSign } from 'lucide-react';
+import { MapPin, DollarSign, Star } from 'lucide-react';
 import { Card } from '../shared/Card';
 import { Button } from '../shared/Button';
 import type { ProfileData } from '../../services/api';
@@ -8,9 +7,11 @@ import './ProfileCard.css';
 interface ProfileCardProps {
     profile: ProfileData;
     onViewDetails?: (id: string) => void;
+    onToggleWishlist?: (id: string) => void;
+    isLiked?: boolean;
 }
 
-export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onViewDetails }) => {
+export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onViewDetails, onToggleWishlist, isLiked }) => {
     // Default image if none provided
     const displayImage = profile.profile_photo || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?w=400&h=400&fit=crop";
 
@@ -29,6 +30,16 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({ profile, onViewDetails
                     />
                 </div>
                 <div className="profile-badge">{profile.occupation || "Member"}</div>
+                <button 
+                    className={`profile-wishlist-btn ${isLiked ? 'active' : ''}`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (profile.id) onToggleWishlist?.(profile.id);
+                    }}
+                    title={isLiked ? "Remove from Wishlist" : "Add to Wishlist"}
+                >
+                    <Star size={18} fill={isLiked ? "#FFB400" : "none"} color={isLiked ? "#FFB400" : "#fff"} />
+                </button>
             </div>
 
             <div className="profile-content">

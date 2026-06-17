@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
-import { api } from '../../services/api';
 import './ChangePasswordPage.css';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 interface ChangePasswordPageProps {
     onNavigateBack: () => void;
@@ -64,8 +65,23 @@ const ChangePasswordPage: React.FC<ChangePasswordPageProps> = ({ onNavigateBack 
 
         try {
             setLoading(true);
+            const response = await fetch(`${API_BASE_URL}/api/auth/change-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            });
 
-            await api.changePassword(currentPassword, newPassword);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Failed to change password');
+            }
 
             setSuccess(true);
             setCurrentPassword('');

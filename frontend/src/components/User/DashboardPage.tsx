@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Heart, Star } from 'lucide-react';
+import { Heart, Star, MapPin, Briefcase, Search, X } from 'lucide-react';
 import { api, type ProfileData } from '../../services/api';
 import SharedNavbar from '../shared/SharedNavbar';
 import './DashboardPage.css';
@@ -17,33 +16,34 @@ interface DashboardPageProps {
   onNavigateToSetting?: () => void;
   onNavigateToChangePassword?: () => void;
   onNavigateToVerification?: () => void;
-  onNavigateToRedFlagAlert?: () => void;
-  onNavigateToNotification?: () => void;
-  onNavigateToListingDetails?: (id: string) => void;
   onNavigateToMap?: () => void;
+  onNavigateToListingDetails?: (id: string) => void;
+  onNavigateToNotification?: () => void;
+  onNavigateToWishlist?: () => void;
 }
 
 const DashboardPage: React.FC<DashboardPageProps> = ({
   user,
   onLogout,
   onNavigateToListing,
-  onNavigateToMatches,
   onNavigateToMessages,
   onNavigateToProfiles,
   onNavigateToProfile,
   onNavigateToSetting,
   onNavigateToChangePassword,
   onNavigateToVerification,
-  onNavigateToRedFlagAlert,
-  onNavigateToNotification,
+  onNavigateToMap,
   onNavigateToListingDetails,
-  onNavigateToMap
+  onNavigateToNotification,
+  onNavigateToWishlist
 }) => {
   const [searchType, setSearchType] = useState<'housing' | 'people'>('housing');
   const [searchQuery, setSearchQuery] = useState('');
   const [listings, setListings] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<ProfileData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   // Carousel Scroll States
   const [listingScroll, setListingScroll] = useState(0);
@@ -67,6 +67,17 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
       }
     };
     fetchData();
+  }, []);
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Automation logic
@@ -106,12 +117,44 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   };
 
+  // Search filtering
+  const q = searchQuery.toLowerCase().trim();
+
+  const filteredListings = q
+    ? listings.filter(l =>
+        l.city?.toLowerCase().includes(q) ||
+        l.area?.toLowerCase().includes(q) ||
+        String(l.monthly_rent_PKR).includes(q)
+      )
+    : [];
+
+  const filteredProfiles = q
+    ? profiles.filter(p =>
+        p.full_name?.toLowerCase().includes(q) ||
+        p.city?.toLowerCase().includes(q) ||
+        p.area?.toLowerCase().includes(q) ||
+        p.occupation?.toLowerCase().includes(q)
+      )
+    : [];
+
+  const searchResults = searchType === 'housing' ? filteredListings : filteredProfiles;
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setShowResults(e.target.value.trim().length > 0);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setShowResults(false);
+  };
+
   const handleNavigate = (page: string) => {
     switch (page) {
       case 'dashboard':
         // Already on dashboard
         break;
-      case 'listings':
+      case 'ai-picks':
         onNavigateToListing();
         break;
       case 'chat':
@@ -132,37 +175,20 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
       case 'verification':
         onNavigateToVerification?.();
         break;
-      case 'red-flag-alert':
-        onNavigateToRedFlagAlert?.();
-        break;
-      case 'notification':
-        onNavigateToNotification?.();
-        break;
-      case 'matches':
-        onNavigateToMatches?.();
-        break;
       case 'map':
         onNavigateToMap?.();
         break;
-    }
-  };
-  const navigate = useNavigate();
-
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-
-    if (searchType === 'housing') {
-      navigate(`/listing?city=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate(`/profiles?city=${encodeURIComponent(searchQuery)}`);
+      case 'notifications':
+        onNavigateToNotification?.();
+        break;
+      case 'wishlist':
+        onNavigateToWishlist?.();
+        break;
+      default:
+        console.warn(`No navigation handler for page: ${page}`);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
-  };
 
   return (
     <div className="dashboard-page-modern brown-gradient-bg">
@@ -186,19 +212,19 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             className="hero-text-container"
           >
             <h2 className="hero-subtitle">Explore local real estate</h2>
-            <h1 className="hero-title">Find a listing you'll love</h1>
+            <h1 className="hero-title">Find a home you'll love</h1>
 
-            <div className="search-container-floating glass-morphism">
+            <div className="search-container-floating glass-morphism" ref={searchRef}>
               <div className="search-type-tabs">
                 <button
                   className={`search-tab ${searchType === 'housing' ? 'active' : ''}`}
-                  onClick={() => setSearchType('housing')}
+                  onClick={() => { setSearchType('housing'); if (q) setShowResults(true); }}
                 >
                   Housing
                 </button>
                 <button
                   className={`search-tab ${searchType === 'people' ? 'active' : ''}`}
-                  onClick={() => setSearchType('people')}
+                  onClick={() => { setSearchType('people'); if (q) setShowResults(true); }}
                 >
                   People
                 </button>
@@ -206,18 +232,90 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               <div className="search-input-group">
                 <input
                   type="text"
-                  placeholder={searchType === 'housing' ? "City, address, neighborhood or zip" : "Search by name, occupation or city..."}
+                  placeholder={searchType === 'housing' ? "City, area, or rent amount..." : "Search by name, occupation or city..."}
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
+                  onChange={handleSearchChange}
+                  onFocus={() => { if (q) setShowResults(true); }}
                 />
-                <button
-                  className="search-submit-btn"
-                  onClick={handleSearch}
-                >
-                  <i className="bi bi-search"></i>
+                {searchQuery && (
+                  <button className="search-clear-btn" onClick={clearSearch}>
+                    <X size={16} />
+                  </button>
+                )}
+                <button className="search-submit-btn">
+                  <Search size={18} />
                 </button>
               </div>
+
+              {/* Search Results Dropdown */}
+              {showResults && q && (
+                <div className="search-results-dropdown">
+                  {searchResults.length === 0 ? (
+                    <div className="search-no-results">
+                      <p>No {searchType === 'housing' ? 'listings' : 'people'} found for "<strong>{searchQuery}</strong>"</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="search-results-header">
+                        <span>{searchResults.length} result{searchResults.length !== 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="search-results-list">
+                        {searchType === 'housing'
+                          ? filteredListings.slice(0, 6).map((listing: any, index: number) => (
+                              <div
+                                key={listing.id || index}
+                                className="search-result-item"
+                                onClick={() => {
+                                  setShowResults(false);
+                                  onNavigateToListingDetails?.(listing.id);
+                                }}
+                              >
+                                <img
+                                  className="search-result-thumb"
+                                  src={listing.thumbnail || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=80&q=60'}
+                                  alt={listing.area}
+                                />
+                                <div className="search-result-info">
+                                  <div className="search-result-title">
+                                    {listing.rooms_available} Room{listing.rooms_available > 1 ? 's' : ''} in {listing.area}
+                                  </div>
+                                  <div className="search-result-meta">
+                                    <MapPin size={12} /> {listing.area}, {listing.city}
+                                    <span className="search-result-price">PKR {listing.monthly_rent_PKR?.toLocaleString()}/mo</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          : filteredProfiles.slice(0, 6).map((profile: ProfileData, index: number) => (
+                              <div
+                                key={profile.id || index}
+                                className="search-result-item"
+                                onClick={() => {
+                                  setShowResults(false);
+                                  onNavigateToProfile?.(profile.id);
+                                }}
+                              >
+                                <img
+                                  className="search-result-thumb search-result-avatar"
+                                  src={profile.profile_photo || `https://i.pravatar.cc/80?u=${profile.id}`}
+                                  alt={profile.full_name}
+                                />
+                                <div className="search-result-info">
+                                  <div className="search-result-title">{profile.full_name}</div>
+                                  <div className="search-result-meta">
+                                    <Briefcase size={12} /> {profile.occupation || 'N/A'}
+                                    <span>• {profile.city}</span>
+                                    {profile.age && <span>• Age {profile.age}</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                        }
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
@@ -229,7 +327,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Recent Listings Precision Carousel */}
           <section className="dashboard-section precision-carousel-section">
             <div className="section-header">
-              <h2 className="section-title">Recent RoomEase listings</h2>
+              <h2 className="section-title">Recent RoomEase homes</h2>
             </div>
 
             <div className="carousel-wrapper">

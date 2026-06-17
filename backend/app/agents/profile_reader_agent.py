@@ -14,9 +14,9 @@ import time
 class ProfileReaderAgent:
     PHONE_NUMBER_REGEX = r'(?:\+92|03)\s?[-]?\s?\d{2,3}\s?[-]?\d{7,8}'
 
-    def __init__(self, api_key: str, model_name: str = "openai/gpt-oss-120b", cache_db_path: str = "profile_cache.db"):
+    def __init__(self, api_key: str, model_name: str = "llama-3.3-70b-versatile", cache_db_path: str = "profile_cache.db"):
         if not api_key:
-            raise ValueError("❌ Groq API key not provided. Please set GROQ_API_KEY.")
+            raise ValueError("[X] Groq API key not provided. Please set GROQ_API_KEY.")
         self.client = Groq(api_key=api_key)
         self.model_name = model_name
         self.cache_db_path = cache_db_path
@@ -108,8 +108,8 @@ class ProfileReaderAgent:
         You are a Senior Data Analyst parsing unstructured roommate advertisements from Pakistan.
 
         Your ONLY job is to extract structured roommate profile data into the schema below.
-        ❌ Do NOT add commentary, ❌ Do NOT create new categories.
-        ✅ Only return a valid JSON object.
+        [X] Do NOT add commentary, [X] Do NOT create new categories.
+        [OK] Only return a valid JSON object.
 
         Use these exact options only (case-sensitive):
 
@@ -148,7 +148,7 @@ class ProfileReaderAgent:
         # 1. Check for cached response
         cached_profile = self._get_from_cache(preprocessed_text)
         if cached_profile:
-            print("✅ Returning cached profile.")
+            print("[OK] Returning cached profile.")
             return cached_profile
         
         try:
@@ -162,7 +162,7 @@ class ProfileReaderAgent:
 
         except Exception as e:
             # 4. Graceful Fallback on API failure
-            print(f"⚠ Groq API call failed: {e}. Falling back to rule-based parser.")
+            print(f"[WARNING] Groq API call failed: {e}. Falling back to rule-based parser.")
             rule_based_output = self._rule_based_fallback(preprocessed_text)
             
             try:
@@ -182,7 +182,7 @@ if GROQ_API_KEY:
     try:
         profile_reader = ProfileReaderAgent(api_key=GROQ_API_KEY)
     except Exception as e:
-        print(f"⚠ Failed to initialize Groq Agent: {e}")
+        print(f"[WARNING] Failed to initialize Groq Agent: {e}")
 else:
-    print("⚠ No GROQ_API_KEY found. AI parsing will not work.")
-    # Initialize a dummy agent for testing fallback logic without API key
+    print("[WARNING] No GROQ_API_KEY found. AI parsing will not work.")
+    # Initialize a dummy agent for testing fallback logic without API key

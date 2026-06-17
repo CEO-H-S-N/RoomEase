@@ -35,7 +35,7 @@ export const AnalyticsReportPage: React.FC<AnalyticsReportPageProps> = ({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'chat': window.location.href = '/messages'; break;
             case 'profiles': window.location.href = '/profiles'; break;
             case 'edit-profile': onNavigateToSetting(); break;
@@ -44,6 +44,7 @@ export const AnalyticsReportPage: React.FC<AnalyticsReportPageProps> = ({
             case 'map': onNavigateToMap(); break;
             case 'notification': onNavigateToNotification?.(); break;
             case 'red-flag-alert': onNavigateToRedFlagAlert(); break;
+            case 'wishlist': window.location.href = '/wishlist'; break;
         }
     };
     return (

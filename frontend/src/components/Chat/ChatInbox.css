@@ -1,0 +1,208 @@
+/* =============================================
+   CHAT INBOX PAGE - Premium Integrated Design
+   ============================================= */
+
+.chat-inbox-page,
+.lister-chat-page {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden; 
+  display: flex;
+  flex-direction: column;
+  /* Premium warm gradient matching the platform */
+  background: linear-gradient(135deg, #FFF7F5 0%, #FAFAFA 100%);
+}
+
+.chat-inbox-container,
+.lister-chat-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 2.5rem;
+  /* Subtract navbar height approximately */
+  height: calc(100vh - 76px); 
+}
+
+/* =============================================
+   PREMIUM HEADER
+   ============================================= */
+
+.chat-premium-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+  animation: chatFadeIn 0.5s ease-out;
+  flex-shrink: 0;
+}
+
+.header-icon-wrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(212, 116, 94, 0.1) 0%, rgba(212, 116, 94, 0.18) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color, #D4745E);
+  font-size: 1.5rem;
+  box-shadow: inset 0 0 0 1px rgba(212, 116, 94, 0.1);
+}
+
+.header-text-wrapper h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1A1A1A;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.02em;
+}
+
+.header-text-wrapper p {
+  font-size: 0.95rem;
+  color: #6B7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* =============================================
+   BODY - TalkJS Inbox wrapper
+   ============================================= */
+
+.chat-inbox-body,
+.lister-chat-body {
+  flex: 1;
+  position: relative; /* Critical: anchors the absolute children */
+  background: #FFFFFF;
+  border-radius: 20px; /* Gorgeous rounded corners */
+  box-shadow: 
+    0 20px 40px -15px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(212, 116, 94, 0.12); /* Subtle thematic border */
+  overflow: hidden;
+  animation: chatSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* This is the class applied directly to the <Inbox /> component.
+   Using absolute positioning guarantees it fills the parent perfectly 
+   without flexbox collapse bugs. */
+.talkjs-inbox,
+.talkjs-inbox-lister {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the iframe corners match the beautiful wrapper container */
+.chat-inbox-body iframe,
+.lister-chat-body iframe {
+  border-radius: 20px; 
+}
+
+/* =============================================
+   CHAT BUTTON - Reusable "Message" button
+   ============================================= */
+
+.chat-message-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--primary-color, #D4745E);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.chat-message-btn:hover {
+  background: var(--primary-hover, #C26652);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 116, 94, 0.3);
+}
+
+.chat-message-btn:active {
+  transform: translateY(0);
+}
+
+.chat-message-btn i,
+.chat-message-btn svg {
+  font-size: 1rem;
+}
+
+/* Outline variant */
+.chat-message-btn.outline {
+  background: transparent;
+  color: var(--primary-color, #D4745E);
+  border: 2px solid var(--primary-color, #D4745E);
+}
+
+.chat-message-btn.outline:hover {
+  background: var(--primary-color, #D4745E);
+  color: #fff;
+}
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+
+@keyframes chatFadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chatSlideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 768px) {
+  .chat-inbox-container,
+  .lister-chat-content {
+    padding: 1rem;
+    height: calc(100vh - 60px);
+  }
+  
+  .chat-premium-header {
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .header-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+  }
+  
+  .header-text-wrapper h1 {
+    font-size: 1.35rem;
+  }
+  
+  .header-text-wrapper p {
+    font-size: 0.85rem;
+  }
+  
+  .chat-inbox-body,
+  .lister-chat-body {
+    border-radius: 16px;
+  }
+  
+  .chat-inbox-body iframe,
+  .lister-chat-body iframe {
+    border-radius: 16px; 
+  }
+}

@@ -1,364 +1,318 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../shared/Button';
-import {
-  fadeInUp,
-  staggerContainer,
-  staggerItem,
-  blurIn
-} from '../../utils/animations';
-import {
-  Home,
-  Sparkles,
-  ShieldCheck,
-  Search,
-  MessageSquare,
-  Building2,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Github
-} from 'lucide-react';
+import { Sparkles, Plus, Star, MapPin, Search, ShieldCheck, MessageSquare } from 'lucide-react';
 import { ParticleGrid } from '../shared/ParticleGrid';
-import { ScrollCard } from '../shared/ScrollCard';
 import './LandingPage.css';
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  const [activeCard, setActiveCard] = useState<number>(3); // Center card index (1-based, 3 is middle of 5)
 
-  const features = [
-    {
-      icon: <Sparkles className="feature-icon-svg" />,
-      title: 'AI-Powered Matching',
-      description: 'Our intelligent algorithm analyzes compatibility to find your perfect roommate match.'
-    },
-    {
-      icon: <ShieldCheck className="feature-icon-svg" />,
-      title: 'Safety First',
-      description: 'Red flag detection and verification system to ensure your safety and peace of mind.'
-    },
-    {
-      icon: <Search className="feature-icon-svg" />,
-      title: 'Smart Housing Search',
-      description: 'Find the perfect place with AI-driven recommendations based on your preferences.'
-    },
-    {
-      icon: <MessageSquare className="feature-icon-svg" />,
-      title: 'Seamless Communication',
-      description: 'Chat with potential roommates and get AI-powered icebreaker suggestions.'
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveCard(prev => (prev % 5) + 1);
+    }, 3000); // Rotate every 3 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const toggleFaq = (index: number) => {
+    if (activeFaq === index) {
+      setActiveFaq(null);
+    } else {
+      setActiveFaq(index);
     }
+  };
+
+  const faqs = [
+    { question: "How does the AI matching work?", answer: "Our AI analyzes your preferences, habits, and lifestyle to suggest the best roommate matches." },
+    { question: "Is my personal data secure?", answer: "Yes, we use advanced encryption and strict privacy protocols to protect your information." },
+    { question: "Can I list my own property?", answer: "Absolutely. RoomEase allows property owners to list and manage their rentals easily." },
+    { question: "Are background checks included?", answer: "Yes, we offer integrated background checks for premium users to ensure safety." },
   ];
 
-  const stats = [
-    { value: '1K+', label: 'Active Users' },
-    { value: '98%', label: 'Match Confidence' },
-    { value: '5+', label: 'Prime Cities' },
-    { value: '24/7', label: 'AI Support' }
-  ];
-
-  const steps = [
-    {
-      number: '01',
-      title: 'Create Your Profile',
-      description: 'Tell our AI about your lifestyle, habits, and what makes you a great roommate.'
-    },
-    {
-      number: '02',
-      title: 'AI Analysis',
-      description: 'Our matching engine processes thousands of data points to find your highest-compatibility matches.'
-    },
-    {
-      number: '03',
-      title: 'Connect & Move In',
-      description: 'Chat with matches using AI icebreakers and find your perfect new home together.'
-    }
+  const carouselFeatures = [
+    { id: 1, title: 'AI Matching', icon: <Sparkles size={32} color="#EF7A25" />, desc: 'Algorithm-based roommate pairings.' },
+    { id: 2, title: 'Verified Profiles', icon: <ShieldCheck size={32} color="#EF7A25" />, desc: 'Mandatory ID checks for peace of mind.' },
+    { id: 3, title: 'Smart Search', icon: <Search size={32} color="#EF7A25" />, desc: 'Filter by lifestyle, budget, and location.' },
+    { id: 4, title: 'Secure Chat', icon: <MessageSquare size={32} color="#EF7A25" />, desc: 'In-app messaging to keep your number private.' },
+    { id: 5, title: 'Map View', icon: <MapPin size={32} color="#EF7A25" />, desc: 'Interactive geographic property exploration.' },
   ];
 
   return (
     <div className="landing-page">
       <ParticleGrid />
+      
       {/* Navigation */}
-      <motion.nav
-        className="landing-nav glass"
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="container">
-          <div className="nav-content">
-            <div className="nav-logo">
-              <Home className="logo-icon-svg" />
-              <span className="logo-text gradient-text">RoomEase</span>
-            </div>
-            <div className="nav-actions">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/login-selection')}
-              >
-                Login
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => navigate('/user-signup')}
-              >
-                Get Started
-              </Button>
-            </div>
-          </div>
+      <nav className="landing-nav-ref">
+        <div className="nav-logo">RoomEase</div>
+        <div className="nav-actions">
+          <button className="btn-ref-outline" onClick={() => navigate('/login-selection')}>Log in</button>
+          <button className="btn-ref-solid" onClick={() => navigate('/user-signup')}>Get started</button>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Hero Section */}
-      <section className="hero-section mesh-bg">
-        <div className="container">
-          <motion.div
-            className="hero-content"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.div className="hero-badge" variants={fadeInUp}>
-              <span className="badge-icon">✨</span>
-              <span>AI-Powered Roommate Matching</span>
-            </motion.div>
-
-            <motion.h1 className="hero-title" variants={blurIn}>
-              Find Your Perfect
-              <br />
-              <span className="gradient-text">Roommate Match</span>
-            </motion.h1>
-
-            <motion.p className="hero-subtitle" variants={blurIn}>
-              Let our intelligent AI find compatible roommates and ideal housing
-              <br />
-              based on your lifestyle, preferences, and budget.
-            </motion.p>
-
-            <motion.div className="hero-actions" variants={fadeInUp}>
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => navigate('/user-signup')}
-              >
-                Start Matching Now
-              </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => navigate('/login-selection')}
-              >
-                Learn More
-              </Button>
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div
-              className="hero-stats"
-              variants={staggerContainer}
+      <section className="hero-split">
+        <div className="hero-left">
+          <div className="hero-text-content">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.8 }}
             >
-              {stats.map((stat, index) => (
-                <motion.div
-                  key={index}
-                  className="stat-item"
-                  variants={staggerItem}
-                >
-                  <div className="stat-value">{stat.value}</div>
-                  <div className="stat-label">{stat.label}</div>
-                </motion.div>
-              ))}
+              <Star size={24} color="#3A2618" style={{ marginBottom: '1rem' }} />
+              <h1>Find your perfect living space.</h1>
+              <p>Your path to better housing and roommates starts here. Smart matching, verified listings, zero stress.</p>
+              <button className="pill-btn" onClick={() => navigate('/user-signup')}>
+                Start your journey <Sparkles size={18} />
+              </button>
             </motion.div>
-          </motion.div>
-
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features-section">
-        <div className="container">
-          <motion.div
-            className="section-header"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="section-title">Why Choose RoomEase?</h2>
-            <p className="section-subtitle">
-              Powered by advanced AI to make roommate finding effortless and safe
-            </p>
-          </motion.div>
-
-          <div className="features-grid">
-            {features.map((feature, index) => (
-              <ScrollCard
-                key={index}
-                icon={feature.icon}
-                title={feature.title}
-                description={feature.description}
-                index={index}
-              />
-            ))}
           </div>
         </div>
+        <div className="hero-right">
+          {/* Background image handled in CSS */}
+        </div>
       </section>
 
-      <section className="how-it-works-section">
-        <div className="container">
-          <motion.div
-            className="section-header"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+      {/* Section 2: Dark Arc */}
+      <motion.section 
+        className="dark-arc-section"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+      >
+        <div className="arc-graphic-container">
+          <motion.div 
+            className="arc-graphic"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+        <motion.div 
+          className="arc-content"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1 }}
+        >
+          <h2>24/7 support for finding your next home.</h2>
+        </motion.div>
+      </motion.section>
+
+      {/* Section 3: Radiant Gradient & Mock UI */}
+      <motion.section 
+        className="radiant-section" 
+        style={{ position: 'relative', overflow: 'hidden' }}
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+      >
+        {/* Flair Orbs */}
+        <motion.div 
+          animate={{ y: [0, -20, 0], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 5, repeat: Infinity }}
+          style={{ position: 'absolute', top: '10%', left: '10%', width: 100, height: 100, borderRadius: '50%', background: '#EF7A25', filter: 'blur(40px)' }}
+        />
+        <motion.div 
+          animate={{ y: [0, 30, 0], opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 7, repeat: Infinity }}
+          style={{ position: 'absolute', bottom: '20%', right: '10%', width: 150, height: 150, borderRadius: '50%', background: '#F6C141', filter: 'blur(50px)' }}
+        />
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="radiant-title">The future of renting is proactive.</h2>
+          <p className="radiant-subtitle">We don't just show you listings. We use smart algorithms to actively match you with the people and places you'll love.</p>
+        </motion.div>
+
+        <div className="ui-mockups">
+          <motion.div 
+            className="floating-ui-card"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            drag
+            dragConstraints={{ left: -50, right: 50, top: -50, bottom: 50 }}
+            whileHover={{ scale: 1.05, cursor: 'grab' }}
+            whileTap={{ cursor: 'grabbing' }}
           >
-            <h2 className="section-title">How It Works</h2>
-            <p className="section-subtitle">Three simple steps to your dream roommate situation</p>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+              <div className="ui-avatar" style={{ background: '#FFCBA4' }}></div>
+              <div>
+                <strong>Sarah Jenkins</strong><br/>
+                <small style={{ color: '#666' }}>98% Match Compatibility</small>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#444' }}>"I love cooking, keeping common areas clean, and early morning runs."</p>
           </motion.div>
 
-          <div className="steps-grid">
-            {steps.map((step, index) => (
-              <motion.div
-                key={index}
-                className="step-card glass"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.2 }}
+          <motion.div 
+            className="floating-ui-card"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            drag
+            dragConstraints={{ left: -50, right: 50, top: -50, bottom: 50 }}
+            whileHover={{ scale: 1.05, cursor: 'grab' }}
+            whileTap={{ cursor: 'grabbing' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+              <MapPin size={20} color="#EF7A25" style={{ marginRight: '10px' }} />
+              <div>
+                <strong>Luxury Apartment F-8</strong><br/>
+                <small style={{ color: '#666' }}>Islamabad • Verified Listing</small>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.9rem', color: '#444', fontWeight: 'bold' }}>Rs. 120,000 / month</p>
+          </motion.div>
+        </div>
+
+        <div className="faces-row">
+          {[1,2,3,4].map((i) => (
+            <motion.div 
+              className="face-card" 
+              key={i}
+              whileHover={{ y: -10 }}
+            >
+              <img src={`https://i.pravatar.cc/150?img=${10+i}`} alt="User" />
+              <h4>Happy User</h4>
+              <p>Found a roommate in 3 days.</p>
+            </motion.div>
+          ))}
+        </div>
+      </motion.section>
+
+      {/* Section 4: Dark Split Glow */}
+      <motion.section 
+        className="dark-split-glow"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2>The future of living is here.</h2>
+        <div className="split-glow-container">
+          <div className="glow-divider"></div>
+          
+          <div className="pricing-col left">
+            <h3 style={{ marginBottom: '2rem', color: '#ccc' }}>For Renters</h3>
+            <motion.div className="pricing-pill" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Smart Matching</motion.div><br/>
+            <motion.div className="pricing-pill" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Verified Profiles</motion.div><br/>
+            <motion.div className="pricing-pill active" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Secure Chat</motion.div>
+          </div>
+          
+          <div className="pricing-col right">
+            <h3 style={{ marginBottom: '2rem', color: '#ccc' }}>For Owners</h3>
+            <motion.div className="pricing-pill" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Property Listing</motion.div><br/>
+            <motion.div className="pricing-pill active" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Tenant Screening</motion.div><br/>
+            <motion.div className="pricing-pill" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>Premium Support</motion.div>
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Section 5: Cards Carousel */}
+      <motion.section 
+        className="cards-section"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="carousel-title" style={{ fontSize: '3rem', color: '#fff', marginBottom: '1rem', fontFamily: 'serif', textShadow: '0 4px 15px rgba(0,0,0,0.5)', position: 'relative', zIndex: 2 }}>Better living,<br/>by design.</h2>
+        <p style={{ color: '#eee', marginBottom: '2rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)', position: 'relative', zIndex: 2 }}>Everything you need in one platform.</p>
+        
+        <div className="cards-container">
+          {carouselFeatures.map((feature) => {
+            // Calculate z-index and scale based on distance from activeCard
+            const distance = Math.abs(activeCard - feature.id);
+            let scale = 1;
+            let translateZ = 0;
+            let zIndex = 10 - distance;
+            let opacity = 1;
+
+            if (distance === 0) {
+              scale = 1.1;
+              translateZ = 50;
+            } else if (distance === 1) {
+              scale = 0.9;
+              translateZ = 0;
+              opacity = 0.8;
+            } else {
+              scale = 0.8;
+              translateZ = -50;
+              opacity = 0.6;
+            }
+
+            return (
+              <motion.div 
+                className="overlap-card" 
+                key={feature.id}
+                onClick={() => setActiveCard(feature.id)}
+                animate={{
+                  scale,
+                  z: translateZ,
+                  zIndex,
+                  opacity
+                }}
+                transition={{ duration: 0.4, type: 'spring' }}
+                style={{ cursor: 'pointer' }}
+                whileHover={{ y: -10 }}
               >
-                <div className="step-number">{step.number}</div>
-                <h3 className="step-title">{step.title}</h3>
-                <p className="step-description">{step.description}</p>
-                <div className="step-connector" />
+                <div style={{ marginBottom: '1rem' }}>{feature.icon}</div>
+                <h4 style={{ marginBottom: '0.5rem' }}>{feature.title}</h4>
+                <p style={{ fontSize: '0.8rem', color: '#666' }}>{feature.desc}</p>
               </motion.div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      </section>
+      </motion.section>
 
-      {/* Safety & Trust Section */}
-      <section className="safety-section">
-        <div className="container">
-          <div className="safety-content">
-            <motion.div
-              className="safety-text"
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <div className="safety-badge">
-                <ShieldCheck size={16} />
-                <span>Verified Community</span>
-              </div>
-              <h2 className="section-title">Your Safety is Our Top Priority</h2>
-              <p className="section-subtitle" style={{ textAlign: 'left', margin: '0' }}>
-                We've built a multi-layered security system to ensure you can find your next home with complete peace of mind.
-              </p>
-              <ul className="safety-list">
-                <li>
-                  <Sparkles size={18} className="list-icon" />
-                  <span>AI-powered "Red Flag" detection in profiles and chats</span>
-                </li>
-                <li>
-                  <ShieldCheck size={18} className="list-icon" />
-                  <span>Mandatory ID verification for all premium members</span>
-                </li>
-                <li>
-                  <Building2 size={18} className="list-icon" />
-                  <span>Property listing verification to prevent rental scams</span>
-                </li>
-              </ul>
-            </motion.div>
-            <motion.div
-              className="safety-visual-box glass"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-            >
-              <div className="trust-meter">
-                <div className="trust-circle">
-                  <span className="trust-percent">99%</span>
-                  <span className="trust-label">Safe Matches</span>
+      {/* Section 6: FAQ */}
+      <motion.section 
+        className="faq-section"
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.6 }}
+      >
+        <h2 style={{ fontSize: '2.5rem', fontFamily: 'serif', marginBottom: '2rem' }}>A common language to make renting simple.</h2>
+        
+        <div className="faq-list">
+          {faqs.map((faq, idx) => (
+            <div className="faq-item" key={idx} onClick={() => toggleFaq(idx)}>
+              <div style={{ width: '100%' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3>{faq.question}</h3>
+                  <div className="plus-icon">
+                    {activeFaq === idx ? <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>-</span> : <Plus size={16} />}
+                  </div>
                 </div>
+                {activeFaq === idx && (
+                  <motion.p 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: 'auto' }}
+                    style={{ marginTop: '1rem', color: '#555', fontSize: '1rem' }}
+                  >
+                    {faq.answer}
+                  </motion.p>
+                )}
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      <section className="cta-section gradient-primary">
-        <div className="container">
-          <motion.div
-            className="cta-content"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            {/* Interactive decorative blobs */}
-            <motion.div
-              className="cta-blob"
-              animate={{
-                scale: [1, 1.2, 1],
-                rotate: [0, 90, 0],
-                x: [0, 50, 0]
-              }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            />
-
-            <h2 className="cta-title">Ready to Find Your Perfect Match?</h2>
-            <p className="cta-subtitle">
-              Join thousands of users who found their ideal roommates with RoomEase
-            </p>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => navigate('/user-signup')}
-                className="cta-button-glow"
-              >
-                Get Started for Free
-              </Button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      <footer className="landing-footer">
-        <div className="container">
-          <div className="footer-content">
-            <div className="footer-brand">
-              <Home className="footer-logo-svg" />
-              <span className="logo-text">RoomEase</span>
             </div>
-
-            <div className="footer-socials">
-              {[Instagram, Twitter, Linkedin, Github].map((Icon, i) => (
-                <motion.a
-                  key={i}
-                  href="#"
-                  className="social-icon-link"
-                  whileHover={{
-                    scale: 1.2,
-                    y: -5,
-                    color: "var(--color-primary)"
-                  }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                >
-                  <Icon size={20} />
-                </motion.a>
-              ))}
-            </div>
-
-            <p className="footer-text">
-              © {new Date().getFullYear()} RoomEase. All rights reserved.
-            </p>
-          </div>
+          ))}
         </div>
+      </motion.section>
+
+      <footer className="landing-footer-ref">
+        <p>© {new Date().getFullYear()} RoomEase. All rights reserved.</p>
       </footer>
     </div>
   );

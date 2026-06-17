@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, MapPin, Home, Wifi, Car, Utensils, Droplet, Zap, Shield, Wind, X, ChevronLeft, ChevronRight, Star, AlertCircle, ThumbsUp } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, MapPin, Home, Wifi, Car, Utensils, Droplet, Zap, Shield, Wind, X, ChevronLeft, ChevronRight, Star, AlertCircle, ThumbsUp, Heart } from 'lucide-react';
+import { api } from '../../services/api';
 import SharedNavbar from '../shared/SharedNavbar';
 import './ListingDetailsPage.css';
 
 interface ListingDetailsPageProps {
     user: { fullName: string };
-    listingId?: string;
     onNavigateBack: () => void;
     onLogout: () => void;
     onNavigateToDashboard: () => void;
@@ -25,6 +26,8 @@ interface Review {
 interface Listing {
     id: string;
     listing_id?: string;
+    lister_id?: string;
+    lister_name?: string;
     city: string;
     area: string;
     monthly_rent_PKR: number;
@@ -35,6 +38,8 @@ interface Listing {
     images: string[];
     rating?: number;
     reviews?: Review[];
+    latitude?: number;
+    longitude?: number;
 }
 
 const amenityIcons: { [key: string]: React.ReactNode } = {
@@ -51,7 +56,6 @@ const amenityIcons: { [key: string]: React.ReactNode } = {
 
 const ListingDetailsPage: React.FC<ListingDetailsPageProps> = ({
     user,
-    listingId,
     onNavigateBack,
     onLogout,
     onNavigateToDashboard,
@@ -60,12 +64,16 @@ const ListingDetailsPage: React.FC<ListingDetailsPageProps> = ({
     onNavigateToChangePassword,
     onNavigateToVerification
 }) => {
+    const navigate = useNavigate();
+    const { id: listingId } = useParams<{ id: string }>();
     const [listing, setListing] = useState<Listing | null>(null);
     const [allListings, setAllListings] = useState<Listing[]>([]);
     const [selectedImage, setSelectedImage] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [lightboxOpen, setLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [wishlistLoading, setWishlistLoading] = useState(false);
 
     useEffect(() => {
         fetchListingDetails();
@@ -74,23 +82,46 @@ const ListingDetailsPage: React.FC<ListingDetailsPageProps> = ({
     const fetchListingDetails = async () => {
         try {
             setLoading(true);
-            const response = await fetch('http://localhost:8000/ai/housing_listings');
-            const data = await response.json();
+            const data = await api.getListings();
 
             setAllListings(data);
 
             const foundListing = listingId
-                ? data.find((l: Listing) => l.id === listingId)
+                ? data.find((l: Listing) => l.id === listingId || l.listing_id === listingId)
                 : data[0];
 
             if (foundListing) {
                 setListing(foundListing);
                 setSelectedImage(foundListing.thumbnail || foundListing.images?.[0] || '');
+                checkWishlistStatus(foundListing.id || foundListing.listing_id);
             }
         } catch (error) {
             console.error('Error fetching listing details:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const checkWishlistStatus = async (id: string) => {
+        try {
+            const wishlist = await api.getWishlist();
+            const exists = wishlist.some((item: any) => item.id === id);
+            setIsWishlisted(exists);
+        } catch (error) {
+            console.error('Error checking wishlist status:', error);
+        }
+    };
+
+    const handleToggleWishlist = async () => {
+        if (!listing || wishlistLoading) return;
+        try {
+            setWishlistLoading(true);
+            const result = await api.toggleWishlist(listing.id);
+            setIsWishlisted(result.status === 'added');
+        } catch (error) {
+            alert('Failed to update wishlist');
+        } finally {
+            setWishlistLoading(false);
         }
     };
 
@@ -118,9 +149,9 @@ const ListingDetailsPage: React.FC<ListingDetailsPageProps> = ({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
-            case 'chat': window.location.href = '/messages'; break;
-            case 'profiles': window.location.href = '/profiles'; break;
+            case 'ai-picks': onNavigateToListing(); break;
+            case 'chat': navigate('/messages'); break;
+            case 'profiles': navigate('/profiles'); break;
             case 'edit-profile': onNavigateToSetting(); break;
             case 'change-password': onNavigateToChangePassword?.(); break;
             case 'verification': onNavigateToVerification?.(); break;
@@ -496,8 +527,53 @@ const ListingDetailsPage: React.FC<ListingDetailsPageProps> = ({
                             </div>
                         </div>
 
-                        <button className="reserve-button">
-                            Contact Owner
+                        <button className="reserve-button" onClick={() => {
+                            const targetOwnerId = listing.lister_id || `owner_${listing.id}`;
+                            if (targetOwnerId) {
+                                navigate('/messages', { 
+                                    state: { 
+                                        targetUserId: targetOwnerId, 
+                                        targetUserName: listing.lister_name || 'Property Owner',
+                                        targetUserRole: 'lister'
+                                    } 
+                                });
+                            } else {
+                                navigate('/messages');
+                            }
+                        }}>
+                            <i className="bi bi-chat-square-text-fill" style={{ marginRight: '0.5rem' }}></i>
+                            Message Owner
+                        </button>
+
+                        {(listing.latitude !== undefined && listing.longitude !== undefined) && (
+                            <button 
+                                className="reserve-button" 
+                                style={{ 
+                                    marginTop: '10px', 
+                                    backgroundColor: '#f3f4f6', 
+                                    color: '#000000', 
+                                    border: '1px solid #000000' 
+                                }}
+                                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`, '_blank')}
+                            >
+                                <MapPin size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'middle' }} />
+                                <span style={{ verticalAlign: 'middle' }}>View on Map</span>
+                            </button>
+                        )}
+
+                        <button 
+                            className="reserve-button" 
+                            style={{ 
+                                marginTop: '10px', 
+                                backgroundColor: isWishlisted ? '#fff5f5' : '#ffffff', 
+                                color: isWishlisted ? '#e53e3e' : '#000000', 
+                                border: `1px solid ${isWishlisted ? '#e53e3e' : '#000000'}` 
+                            }}
+                            onClick={handleToggleWishlist}
+                            disabled={wishlistLoading}
+                        >
+                            <Heart size={18} fill={isWishlisted ? '#e53e3e' : 'none'} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'middle' }} />
+                            <span style={{ verticalAlign: 'middle' }}>{isWishlisted ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
                         </button>
 
                         <p className="booking-note">You won't be charged yet</p>

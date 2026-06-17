@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export interface User {
     id: string;
@@ -50,27 +50,6 @@ export const api = {
     },
 
     // Auth
-    async changePassword(currentPassword: string, newPassword: string) {
-        const response = await fetch(`${API_BASE_URL}/users/change-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                current_password: currentPassword,
-                new_password: newPassword,
-            }),
-            credentials: 'include',
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Failed to change password');
-        }
-
-        return response.json();
-    },
-
     async login(email: string, password: string): Promise<User> {
         const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: 'POST',
@@ -85,7 +64,8 @@ export const api = {
         });
 
         if (!response.ok) {
-            throw new Error('Login failed');
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.detail || 'Login failed');
         }
 
         const data = await response.json();
@@ -141,7 +121,9 @@ export const api = {
 
     // Matches
     async getBestMatches(topN: number = 5) {
-        const response = await fetch(`${API_BASE_URL}/ai/best_matches?top_n=${topN}`);
+        const response = await fetch(`${API_BASE_URL}/ai/best_matches?top_n=${topN}`, {
+            credentials: 'include',
+        });
         if (!response.ok) {
             try {
                 const errorData = await response.json();
@@ -157,21 +139,96 @@ export const api = {
     async getListings() {
         const response = await fetch(`${API_BASE_URL}/ai/housing_listings`);
         if (!response.ok) throw new Error('Failed to fetch listings');
-        return response.json();
+        const data = await response.json();
+        // Normalize backend data: amenities/images may be strings, lat/lng vs latitude/longitude
+        return data.map((listing: any) => ({
+            ...listing,
+            amenities: Array.isArray(listing.amenities)
+                ? listing.amenities
+                : typeof listing.amenities === 'string' && listing.amenities.trim()
+                    ? listing.amenities.split(/\s{2,}|\n|,/).map((s: string) => s.trim()).filter(Boolean)
+                    : [],
+            images: Array.isArray(listing.images)
+                ? listing.images
+                : typeof listing.images === 'string' && listing.images.trim()
+                    ? listing.images.split(/\s+/).filter(Boolean)
+                    : [],
+            latitude: listing.latitude ?? listing.lat ?? null,
+            longitude: listing.longitude ?? listing.lng ?? null,
+        }));
     },
 
-    async getBestHousingMatches(topN: number = 5) {
-        const response = await fetch(`${API_BASE_URL}/ai/best_housing_matches?top_n=${topN}`, {
-            credentials: 'include'
+    async getRecommendedHousing(topN: number = 10) {
+        const response = await fetch(`${API_BASE_URL}/ai/recommended_housing?top_n=${topN}`, {
+            credentials: 'include',
         });
-        if (!response.ok) throw new Error('Failed to fetch housing matches');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.detail || 'Failed to fetch recommended housing');
+        }
         return response.json();
     },
 
-    // AI Features - Red Flags
-    async getRedFlags(userId: string, matchId: string) {
-        const response = await fetch(`${API_BASE_URL}/ai/red_flags?user_id=${userId}&match_id=${matchId}`);
-        if (!response.ok) throw new Error('Failed to fetch red flags');
+    // Housing CRUD for Property Owners
+    async createListing(listingData: any) {
+        const response = await fetch(`${API_BASE_URL}/housing/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(listingData),
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.detail || 'Failed to create listing');
+        }
+        return response.json();
+    },
+
+    async getMyListings() {
+        const response = await fetch(`${API_BASE_URL}/housing/my-listings`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch your listings');
+        return response.json();
+    },
+
+    async getListing(listingId: string) {
+        const response = await fetch(`${API_BASE_URL}/housing/${listingId}`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch listing details');
+        return response.json();
+    },
+
+    async updateListing(listingId: string, listingData: any) {
+        const response = await fetch(`${API_BASE_URL}/housing/${listingId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(listingData),
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.detail || 'Failed to update listing');
+        }
+        return response.json();
+    },
+
+    async deleteListing(listingId: string) {
+        const response = await fetch(`${API_BASE_URL}/housing/${listingId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to delete listing');
+        return response.json();
+    },
+
+    // AI Features - Red Flag Alerts
+    async getRedFlagAlerts(count: number = 5) {
+        const response = await fetch(`${API_BASE_URL}/ai/red-flag-alerts?count=${count}`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch red flag alerts');
         return response.json();
     },
 
@@ -236,6 +293,188 @@ export const api = {
             credentials: 'include'
         });
         if (!response.ok) throw new Error('Not authenticated');
+        return response.json();
+    },
+
+    // Admin Verifications
+    async getPendingVerifications(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/verifications`, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch pending verifications');
+        return response.json();
+    },
+
+    async approveVerification(userId: string): Promise<any> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/verifications/${userId}/approve`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to approve verification');
+        return response.json();
+    },
+
+    async rejectVerification(userId: string): Promise<any> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/verifications/${userId}/reject`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to reject verification');
+        return response.json();
+    },
+
+    async getAnalytics(): Promise<any> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/analytics`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch analytics');
+        return response.json();
+    },
+
+    // Admin: Users management
+    async getAdminUsers(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            let errorDetail = 'Failed to fetch admin users';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) errorDetail = errorData.detail;
+            } catch (e) {}
+            throw new Error(errorDetail);
+        }
+        return response.json();
+    },
+
+    async adminDeleteUser(userId: string): Promise<any> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            let errorDetail = 'Failed to delete user';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) errorDetail = errorData.detail;
+            } catch (e) {}
+            throw new Error(errorDetail);
+        }
+        return response.json();
+    },
+
+    // Admin: Listings management
+    async getAdminListings(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/listings`, {
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            let errorDetail = 'Failed to fetch admin listings';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) errorDetail = errorData.detail;
+            } catch (e) {}
+            throw new Error(errorDetail);
+        }
+        return response.json();
+    },
+
+    async adminDeleteListing(listingId: string): Promise<any> {
+        const response = await fetch(`${API_BASE_URL}/api/admin/listings/${listingId}`, {
+            method: 'DELETE',
+            credentials: 'include',
+        });
+        if (!response.ok) {
+            let errorDetail = 'Failed to delete listing';
+            try {
+                const errorData = await response.json();
+                if (errorData.detail) errorDetail = errorData.detail;
+            } catch (e) {}
+            throw new Error(errorDetail);
+        }
+        return response.json();
+    },
+
+    // Wishlist
+    async toggleWishlist(listingId: string): Promise<{ status: 'added' | 'removed' }> {
+        const response = await fetch(`${API_BASE_URL}/ai/wishlist/${listingId}`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to toggle wishlist');
+        return response.json();
+    },
+
+    async getWishlist(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/ai/wishlist`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch wishlist');
+        return response.json();
+    },
+
+    async getLikedProfilesDetails(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/users/liked-profiles-details`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch liked profiles');
+        return response.json();
+    },
+
+    async toggleLikeProfile(profileId: string): Promise<{ status: string }> {
+        const response = await fetch(`${API_BASE_URL}/users/like-profile/${profileId}`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to toggle like');
+        return response.json();
+    },
+
+    // History
+    async getStayHistory(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/users/stay-history`, {
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to fetch history');
+        return response.json();
+    },
+
+    async addToHistory(data: {
+        target_id: string;
+        target_type: 'housing' | 'roommate';
+        target_name: string;
+        target_image?: string;
+        target_location?: string;
+        duration?: string;
+        move_in?: string;
+        move_out?: string;
+    }): Promise<{ message: string }> {
+        const response = await fetch(`${API_BASE_URL}/users/stay-history`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to add to history');
+        return response.json();
+    },
+
+    async rateTarget(data: {
+        target_id: string;
+        target_type: 'housing' | 'roommate';
+        rating: number;
+        comment?: string;
+    }): Promise<{ message: string; rating: number }> {
+        const response = await fetch(`${API_BASE_URL}/users/rate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            credentials: 'include',
+        });
+        if (!response.ok) throw new Error('Failed to submit rating');
         return response.json();
     }
 };

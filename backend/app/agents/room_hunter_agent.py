@@ -16,7 +16,7 @@ class RoomHunterAgent:
 
     def __init__(self, api_key: Optional[str] = os.getenv("GROQ_API_KEY")):
         if not api_key:
-            print("⚠ No GROQ_API_KEY found. RoomHunterAgent will use a rule-based fallback for explanations.")
+            print("[WARNING] No GROQ_API_KEY found. RoomHunterAgent will use a rule-based fallback for explanations.")
             self.client = None
         else:
             self.client = Groq(api_key=api_key)
@@ -55,7 +55,7 @@ class RoomHunterAgent:
             )
             return chat_completion.choices[0].message.content
         except Exception as e:
-            print(f"⚠ LLM call failed: {e}. Falling back to rule-based reason.")
+            print(f"[WARNING] LLM call failed: {e}. Falling back to rule-based reason.")
             return "; ".join(reasons)[:self.MAX_REASON_LENGTH]
 
     def score_listing(self, profile: Dict[str, Any], listing: Dict[str, Any]) -> Dict[str, Any]:

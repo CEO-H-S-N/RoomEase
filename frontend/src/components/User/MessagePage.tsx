@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import SharedNavbar from '../shared/SharedNavbar';
 import './MessagePage.css';
 
@@ -20,8 +19,6 @@ interface Contact {
     lastMessage: string;
     lastMessageTime: string;
     unreadCount?: number;
-    about?: string;
-    location?: string;
 }
 
 interface MessagePageProps {
@@ -101,43 +98,10 @@ export const MessagePage: React.FC<MessagePageProps> = ({
     onNavigateToNotification,
     onNavigateToProfile,
 }) => {
-    const location = useLocation();
     const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
     const [inputText, setInputText] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [searchQuery, setSearchQuery] = useState("");
-    const [contacts, setContacts] = useState<Contact[]>(MOCK_CONTACTS);
-
-    useEffect(() => {
-        const state = location.state as {
-            startChatWith?: string;
-            name?: string;
-            about?: string;
-            city?: string;
-            area?: string;
-        };
-        if (state?.startChatWith) {
-            setSelectedContactId(state.startChatWith);
-
-            // Check if contact already exists in sidebar
-            const exists = contacts.some(c => c.id === state.startChatWith);
-            if (!exists && state.name) {
-                // Add temporary mock contact for the new chat
-                const newContact: Contact = {
-                    id: state.startChatWith,
-                    name: state.name,
-                    avatar: `https://i.pravatar.cc/150?u=${state.startChatWith}`,
-                    status: 'online',
-                    lastMessage: "Started a new conversation",
-                    lastMessageTime: "Just now",
-                    unreadCount: 0,
-                    about: state.about,
-                    location: state.city && state.area ? `${state.area}, ${state.city}` : undefined
-                };
-                setContacts([newContact, ...contacts]);
-            }
-        }
-    }, [location.state, contacts]);
 
     useEffect(() => {
         if (selectedContactId) {
@@ -164,7 +128,7 @@ export const MessagePage: React.FC<MessagePageProps> = ({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'chat': /* Already here */ break;
             case 'profiles': onNavigateToMatches(); break; // Profiles link in navbar
             case 'edit-profile': onNavigateToSetting(); break;
@@ -178,7 +142,7 @@ export const MessagePage: React.FC<MessagePageProps> = ({
         }
     };
 
-    const activeContact = contacts.find(c => c.id === selectedContactId);
+    const activeContact = MOCK_CONTACTS.find(c => c.id === selectedContactId);
 
     // Helper to group messages by date
     const groupMessagesByDate = (msgList: Message[]) => {
@@ -359,13 +323,13 @@ export const MessagePage: React.FC<MessagePageProps> = ({
                             <div className="mp-ps-section">
                                 <span className="mp-ps-label">About</span>
                                 <p className="mp-ps-text">
-                                    {activeContact.about || "Looking for a roommate. I value cleanliness and mutual respect."}
+                                    Looking for a roommate in Islamabad. I work in tech and value cleanliness and mutual respect.
                                 </p>
                             </div>
 
                             <div className="mp-ps-section">
                                 <span className="mp-ps-label">Location</span>
-                                <div className="mp-ps-text">{activeContact.location || "Pakistan"}</div>
+                                <div className="mp-ps-text">Islamabad, Pakistan</div>
                             </div>
 
                             <div className="mp-ps-section">

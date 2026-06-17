@@ -1,157 +1,211 @@
-/* Property Owner SettingPage.css - Same as User Settings */
+/* Property Owner SettingPage.css - Drood Theme Overhaul */
+:root {
+    --drood-bg: #1A1110;
+    --drood-card-bg: #2C1E1C;
+    --drood-text: #F8F9FA;
+    --drood-text-muted: #D1D5DB;
+    --drood-accent: #D4745E;
+    --drood-border: rgba(255, 255, 255, 0.08);
+    --drood-hover: rgba(212, 116, 94, 0.1);
+    --drood-card-border: rgba(255, 255, 255, 0.05);
+}
 
 .setting-page-wrapper {
     min-height: 100vh;
-    background-color: #ffffff;
-    /* White background for unified look */
-    font-family: 'Inter', sans-serif;
+    background-color: var(--drood-bg);
+    color: var(--drood-text);
+    font-family: 'Outfit', sans-serif;
 }
 
-/* --- Shared Navbar Styles (Matched to Dashboard) --- */
-.navbar-brand {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.025em;
+/* --- Navbar (Themed) --- */
+.navbar {
+    background: var(--drood-bg) !important;
+    border-bottom: 1px solid var(--drood-border) !important;
 }
 
-.nav-link {
-    text-decoration: none;
-    color: #6B7280;
-    /* text-secondary */
-    font-size: 14px;
-    font-weight: 500;
-    transition: color 0.15s ease;
+.brand-icon {
+    color: var(--drood-accent);
 }
 
-.nav-link:hover,
-.nav-link.active {
-    color: #14919B !important;
-    /* primary-color */
+.brand-text {
+    color: var(--drood-text);
 }
 
 /* Sidebar Navigation Tabs */
+.nav-tabs {
+    border-bottom: 1px solid var(--drood-border);
+}
+
 .active-tab {
-    background-color: transparent !important;
-    color: #14919B !important;
-    border-bottom: 3px solid #14919B !important;
-    border-radius: 0 !important;
-    font-weight: 600;
+    color: var(--drood-accent) !important;
+    border-bottom: 3px solid var(--drood-accent) !important;
+    font-weight: 700;
 }
 
-.list-group-item {
-    border: none;
-    margin-bottom: 4px;
-    border-radius: 8px !important;
-    color: #4b5563;
-    font-weight: 500;
-    transition: all 0.2s ease;
+.nav-link.text-muted {
+    color: var(--drood-text-muted) !important;
 }
 
-.list-group-item:hover {
-    background-color: #f3f4f6;
-    color: #111827;
+.nav-link:hover {
+    color: var(--drood-text) !important;
 }
 
-/* Form Controls Polish */
-.form-control:focus {
-    border-color: #14919B;
-    box-shadow: 0 0 0 4px rgba(20, 145, 155, 0.1);
-}
-
-.btn-primary {
-    background-color: #14919B;
-    border-color: #14919B;
-    font-weight: 600;
-}
-
-.btn-primary:hover {
-    background-color: #0e7c85;
-    border-color: #0e7c85;
-}
-
-.form-check-input:checked {
-    background-color: #14919B;
-    border-color: #14919B;
-}
-
-/* Standard Button Copy */
-.btn-standard {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.5rem;
-    border: 1px solid #111827;
-    border-radius: 50px;
-    background: transparent;
-    color: #111827;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    text-decoration: none;
-}
-
-.btn-standard:hover {
-    background: #f3f4f6;
-    color: #111827 !important;
-    border-color: #111827;
-    transform: translateY(-1px);
-}
-
-/* --- Header Section (Matched to Dashboard) --- */
+/* Header Section */
 .dashboard-header {
-    margin-bottom: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
 }
 
 .header-title-group h1 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-    margin: 0 0 8px 0;
-    letter-spacing: -0.025em;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--drood-accent);
+    margin-bottom: 0.5rem;
 }
 
 .header-subtitle {
-    color: #6B7280;
-    margin: 0;
-    font-size: 15px;
+    color: var(--drood-text-muted);
 }
 
-/* --- Animations --- */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translate3d(0, 20px, 0);
-    }
+/* Profile Section */
+.profile-card {
+    background: var(--drood-card-bg);
+    border: 1px solid var(--drood-card-border);
+    border-radius: 20px;
+    padding: 2rem;
+}
 
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
+.avatar-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 3px solid var(--drood-accent);
+}
+
+.btn-camera-upload {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--drood-accent);
+    color: white;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Form Controls */
+.form-label {
+    color: var(--drood-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--drood-border);
+    color: var(--drood-text);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--drood-accent);
+    box-shadow: 0 0 0 2px rgba(212, 116, 94, 0.2);
+    color: var(--drood-text);
+}
+
+.form-control:disabled {
+    background-color: rgba(255, 255, 255, 0.01);
+    opacity: 0.6;
+}
+
+/* Buttons */
+.btn-standard {
+    padding: 0.75rem 2rem;
+    border-radius: 50px;
+    background: #FFFFFF;
+    color: #1A1110;
+    border: none;
+    font-weight: 700;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-standard:hover {
+    background: #F3F4F6;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-delete-account {
+    background: rgba(220, 53, 69, 0.1);
+    color: #ff6b6b;
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    padding: 8px 20px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.btn-delete-account:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Preferences Switces */
+.pref-item {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 1px solid var(--drood-card-border);
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: var(--drood-border);
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--drood-accent);
+    border-color: var(--drood-accent);
+}
+
+/* Custom Upload Box */
+.custom-upload-box {
+    border: 2px dashed var(--drood-border);
+    background: rgba(212, 116, 94, 0.05);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.custom-upload-box:hover {
+    border-color: var(--drood-accent);
+    background: rgba(212, 116, 94, 0.1);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in-up {
-    animation: fadeInUp 0.5s ease-out forwards;
-}
-
-/* Smooth Input Focus Transition */
-.form-control,
-.form-check-input {
-    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-/* Hover Scale for Profile Images/Buttons */
-.hover-scale {
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.hover-scale:hover {
-    transform: scale(1.05);
+    animation: fadeInUp 0.4s ease-out forwards;
 }

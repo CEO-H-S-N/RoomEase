@@ -1,7 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Home, MapPin, Building, CheckCircle, DollarSign, Layers, Bed, Bath, Star, X, FileText, Type, AlignLeft, Image, Video, Phone, Smartphone, Mail } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { api } from '../../services/api';
 import '../../styles/Property Owner/PostListingPage.css';
+
+// Fix Leaflet Default Icon issue
+// @ts-ignore
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface PostListingPageProps {
     onLogout?: () => void;
@@ -41,6 +54,139 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
     const [showAmenitiesModal, setShowAmenitiesModal] = useState(false);
     const [activeTab, setActiveTab] = useState('Main Features');
     const [selectedAmenities, setSelectedAmenities] = useState<Record<string, any>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const { id } = useParams<{ id: string }>();
+    const isEditMode = Boolean(id);
+
+    // Form Data State
+    const [formData, setFormData] = useState({
+        city: 'Lahore',
+        area: '',
+        monthly_rent_PKR: '',
+        area_size: '',
+        area_unit: 'Marla',
+        title: '',
+        description: '',
+        mobile: '',
+        landline: '',
+        thumbnail: '',
+        images: [] as string[],
+        latitude: 31.5204,
+        longitude: 74.3587
+    });
+    const [showLocationModal, setShowLocationModal] = useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        const fetchListing = async () => {
+            if (isEditMode && id) {
+                try {
+                    const listing = await api.getListing(id);
+                    setFormData({
+                        city: listing.city || 'Lahore',
+                        area: listing.area || '',
+                        monthly_rent_PKR: listing.monthly_rent_PKR?.toString() || '',
+                        area_size: listing.area_size || '',
+                        area_unit: listing.area_unit || 'Marla',
+                        title: listing.title || '',
+                        description: listing.description || '',
+                        mobile: listing.mobile || '',
+                        landline: listing.landline || '',
+                        thumbnail: listing.thumbnail || '',
+                        images: listing.images || []
+                    });
+                    setPurpose(listing.purpose || 'Sell');
+                    setPropertyCategory(listing.propertyCategory || 'Home');
+                    setPropertyType(listing.propertyType || 'House');
+                    setBedrooms(listing.rooms_available?.toString() || '3');
+                    // Convert amenities array back to Record for the modal
+                    if (listing.amenities) {
+                        const ams: Record<string, any> = {};
+                        listing.amenities.forEach((a: string) => ams[a] = true);
+                        setSelectedAmenities(ams);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch listing for edit", error);
+                    alert("Failed to load listing data");
+                }
+            }
+        };
+        fetchListing();
+    }, [isEditMode, id]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        const fileArray = Array.from(files);
+        const newImages: string[] = [];
+
+        fileArray.forEach(file => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                newImages.push(reader.result as string);
+                if (newImages.length === fileArray.length) {
+                    setFormData(prev => ({
+                        ...prev,
+                        images: [...prev.images, ...newImages],
+                        thumbnail: prev.thumbnail || newImages[0]
+                    }));
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeImage = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        try {
+            const listingData = {
+                city: formData.city,
+                area: formData.area,
+                monthly_rent_PKR: parseInt(formData.monthly_rent_PKR) || 0,
+                rooms_available: parseInt(bedrooms) || 0,
+                amenities: Object.keys(selectedAmenities),
+                availability: "Available",
+                thumbnail: formData.thumbnail || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3",
+                images: formData.images.length > 0 ? formData.images : ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3"],
+                purpose,
+                propertyCategory,
+                propertyType,
+                title: formData.title,
+                description: formData.description,
+                latitude: formData.latitude,
+                longitude: formData.longitude,
+            };
+
+            if (isEditMode && id) {
+                await api.updateListing(id, listingData);
+                alert("Listing updated successfully!");
+            } else {
+                await api.createListing(listingData);
+                alert("Listing created successfully!");
+            }
+            
+            if (onNavigateToDashboard) onNavigateToDashboard();
+            else navigate('/property-owner-dashboard');
+        } catch (error: any) {
+            alert(error.message || "Failed to save listing");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     // Amenity Configuration
     const AMENITY_TABS: Record<string, AmenityConfig[]> = {
@@ -212,19 +358,17 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
             <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm sticky-top px-3">
                 <div className="container-fluid">
                     <a className="navbar-brand d-flex align-items-center gap-2" href="#" onClick={(e) => { e.preventDefault(); handleHome(); }}>
-                        <Home className="text-primary" size={24} style={{ color: '#14919B' }} />
-                        <span className="fw-bold" style={{ color: '#14919B', fontSize: '1.25rem' }}>RoomEase</span>
+                        <Home className="brand-icon" size={24} />
+                        <span className="brand-text fw-bold" style={{ fontSize: '1.25rem' }}>RoomEase</span>
                     </a>
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#postListingNavbar" aria-controls="postListingNavbar" aria-expanded="false" aria-label="Toggle navigation">
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="postListingNavbar">
                         <div className="ms-auto d-flex align-items-center gap-3">
-                            {/* Settings Icon */}
                             <button className="btn btn-link text-secondary p-0 border-0" onClick={(e) => { e.preventDefault(); alert('Settings Coming Soon'); }} title="Settings">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                             </button>
-                            {/* Notification Icon */}
                             <button className="btn btn-link text-secondary p-0 border-0" onClick={(e) => { e.preventDefault(); alert('Notifications Coming Soon'); }} title="Notifications">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                             </button>
@@ -237,50 +381,7 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
             </nav>
 
             <div className="post-listing-body">
-                {/* Left Sidebar */}
-                <div className="listing-sidebar">
-                    <div className="sidebar-step active">
-                        <div className="sidebar-icon-box">
-                            <MapPin size={24} />
-                        </div>
-                        <div className="sidebar-label">Location and<br />Purpose</div>
-                    </div>
 
-                    <div className="sidebar-step active">
-                        <div className="sidebar-icon-box">
-                            <DollarSign size={24} />
-                        </div>
-                        <div className="sidebar-label">Price and<br />Area</div>
-                    </div>
-
-                    <div className="sidebar-step active">
-                        <div className="sidebar-icon-box">
-                            <Star size={24} />
-                        </div>
-                        <div className="sidebar-label">Feature and<br />Amenities</div>
-                    </div>
-
-                    <div className="sidebar-step active">
-                        <div className="sidebar-icon-box">
-                            <FileText size={24} />
-                        </div>
-                        <div className="sidebar-label">Ad<br />Information</div>
-                    </div>
-
-                    <div className="sidebar-step active">
-                        <div className="sidebar-icon-box">
-                            <Image size={24} />
-                        </div>
-                        <div className="sidebar-label">Property Images<br />and Videos</div>
-                    </div>
-
-                    <div className="sidebar-step active">
-                        <div className="sidebar-icon-box">
-                            <Phone size={24} />
-                        </div>
-                        <div className="sidebar-label">Contact<br />Information</div>
-                    </div>
-                </div>
 
                 {/* Right Content */}
                 <div className="listing-form-content">
@@ -288,21 +389,25 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                     {/* Card 1: Location and Purpose */}
                     <div className="form-card">
                         <div className="form-section-header">
-                            <CheckCircle size={20} className="section-icon-small" />
-                            <div>
-                                <label className="section-label">Select Purpose</label>
-                                <div className="purpose-pills">
+                            <div className="section-icon-container">
+                                <CheckCircle size={24} />
+                            </div>
+                            <div className="ms-1 pt-1">
+                                <label className="section-label mb-0">Select Purpose</label>
+                                <div className="purpose-pills mt-2">
                                     <button className={`pill-btn ${purpose === 'Sell' ? 'active' : ''}`} onClick={() => setPurpose('Sell')}>Sell</button>
                                     <button className={`pill-btn ${purpose === 'Rent' ? 'active' : ''}`} onClick={() => setPurpose('Rent')}>Rent</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="form-section-header">
-                            <Building size={20} className="section-icon-small" />
-                            <div style={{ width: '100%' }}>
-                                <label className="section-label">Select Property Type</label>
-                                <div className="property-type-tabs">
+                        <div className="form-section-header mt-4">
+                            <div className="section-icon-container">
+                                <Building size={24} />
+                            </div>
+                            <div className="ms-1 pt-1 w-100">
+                                <label className="section-label mb-0">Select Property Type</label>
+                                <div className="property-type-tabs mt-2">
                                     {['Home', 'Plots', 'Commercial'].map(cat => (
                                         <div key={cat} className={`type-tab ${propertyCategory === cat ? 'active' : ''}`} onClick={() => setPropertyCategory(cat)}>{cat}</div>
                                     ))}
@@ -323,42 +428,58 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                             <div className="input-icon-wrapper"><MapPin size={20} /></div>
                             <div className="input-field-wrapper">
                                 <label className="section-label" style={{ marginBottom: '8px' }}>City</label>
-                                <select className="custom-input">
-                                    <option>Select City</option>
-                                    <option>Lahore</option>
-                                    <option>Islamabad</option>
+                                <select className="custom-input" name="city" value={formData.city} onChange={handleInputChange}>
+                                    <option value="">Select City</option>
+                                    <option value="Lahore">Lahore</option>
+                                    <option value="Islamabad">Islamabad</option>
+                                    <option value="Karachi">Karachi</option>
+                                    <option value="Multan">Multan</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div className="input-group" style={{ marginBottom: '10px' }}>
-                            <div className="input-icon-wrapper"><MapPin size={20} style={{ opacity: 0.5 }} /></div>
+                        <div className="input-group">
+                            <div className="input-icon-wrapper"><MapPin size={20} /></div>
                             <div className="input-field-wrapper">
-                                <label className="section-label" style={{ marginBottom: '8px' }}>Location</label>
-                                <input type="text" className="custom-input" placeholder="Search Location" style={{ background: '#F8F9FA' }} />
+                                <label className="section-label">Location</label>
+                                <input type="text" name="area" value={formData.area} onChange={handleInputChange} className="custom-input" placeholder="e.g. DHA Phase 5" />
                             </div>
                         </div>
 
-                        <div style={{ paddingLeft: '40px' }}>
+                        <div className="mt-3" style={{ paddingLeft: '40px' }}>
                             <div className="map-placeholder">
-                                <div className="map-pin-center"><MapPin size={32} color="#00A651" fill="#00A651" /></div>
-                                <button className="btn-set-location"><MapPin size={16} /> Set Location on Map</button>
+                                <div className="map-pin-center"><MapPin size={32} className="text-accent" /></div>
+                                <button className="btn-set-location" onClick={() => setShowLocationModal(true)}>
+                                    <MapPin size={16} /> 
+                                    {formData.latitude !== 31.5204 ? 'Location Set' : 'Set Location on Map'}
+                                </button>
+                                {formData.latitude !== 31.5204 && (
+                                    <div className="text-muted small mt-1">Coords: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}</div>
+                                )}
                             </div>
                         </div>
                     </div>
 
                     {/* Card 2: Price and Area */}
                     <div className="form-card">
+                        <div className="form-section-header mb-4">
+                            <div className="section-icon-container">
+                                <Layers size={24} />
+                            </div>
+                            <div className="ms-1 pt-1">
+                                <h3 className="fw-bold fs-5 mb-0">Price and Area</h3>
+                            </div>
+                        </div>
                         <div className="input-group">
                             <div className="input-icon-wrapper"><Layers size={20} /></div>
                             <div className="input-field-wrapper">
                                 <label className="section-label" style={{ marginBottom: '8px' }}>Area Size</label>
                                 <div className="d-flex gap-2">
-                                    <input type="number" className="custom-input" placeholder="Enter Unit" style={{ flex: 2 }} />
-                                    <select className="custom-input" style={{ flex: 1 }}>
-                                        <option>Marla</option>
-                                        <option>Sq. Ft.</option>
-                                        <option>Kanal</option>
+                                    <input type="number" name="area_size" value={formData.area_size} onChange={handleInputChange} className="custom-input" placeholder="Enter Unit" style={{ flex: 2 }} />
+                                    <select name="area_unit" value={formData.area_unit} onChange={handleInputChange} className="custom-input" style={{ flex: 1 }}>
+                                        <option value="Marla">Marla</option>
+                                        <option value="Sq. Ft.">Sq. Ft.</option>
+                                        <option value="Kanal">Kanal</option>
                                     </select>
                                 </div>
                             </div>
@@ -367,10 +488,10 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                         <div className="input-group">
                             <div className="input-icon-wrapper"><DollarSign size={20} /></div>
                             <div className="input-field-wrapper">
-                                <label className="section-label" style={{ marginBottom: '8px' }}>Price</label>
+                                <label className="section-label">Price / Rent (PKR)</label>
                                 <div className="d-flex gap-2">
-                                    <input type="number" className="custom-input" placeholder="Enter Price" style={{ flex: 2 }} />
-                                    <select className="custom-input" style={{ flex: 1, backgroundColor: '#f0f0f0' }} disabled><option>PKR</option></select>
+                                    <input type="number" name="monthly_rent_PKR" value={formData.monthly_rent_PKR} onChange={handleInputChange} className="custom-input" placeholder="Enter Price" style={{ flex: 2 }} />
+                                    <div className="custom-input d-flex align-items-center justify-content-center" style={{ flex: 1, opacity: 0.7 }}>PKR</div>
                                 </div>
                             </div>
                         </div>
@@ -378,8 +499,8 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                         <div style={{ paddingLeft: '40px' }}>
                             <div className="d-flex align-items-center justify-content-between mb-4">
                                 <div>
-                                    <div className="section-label" style={{ marginBottom: '4px' }}>Installment available</div>
-                                    <div style={{ fontSize: '13px', color: '#666' }}>Enable if listing is available on installments</div>
+                                    <div className="section-label mb-1">Installment available</div>
+                                    <div className="section-subheader mb-0">Enable if listing is available on installments</div>
                                 </div>
                                 <label className="switch">
                                     <input type="checkbox" checked={installment} onChange={(e) => setInstallment(e.target.checked)} />
@@ -389,8 +510,8 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
 
                             <div className="d-flex align-items-center justify-content-between">
                                 <div>
-                                    <div className="section-label" style={{ marginBottom: '4px' }}>Ready for Possession</div>
-                                    <div style={{ fontSize: '13px', color: '#666' }}>Enable if listing is ready for possession</div>
+                                    <div className="section-label mb-1">Ready for Possession</div>
+                                    <div className="section-subheader mb-0">Enable if listing is ready for possession</div>
                                 </div>
                                 <label className="switch">
                                     <input type="checkbox" checked={possession} onChange={(e) => setPossession(e.target.checked)} />
@@ -402,13 +523,12 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
 
                     {/* Card 3: Feature and Amenities */}
                     <div className="form-card">
-                        <div className="form-section-header" style={{ marginBottom: '0' }}>
-                            <div className="section-icon-small" style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px', marginRight: '5px' }}>
-                                <Star size={24} color="#00A651" />
+                        <div className="form-section-header mb-4">
+                            <div className="section-icon-container">
+                                <Star size={24} />
                             </div>
-
-                            <div style={{ marginTop: '10px' }}>
-                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Feature and Amenities</h3>
+                            <div className="ms-1 pt-1">
+                                <h3 className="fw-bold fs-5 mb-0">Feature and Amenities</h3>
                             </div>
                         </div>
 
@@ -448,13 +568,13 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                             </div>
                         </div>
 
-                        <div className="input-group">
+                        <div className="input-group mt-4">
                             <div className="input-icon-wrapper"><Home size={20} /></div>
                             <div className="input-field-wrapper">
                                 <div className="d-flex justify-content-between align-items-center">
                                     <div>
-                                        <label className="section-label" style={{ marginBottom: '4px' }}>Feature and Amenities</label>
-                                        <p style={{ fontSize: '13px', color: '#999', margin: 0 }}>Add additional features e.g. parking spaces, waste disposal, internet etc.</p>
+                                        <label className="section-label">Feature and Amenities</label>
+                                        <p className="section-subheader mb-0">Add additional features e.g. parking spaces, waste disposal, internet etc.</p>
                                     </div>
                                     <button
                                         className="btn-add-amenities"
@@ -468,15 +588,15 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
 
                         {/* Selected Amenities Tags */}
                         {Object.keys(selectedAmenities).length > 0 && (
-                            <div className="selected-amenities-tags" style={{ marginTop: '20px' }}>
-                                <label className="section-label" style={{ fontSize: '13px' }}>Selected Amenities</label>
-                                <div className="d-flex flex-wrap gap-2 mt-2">
+                            <div className="selected-amenities-tags mt-4 ms-5">
+                                <label className="section-label fs-6 mb-2">Selected Amenities</label>
+                                <div className="d-flex flex-wrap gap-2">
                                     {Object.entries(selectedAmenities).map(([key, value]) => (
                                         <div key={key} className="amenity-tag">
                                             <span>{key}: {value === true ? 'Yes' : value}</span>
                                             <button
                                                 onClick={() => handleAmenityChange(key, false)}
-                                                style={{ background: 'none', border: 'none', color: '#00a651', cursor: 'pointer', padding: '0 0 0 6px', fontWeight: 'bold' }}
+                                                className="btn btn-link text-accent p-0 ms-1 fw-bold text-decoration-none"
                                             >
                                                 &times;
                                             </button>
@@ -494,11 +614,11 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                     {/* Card 4: Ad Information */}
                     <div className="form-card">
                         <div className="form-section-header">
-                            <div className="section-icon-small" style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px', marginRight: '5px' }}>
-                                <FileText size={24} color="#00A651" />
+                            <div className="section-icon-container">
+                                <FileText size={24} />
                             </div>
-                            <div style={{ marginTop: '10px' }}>
-                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Ad Information</h3>
+                            <div className="ms-1 pt-1">
+                                <h3 className="fw-bold fs-5 mb-0">Ad Information</h3>
                             </div>
                         </div>
 
@@ -506,7 +626,7 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                             <div className="input-icon-wrapper"><Type size={20} /></div>
                             <div className="input-field-wrapper">
                                 <label className="section-label" style={{ marginBottom: '8px' }}>Title</label>
-                                <input type="text" className="custom-input" placeholder="Enter property title e.g. Beautiful House in DHA Phase 5" />
+                                <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="custom-input" placeholder="Enter property title e.g. Beautiful House in DHA Phase 5" />
                             </div>
                         </div>
 
@@ -515,6 +635,9 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                             <div className="input-field-wrapper">
                                 <label className="section-label" style={{ marginBottom: '8px' }}>Description</label>
                                 <textarea
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleInputChange}
                                     className="custom-input"
                                     placeholder="Describe your property, it's features, area it is in etc."
                                     style={{ minHeight: '120px', resize: 'vertical' }}
@@ -525,57 +648,51 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
 
                     {/* Card 5: Property Images and Videos */}
                     <div className="form-card">
-                        <div className="form-section-header">
-                            <div className="section-icon-small" style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px', marginRight: '5px' }}>
-                                <Image size={24} color="#00A651" />
+                        <div className="form-section-header mb-4">
+                            <div className="section-icon-container">
+                                <Image size={24} />
                             </div>
-                            <div style={{ marginTop: '10px' }}>
-                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Property Images and Videos</h3>
+                            <div className="ms-1 pt-1">
+                                <h3 className="fw-bold fs-5 mb-0">Property Images and Videos</h3>
                             </div>
                         </div>
 
-                        <div className="input-group" style={{ marginTop: '30px' }}>
-                            <div className="input-icon-wrapper"><Image size={20} /></div>
-                            <div className="input-field-wrapper">
-                                <label className="section-label" style={{ marginBottom: '15px' }}>Upload Images of your Property</label>
+                        <input 
+                            type="file" 
+                            multiple 
+                            accept="image/*" 
+                            ref={fileInputRef} 
+                            style={{ display: 'none' }} 
+                            onChange={handleImageUpload}
+                        />
 
-                                <div className="upload-box-dashed">
-                                    <div className="d-flex align-items-center gap-4">
-                                        <div className="upload-placeholder-icon">
-                                            <Image size={32} color="#00A651" />
-                                        </div>
-                                        <div className="d-flex flex-column gap-2">
-                                            <button className="btn-upload-green">Upload Images</button>
-                                            <button className="btn-image-bank">Image Bank</button>
-                                        </div>
-                                        <div className="upload-tips">
-                                            <div className="tip-item"><CheckCircle size={14} color="#00A651" /> Ads with pictures get 5x more views.</div>
-                                            <div className="tip-item"><CheckCircle size={14} color="#00A651" /> Upload good quality pictures with proper lighting.</div>
-                                            <div className="tip-item"><CheckCircle size={14} color="#00A651" /> Double click to set cover image.</div>
-                                        </div>
+                        <div className="upload-box-dashed" onClick={() => fileInputRef.current?.click()}>
+                            <div className="upload-icon-circle"><Image size={32} /></div>
+                            <div className="upload-text">Click or drag to upload property images</div>
+                            <div className="upload-hint">Upload at least 5-10 high quality photos</div>
+                        </div>
+
+                        {formData.images.length > 0 && (
+                            <div className="image-preview-grid mt-4">
+                                {formData.images.map((img, idx) => (
+                                    <div key={idx} className="preview-item">
+                                        <img src={img} alt={`Preview ${idx}`} />
+                                        <button className="remove-img-btn" onClick={(e) => { e.stopPropagation(); removeImage(idx); }}>
+                                            <X size={14} />
+                                        </button>
                                     </div>
-                                    <div className="upload-footer-text">Max size 5MB, .jpg .png only</div>
-                                </div>
-
-
+                                ))}
                             </div>
-                        </div>
+                        )}
 
-                        <div className="input-group" style={{ marginTop: '30px' }}>
+                        <div className="input-group mt-5">
                             <div className="input-icon-wrapper"><Video size={20} /></div>
                             <div className="input-field-wrapper">
-                                <label className="section-label" style={{ marginBottom: '8px' }}>Add Videos of your Property</label>
-                                <div style={{ fontSize: '13px', color: '#666', marginBottom: '15px' }}>
-                                    Add videos of your property from Youtube. Upload on Youtube and paste the link below.
-                                </div>
-                                <button className="btn-add-video" style={{
-                                    background: '#fff',
-                                    color: '#00A651',
-                                    border: '1px solid #00A651',
-                                    padding: '8px 20px',
-                                    borderRadius: '6px',
-                                    fontWeight: 600
-                                }}>Add Video</button>
+                                <label className="section-label">Add Videos of your Property</label>
+                                <p className="section-subheader">
+                                    Add videos of your property from Youtube. Paste the link below.
+                                </p>
+                                <button className="btn-add-video">Add Video</button>
                             </div>
                         </div>
                     </div>
@@ -583,19 +700,19 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                     {/* Card 6: Contact Information */}
                     <div className="form-card">
                         <div className="form-section-header">
-                            <div className="section-icon-small" style={{ background: '#f8f9fa', padding: '10px', borderRadius: '8px', marginRight: '5px' }}>
-                                <Phone size={24} color="#00A651" />
+                            <div className="section-icon-container">
+                                <Phone size={24} />
                             </div>
-                            <div style={{ marginTop: '10px' }}>
-                                <h3 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Contact Information</h3>
+                            <div className="ms-1 pt-1">
+                                <h3 className="fw-bold fs-5 mb-0">Contact Information</h3>
                             </div>
                         </div>
 
-                        <div className="input-group" style={{ marginTop: '30px' }}>
+                        <div className="input-group mt-4">
                             <div className="input-icon-wrapper"><Mail size={20} /></div>
                             <div className="input-field-wrapper">
-                                <label className="section-label" style={{ marginBottom: '8px' }}>Email</label>
-                                <input type="email" className="custom-input" value="mhassamse@gmail.com" readOnly style={{ backgroundColor: '#fff' }} />
+                                <label className="section-label">Email</label>
+                                <input type="email" className="custom-input" value="mhassamse@gmail.com" readOnly style={{ opacity: 0.7 }} />
                             </div>
                         </div>
 
@@ -603,7 +720,7 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                             <div className="input-icon-wrapper"><Smartphone size={20} /></div>
                             <div className="input-field-wrapper">
                                 <label className="section-label" style={{ marginBottom: '8px' }}>Mobile</label>
-                                <input type="text" className="custom-input" placeholder="Enter Mobile Number" style={{ flex: 1 }} />
+                                <input type="text" name="mobile" value={formData.mobile} onChange={handleInputChange} className="custom-input" placeholder="Enter Mobile Number" style={{ flex: 1 }} />
                             </div>
                         </div>
 
@@ -612,7 +729,7 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                             <div className="input-icon-wrapper"><Phone size={20} /></div>
                             <div className="input-field-wrapper">
                                 <label className="section-label" style={{ marginBottom: '8px' }}>Landline</label>
-                                <input type="text" className="custom-input" placeholder="Enter Landline" />
+                                <input type="text" name="landline" value={formData.landline} onChange={handleInputChange} className="custom-input" placeholder="Enter Landline" />
                             </div>
                         </div>
 
@@ -620,12 +737,53 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                     {/* End Card 6 */}
 
                     <div className="d-flex justify-content-end mt-4 mb-5">
-                        <button className="btn-submit-listing">Submit</button>
+                        <button className="btn-submit-listing" onClick={handleSubmit} disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Listing' : 'Submit')}
+                        </button>
                     </div>
 
                 </div>
             </div>
+
+            {/* Location Picker Modal */}
+            {showLocationModal && (
+                <div className="custom-modal-overlay">
+                    <div className="custom-modal-content map-modal">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Select Property Location</h5>
+                            <button className="btn-close-custom" onClick={() => setShowLocationModal(false)}><X size={20} /></button>
+                        </div>
+                        <div className="modal-body p-0" style={{ height: '450px' }}>
+                            <MapContainer 
+                                center={[formData.latitude, formData.longitude]} 
+                                zoom={13} 
+                                style={{ height: '100%', width: '100%' }}
+                            >
+                                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                <LocationPicker 
+                                    position={{ lat: formData.latitude, lng: formData.longitude }} 
+                                    onPick={(pos) => setFormData(prev => ({ ...prev, latitude: pos.lat, longitude: pos.lng }))} 
+                                />
+                            </MapContainer>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn-standard" onClick={() => setShowLocationModal(false)}>Confirm Location</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
+const LocationPicker = ({ position, onPick }: { position: { lat: number, lng: number }, onPick: (pos: { lat: number, lng: number }) => void }) => {
+    useMapEvents({
+        click(e) {
+            onPick(e.latlng);
+        },
+    });
+
+    return position ? <Marker position={[position.lat, position.lng]} /> : null;
+};
+
+export default PostListingPage;

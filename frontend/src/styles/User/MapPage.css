@@ -1,202 +1,818 @@
-/* RoomEase Modern Map Styles */
-:root {
-    --brown-primary: #8B4513;
-    --brown-secondary: #A0522D;
-    --brown-light: #F4A460;
-    --brown-bg: #FFF8F0;
-    --glass-bg: rgba(255, 255, 255, 0.85);
-    --glass-border: rgba(139, 69, 19, 0.2);
-}
-
-.map-page-modern {
+/* Map Page Container */
+.map-page-container {
     height: 100vh;
     display: flex;
     flex-direction: column;
+    font-family: 'Segoe UI', Roboto, sans-serif;
     overflow: hidden;
-    background-color: var(--brown-bg);
 }
 
-.map-main {
-    flex: 1;
+/* Navbar override if needed, otherwise uses standard */
+
+/* Map Content Area */
+.map-content-wrapper {
     position: relative;
+    flex: 1;
     width: 100%;
+    overflow: hidden;
 }
 
-.map-container-wrapper {
+/* The actual map background (iframe) */
+.map-iframe {
     width: 100%;
-    height: 100%;
-    z-index: 1;
+    height: calc(100% + 300px);
+    /* Push logo off-screen */
+    border: 0;
+    display: block;
+    margin-top: -150px;
+    /* Re-center slightly */
+    pointer-events: all;
 }
 
-/* Loading Overlay */
-.map-loading-overlay {
+/* ===========================
+   Floating UI Elements
+=========================== */
+
+/* Top Search Bar Container */
+.map-search-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(4px);
+    top: 20px;
+    left: 20px;
+    z-index: 25;
+    /* Higher than sidebar (15) */
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Search Box */
+.search-box-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2px 12px 2px 20px;
+    /* More padding left since no icon */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    width: 360px;
+    /* Slightly wider */
+    height: 48px;
+    box-sizing: border-box;
+    transition: box-shadow 0.2s;
+}
+
+.search-box-card:hover,
+.search-box-card:focus-within {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: #202124;
+    flex: 1;
+    height: 100%;
+    background: transparent;
+}
+
+.search-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 8px;
+}
+
+.search-divider {
+    width: 1px;
+    height: 24px;
+    background-color: #dadce0;
+    margin: 0 4px;
+}
+
+.action-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #1a73e8;
+    /* Google Blue */
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    color: var(--brown-primary);
 }
 
-.spinner-medium {
+.action-icon-btn:hover {
+    background-color: #f1f3f4;
+}
+
+/* Filter Chips (Pills) */
+.filter-chips-container {
+    position: absolute;
+    top: 20px;
+    left: 360px;
+    /* Offset from search bar */
+    z-index: 10;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-right: 20px;
+    padding-bottom: 5px;
+    /* For scrollbar if needed */
+    scrollbar-width: none;
+    /* Hide scrollbar */
+}
+
+.filter-chips-container::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-chip {
+    background: white;
+    border: none;
+    border-radius: 18px;
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #3c4043;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05);
+    /* Softer shadow */
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.filter-chip:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.filter-chip.active {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    border: 1px solid transparent;
+    /* No border usually on Google Maps, just color */
+}
+
+/* Bottom Right Controls (Zoom etc - optional visual only) */
+.map-controls {
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+}
+
+.control-btn {
     width: 40px;
     height: 40px;
-    border: 3px solid rgba(139, 69, 19, 0.1);
-    border-radius: 50%;
-    border-top-color: var(--brown-primary);
-    animation: spin 1s ease-in-out infinite;
-    margin-bottom: 12px;
+    background: white;
+    border-radius: 4px;
+    /* Slight round for zoom buttons usually */
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+.control-btn:hover {
+    color: #333;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .map-search-container {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box-card {
+        width: 100%;
+    }
+
+    .filter-chips-container {
+        top: 70px;
+        /* Below search bar */
+        left: 10px;
+        right: 10px;
     }
 }
 
-/* Custom Popup Styles */
-.room-ease-popup .leaflet-popup-content-wrapper {
-    padding: 0;
-    overflow: hidden;
-    border-radius: 12px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-.room-ease-popup .leaflet-popup-content {
-    margin: 0;
-    width: 220px !important;
-}
-
-.map-popup-content {
+/* Sidebar Detail Card */
+.location-detail-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 400px;
+    background: white;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+    z-index: 15;
+    /* Above map, below navbar if navbar z-index is higher */
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    animation: slideInLeft 0.3s ease-out;
 }
 
-.popup-image-container {
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+.sidebar-header-image {
     position: relative;
     width: 100%;
-    height: 120px;
+    height: 240px;
 }
 
-.popup-thumb {
+.sidebar-header-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.popup-price {
+.close-sidebar-btn {
     position: absolute;
-    bottom: 8px;
-    left: 8px;
-    background: var(--brown-primary);
+    top: 15px;
+    right: 15px;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: white;
-    padding: 4px 8px;
-    border-radius: 6px;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+
+.close-sidebar-btn:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.sidebar-content {
+    padding: 20px;
+}
+
+.location-title {
+    font-size: 22px;
+    font-weight: 400;
+    color: #202124;
+    margin: 0 0 8px 0;
+}
+
+.location-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #70757a;
+}
+
+.rating-score {
+    font-weight: 500;
+    color: #202124;
+}
+
+.stars {
+    display: flex;
+    align-items: center;
+}
+
+.location-category {
+    font-size: 14px;
+    color: #70757a;
+    margin-bottom: 16px;
+}
+
+/* Tabs: Overview, Reviews */
+.location-tabs {
+    display: flex;
+    margin-bottom: 0;
+    border-bottom: 1px solid #e8eaed;
+    /* Full width border line */
+}
+
+.tab-item {
+    font-size: 14px;
+    font-weight: 500;
+    color: #70757a;
+    padding-bottom: 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    flex: 1;
+    /* Match screenshot equal spacing */
+    text-align: center;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-item.active {
+    color: #1a73e8;
+    border-bottom: 3px solid #1a73e8;
+}
+
+/* ... existing Action Buttons ... */
+
+/* Reviews Section Styles */
+.reviews-section {
+    padding-top: 10px;
+}
+
+.rating-breakdown-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.rating-left-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.rating-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 12px;
-    font-weight: 600;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: #70757a;
 }
 
-.popup-info {
-    padding: 12px;
+.rating-num {
+    width: 8px;
 }
 
-.popup-area {
-    margin: 0 0 4px 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: #333;
+.rating-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #f1f3f4;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-.popup-city {
-    margin: 0 0 12px 0;
+.rating-bar-fill {
+    height: 100%;
+    background: #fbbc04;
+    border-radius: 4px;
+}
+
+.rating-right-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100px;
+}
+
+.big-rating {
+    font-size: 48px;
+    font-weight: 400;
+    color: #202124;
+    line-height: 1;
+}
+
+.rating-count-text {
+    font-size: 12px;
+    color: #70757a;
+    margin-top: 4px;
+}
+
+.write-review-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.write-review-btn {
+    background: #e6f4ea;
+    /* Light green/teal tint from screenshot looks teal-ish or blue-ish light */
+    color: #137333;
+    /* Dark green/teal */
+    /* Wait, the screenshot button is light blue with dark blue text? 
+       Actually user screenshot has light blue button text "Write a review". 
+       Let's use similar to "Add photos" but maybe different color if screenshot implies.
+       Screenshot shows: Light blue bg, Blue text. similar to "Add photos"
+    */
+    background: #e8f0fe;
+    color: #1a73e8;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.write-review-btn:hover {
+    background: #d2e3fc;
+}
+
+.review-keywords {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    /* Hide scrollbar */
+    scrollbar-width: none;
+}
+
+.review-keywords::-webkit-scrollbar {
+    display: none;
+}
+
+.keyword-chip {
+    border: 1px solid #dadce0;
+    border-radius: 16px;
+    padding: 6px 12px;
     font-size: 13px;
-    color: #666;
+    color: #3c4043;
+    white-space: nowrap;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 4px;
 }
 
-.inline-icon {
-    color: var(--brown-primary);
+.keyword-chip span {
+    color: #70757a;
+    font-size: 12px;
 }
 
-.popup-view-btn {
-    font-size: 13px !important;
-    padding: 8px !important;
+.keyword-chip.active {
+    background: #e8f0fe;
+    color: #1967d2;
+    border-color: #e8f0fe;
 }
 
-/* Legend Overlay */
-.map-legend {
-    position: absolute;
-    bottom: 24px;
-    left: 24px;
-    z-index: 1000;
-    background: var(--glass-bg);
-    backdrop-filter: blur(8px);
-    padding: 10px 16px;
-    border-radius: 12px;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.keyword-chip.active span {
+    color: #1967d2;
+}
+
+/* Individual Review Card */
+.review-card {
+    margin-bottom: 20px;
+}
+
+.review-header {
     display: flex;
     align-items: center;
-    gap: 8px;
+    margin-bottom: 12px;
 }
 
-.legend-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--brown-primary);
+.reviewer-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+}
+
+.reviewer-info {
+    flex: 1;
+}
+
+.reviewer-name {
     font-size: 14px;
+    font-weight: 500;
+    color: #202124;
+}
+
+.review-meta {
+    font-size: 12px;
+    color: #70757a;
+}
+
+.review-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #70757a;
+}
+
+.review-stars-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.review-date {
+    font-size: 12px;
+    color: #70757a;
+}
+
+.review-text {
+    font-size: 14px;
+    color: #3c4043;
+    line-height: 1.5;
+}
+
+.read-more {
+    color: #1a73e8;
+    cursor: pointer;
     font-weight: 500;
 }
 
-/* Cluster Customization (Optional) */
-.marker-cluster-small {
-    background-color: rgba(139, 69, 19, 0.6);
+/* Action Buttons Row */
+.action-buttons-row {
+    display: flex;
+    justify-content: flex-start;
+    /* Changed from space-around for scrolling/tight packing if needed, but space-around looks fine for fixed width */
+    gap: 24px;
+    margin: 12px 0 12px 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    /* For scrollbar if needed */
 }
 
-.marker-cluster-small div {
-    background-color: rgba(139, 69, 19, 0.8);
+/* Hide scrollbar for actions row */
+.action-buttons-row::-webkit-scrollbar {
+    display: none;
+}
+
+.action-btn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    min-width: 60px;
+    /* Ensure buttons have space */
+}
+
+.action-btn-item span {
+    font-size: 12px;
+    color: #1a73e8;
+    font-weight: 500;
+    text-align: center;
+}
+
+.circle-btn {
+    width: 36px;
+    /* Slightly smaller to match screenshot density */
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #dadce0;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.circle-btn:hover {
+    background: #f1f3f4;
+}
+
+.circle-btn.active-btn {
+    background: #1a73e8;
+    border-color: #1a73e8;
+}
+
+.circle-btn.active-btn svg {
+    fill: white;
     color: white;
 }
 
-.marker-cluster-medium {
-    background-color: rgba(160, 82, 45, 0.6);
+.sidebar-divider {
+    border: 0;
+    border-top: 1px solid #e8eaed;
+    margin: 0 -20px 16px -20px;
 }
 
-.marker-cluster-medium div {
-    background-color: rgba(160, 82, 45, 0.8);
+/* Details List */
+.details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: flex-start;
+    /* Align icon to top for multi-line text */
+    gap: 16px;
+    color: #3c4043;
+    font-size: 14px;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.detail-item:hover {
+    color: #1a73e8;
+}
+
+.detail-icon {
+    color: #1a73e8;
+    /* Blue icons closer to generic, or specific grey? Screenshot has specific colors. MapPin is blue/teal. Globe is blue. Phone is blue. */
+    width: 20px;
+    flex-shrink: 0;
+}
+
+/* Specific icon colors if needed */
+/* The screenshot shows Blue generic color for Details icons mostly, or variations. Let's stick to a specific blue or grey. */
+.detail-item .detail-icon {
+    color: #70757a;
+    /* Default grey */
+}
+
+/* Address usually has a pin which might be blue */
+
+/* Sections Headers */
+.section-header {
+    font-size: 16px;
+    font-weight: 500;
+    color: #202124;
+    margin-bottom: 12px;
+}
+
+/* Photos Section */
+.photos-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 8px;
+    /* For scrollbar space */
+    margin-bottom: 12px;
+}
+
+.photos-scroll-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.photos-scroll-container::-webkit-scrollbar-thumb {
+    background: #dadce0;
+    border-radius: 3px;
+}
+
+.photo-card {
+    min-width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.photo-card.view-more-card {
+    min-width: 40px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dadce0;
+    /* Optional */
+}
+
+.photo-label {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
     color: white;
+    font-weight: 500;
+    font-size: 12px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
 }
 
-.marker-cluster-large {
-    background-color: rgba(139, 69, 19, 0.8);
+.add-photos-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
 }
 
-.marker-cluster-large div {
-    background-color: rgba(139, 69, 19, 1);
-    color: white;
+.add-photos-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #e8f0fe;
+    color: #174ea6;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
 }
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .map-legend {
-        bottom: 80px;
-        /* Space for mobile nav if any */
-        left: 10px;
-        right: 10px;
-        justify-content: center;
-    }
+.add-photos-btn:hover {
+    background: #d2e3fc;
+}
+
+/* At This Place Section */
+.places-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.place-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.place-info {
+    flex: 1;
+}
+
+.place-name {
+    font-size: 14px;
+    color: #202124;
+    font-weight: 400;
+    /* Regular per screenshot usually */
+    margin-bottom: 2px;
+}
+
+.place-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #70757a;
+    margin-bottom: 2px;
+}
+
+.stars-small {
+    display: flex;
+}
+
+.place-type {
+    font-size: 12px;
+    color: #70757a;
+    margin-bottom: 2px;
+}
+
+.place-hours {
+    font-size: 12px;
+    color: #70757a;
+}
+
+.closed-text {
+    color: #d93025;
+    /* Red for Closed */
+}
+
+.place-thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.place-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- Footer --- */
+.footer {
+    background-color: #111827;
+    color: #9ca3af;
+    padding: 1rem 2rem;
+    margin-top: auto;
+    width: 100%;
+}
+
+.footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 0.9rem;
+    padding-top: 0;
+}
+
+.footer-bottom p {
+    margin: 0;
 }

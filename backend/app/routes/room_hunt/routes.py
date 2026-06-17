@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 from bson import ObjectId
 
-from db.mongo import get_profiles_collection, get_housing_collection
+from db.mongo import get_profiles_collection, get_housing_collection, get_users_collection
 from utils.jwt_utils import get_user_from_cookie
 from routes.users.users_response_schemas import UserResponse
 from agents.room_hunter_agent import room_hunter_agent
@@ -74,32 +74,29 @@ def top_housing_matches_route(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error computing housing matches: {e}")
 
-
-@router.get("/best_housing_matches")
-def best_housing_matches_route(
+@router.get("/recommended_housing")
+def recommended_housing_route(
     current_user: UserResponse = Depends(get_user_from_cookie),
     top_n: int = 10
 ) -> List[Dict[str, Any]]:
     """
-    Get top N housing matches for the currently logged-in user.
+    Get top N recommended housing listings for the logged-in user.
     """
     if not room_hunter_agent:
         raise HTTPException(status_code=500, detail="RoomHunterAgent not initialized.")
 
+    users_collection = get_users_collection()
+    profiles_collection = get_profiles_collection()
+
     try:
-        profiles_collection = get_profiles_collection()
-        users_collection = get_users_collection()
-
-        # 1. Find user's profile
         user_doc = users_collection.find_one({"_id": ObjectId(current_user.id)})
-        if not user_doc or not user_doc.get("profile_id"):
+        if not user_doc or "profile_id" not in user_doc:
             raise HTTPException(status_code=404, detail="User profile not found. Please create a profile first.")
-
+        
         profile_doc = profiles_collection.find_one({"_id": ObjectId(user_doc["profile_id"])})
         if not profile_doc:
             raise HTTPException(status_code=404, detail="Profile document not found.")
 
-        # 2. Extract profile data
         user_profile = {
             "id": str(profile_doc["_id"]),
             "city": profile_doc.get("city"),
@@ -109,28 +106,73 @@ def best_housing_matches_route(
             "cleanliness": profile_doc.get("cleanliness"),
             "noise_tolerance": profile_doc.get("noise_tolerance"),
             "study_habits": profile_doc.get("study_habits"),
-            "food_pref": profile_doc.get("food_pref"),
+            "food_pref": profile_doc.get("food_pref")
         }
 
-        # 3. Get matches
         matches = room_hunter_agent.get_top_housing_matches([user_profile], top_n=top_n)
 
-        # 4. JSON-ify
+        # Convert all ObjectIds to strings in the response
         json_matches = []
         for m in matches:
             match_dict = m.dict() if hasattr(m, "dict") else dict(m)
-            # MongoDB IDs and other cleanup if needed
+            # Ensure id is present and stringified
             if "_id" in match_dict:
                 match_dict["id"] = str(match_dict["_id"])
                 del match_dict["_id"]
-            elif "id" not in match_dict:
-                # Fallback id if missing
-                match_dict["id"] = "H" + str(hash(match_dict.get("short_reason", "")))[:6]
-                
             json_matches.append(match_dict)
 
         return json_matches
 
+    except HTTPException:
+        raise
     except Exception as e:
-        print(f"Error in housing match: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Error computing housing matches: {e}")
+
+@router.post("/wishlist/{listing_id}")
+def toggle_wishlist_route(
+    listing_id: str,
+    current_user: UserResponse = Depends(get_user_from_cookie)
+):
+    try:
+        from db.mongo import get_wishlist_collection
+        wishlist_col = get_wishlist_collection()
+        
+        query = {"user_id": current_user.id, "listing_id": listing_id}
+        existing = wishlist_col.find_one(query)
+        
+        if existing:
+            wishlist_col.delete_one(query)
+            return {"status": "removed"}
+        else:
+            wishlist_col.insert_one(query)
+            return {"status": "added"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Wishlist error: {e}")
+
+@router.get("/wishlist")
+def get_wishlist_route(
+    current_user: UserResponse = Depends(get_user_from_cookie)
+) -> List[Dict[str, Any]]:
+    try:
+        from db.mongo import get_wishlist_collection, get_housing_collection
+        wishlist_col = get_wishlist_collection()
+        housing_col = get_housing_collection()
+        
+        # Find all wishlisted IDs for this user
+        wish_docs = list(wishlist_col.find({"user_id": current_user.id}))
+        listing_ids = [ObjectId(doc["listing_id"]) for doc in wish_docs if ObjectId.is_valid(doc["listing_id"])]
+        
+        if not listing_ids:
+            return []
+            
+        listings = list(housing_col.find({"_id": {"$in": listing_ids}}))
+        
+        json_listings = []
+        for listing in listings:
+            listing["id"] = str(listing["_id"])
+            del listing["_id"]
+            json_listings.append(listing)
+            
+        return json_listings
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching wishlist: {e}")

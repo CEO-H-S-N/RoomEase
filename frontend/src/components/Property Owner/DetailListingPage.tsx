@@ -1,82 +1,67 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { Home, Bell, ArrowLeft, MapPin, Bed, Maximize2, Check, Share2, Heart } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { api } from '../../services/api';
 import '../../styles/Property Owner/DetailListingPage.css';
 
 export const DetailListingPage = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [listing, setListing] = useState<any>(null);
-
-    // Sample Data (Same as Dashboard)
-    const listingsData = [
-        {
-            _id: "6990dc86d70eb9f7427daafa",
-            listing_id: "H-0019",
-            city: "Multan",
-            area: "Gulgasht Colony",
-            monthly_rent_PKR: 17696,
-            rooms_available: 3,
-            amenities: ["WiFi", "Parking", "Kitchen", "AC", "Heating"],
-            availability: "Not Available",
-            thumbnail: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"],
-            rating: 3.7,
-            review_count: 2,
-            type: "Rent",
-            description: "A spacious 3-room apartment located in the heart of Gulgasht Colony. Features modern amenities and close proximity to markets and schools."
-        },
-        {
-            _id: "6990dc86d70eb9f7427daafb",
-            listing_id: "H-0020",
-            city: "Multan",
-            area: "Shah Rukn-e-Alam",
-            monthly_rent_PKR: 16707,
-            rooms_available: 2,
-            amenities: ["WiFi", "Parking", "Kitchen", "AC", "Heating"],
-            availability: "Available",
-            thumbnail: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"],
-            rating: 5,
-            review_count: 4,
-            type: "Rent",
-            description: "Cozy 2-room unit in Shah Rukn-e-Alam. Ideal for small families or students. Includes dedicated parking and high-speed internet."
-        },
-        {
-            _id: "6990dc86d70eb9f7427daafc",
-            listing_id: "H-0021",
-            city: "Karachi",
-            area: "Clifton",
-            monthly_rent_PKR: 20032,
-            rooms_available: 4,
-            amenities: ["WiFi", "Parking", "Kitchen", "AC", "Heating", "Pool", "Gym"],
-            availability: "Available",
-            thumbnail: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1484154218962-a1c002085d2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"],
-            rating: 4.4,
-            review_count: 3,
-            type: "Rent",
-            description: "Luxury 4-room apartment in Clifton with sea view. Building amenities include a gym and swimming pool. Secure and premium location."
-        }
-    ];
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (id) {
-            const foundHelper = listingsData.find(l => l.listing_id === id || l._id === id);
-            setListing(foundHelper || null);
-        }
+        const fetchListing = async () => {
+            if (id) {
+                try {
+                    const data = await api.getListing(id);
+                    setListing(data);
+                } catch (error) {
+                    console.error("Failed to fetch listing", error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        fetchListing();
     }, [id]);
+
+    const handleEditListing = () => {
+        navigate(`/property-owner-edit-listing/${id}`);
+    };
+
+    const handleDeleteListing = async () => {
+        if (window.confirm("Are you sure you want to delete this listing?")) {
+            try {
+                await api.deleteListing(id!);
+                alert("Listing deleted successfully!");
+                navigate('/property-owner-dashboard');
+            } catch (error: any) {
+                alert(error.message || "Failed to delete listing");
+            }
+        }
+    };
 
     const handleLogout = () => {
         navigate('/');
     };
 
-    if (!listing) {
+    if (loading) {
         return (
-            <div className="detail-listing-container d-flex align-items-center justify-content-center text-white">
+            <div className="detail-listing-container d-flex align-items-center justify-content-center text-white min-vh-100">
                 <div className="text-center">
                     <h2>Loading...</h2>
-                    <button className="btn btn-link text-white" onClick={() => navigate('/property-owner-dashboard')}>Back to Dashboard</button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!listing) {
+        return (
+            <div className="detail-listing-container d-flex align-items-center justify-content-center text-white min-vh-100">
+                <div className="text-center">
+                    <h2>Listing not found</h2>
+                    <button className="btn btn-link text-white mt-3" onClick={() => navigate('/property-owner-dashboard')}>Back to Dashboard</button>
                 </div>
             </div>
         );
@@ -139,7 +124,7 @@ export const DetailListingPage = () => {
                                         </div>
                                     </div>
                                     <div className="text-end">
-                                        <div className="h2 fw-bold text-accent mb-0">PKR {listing.monthly_rent_PKR.toLocaleString()}</div>
+                                        <div className="h2 fw-bold text-accent mb-0">PKR {(listing.monthly_rent_PKR || 0).toLocaleString()}</div>
                                         <span className="text-secondary small">per month</span>
                                     </div>
                                 </div>
@@ -205,14 +190,14 @@ export const DetailListingPage = () => {
                             <div className="card border-0 p-4 detail-card sticky-top" style={{ top: '100px', borderRadius: '16px' }}>
                                 <h5 className="fw-bold text-white mb-4">Manage Listing</h5>
                                 <div className="d-grid gap-3">
-                                    <button className="btn btn-prominent w-100">Edit Listing</button>
-                                    <button className="btn btn-outline-light w-100">Mark as Unavailable</button>
-                                    <button className="btn btn-outline-danger w-100">Delete Listing</button>
+                                    <button className="btn-manage-light w-100" onClick={handleEditListing}>Edit Listing</button>
+                                    <button className="btn-manage-light w-100">Mark as {listing.availability === 'Available' ? 'Unavailable' : 'Available'}</button>
+                                    <button className="btn-manage-danger w-100" onClick={handleDeleteListing}>Delete Listing</button>
                                 </div>
                                 <hr className="border-secondary opacity-25 my-4" />
                                 <div className="d-flex justify-content-between text-secondary small">
                                     <span>Listed ID</span>
-                                    <span className="text-white mono">{listing.listing_id}</span>
+                                    <span className="text-white mono">{listing.listing_id || listing._id || id}</span>
                                 </div>
                             </div>
                         </div>

@@ -37,7 +37,7 @@ export default function NewMatchCrt({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'chat': window.location.href = '/messages'; break;
             case 'profiles': onNavigateToProfiles?.(); break;
             case 'edit-profile': onNavigateToSetting?.(); break;

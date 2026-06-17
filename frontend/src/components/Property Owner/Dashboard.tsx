@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Property Owner/Dashboard.css';
-import React from 'react';
-import { CheckCircle, Home, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CheckCircle, Home, Bell, Plus, MessageSquare } from 'lucide-react';
+import { api } from '../../services/api';
 
 interface DashboardProps {
     user?: {
@@ -15,7 +16,6 @@ interface DashboardProps {
     onNavigateToPostListing?: () => void;
     onNavigateToUserDashboard?: () => void;
     onNavigateToDetail?: (id: string) => void;
-    onNavigateToMatches?: () => void;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -25,67 +25,38 @@ const Dashboard: React.FC<DashboardProps> = ({
     onNavigateToNotification = () => console.log('Navigate to Notification'),
     onNavigateToSetting = () => console.log('Navigate to Setting'),
     onNavigateToPostListing,
-    onNavigateToDetail,
-    onNavigateToMatches = () => console.log('Navigate to Matches')
+    onNavigateToDetail
 }) => {
     const navigate = useNavigate();
+    const [listings, setListings] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Sample Data from Request
-    const listings = [
-        {
-            _id: "6990dc86d70eb9f7427daafa",
-            listing_id: "H-0019",
-            city: "Multan",
-            area: "Gulgasht Colony",
-            monthly_rent_PKR: 17696,
-            rooms_available: 3,
-            amenities: ["WiFi", "Parking", "Kitchen", "AC", "Heating"],
-            availability: "Not Available",
-            thumbnail: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"],
-            rating: 3.7,
-            review_count: 2,
-            type: "Rent" // Inferred from monthly_rent_PKR, assuming Rent if rent > 0
-        },
-        {
-            _id: "6990dc86d70eb9f7427daafb",
-            listing_id: "H-0020",
-            city: "Multan",
-            area: "Shah Rukn-e-Alam",
-            monthly_rent_PKR: 16707,
-            rooms_available: 2,
-            amenities: ["WiFi", "Parking", "Kitchen", "AC", "Heating"],
-            availability: "Available",
-            thumbnail: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            images: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"],
-            rating: 5,
-            review_count: 4,
-            type: "Rent"
-        },
-        {
-            _id: "6990dc86d70eb9f7427daafc",
-            listing_id: "H-0021",
-            city: "Karachi",
-            area: "Clifton",
-            monthly_rent_PKR: 20032,
-            rooms_available: 4,
-            amenities: ["WiFi", "Parking", "Kitchen", "AC", "Heating", "Pool", "Gym"],
-            availability: "Available",
-            thumbnail: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-            images: ["https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", "https://images.unsplash.com/photo-1484154218962-a1c002085d2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"],
-            rating: 4.4,
-            review_count: 3,
-            type: "Rent"
-        }
-    ];
+    useEffect(() => {
+        const fetchListings = async () => {
+            try {
+                const data = await api.getMyListings();
+                setListings(data);
+            } catch (error) {
+                console.error("Failed to fetch listings", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchListings();
+    }, []);
 
     // Calculate Stats
     const activeListings = listings.filter(l => l.availability === "Available").length;
-    const pendingListings = 0; // No data for pending
+    const pendingListings = 0; // TBD based on future logic
     const offlineListings = listings.filter(l => l.availability === "Not Available").length;
 
     // Derived stats
-    const forRentCount = listings.filter(l => l.type === "Rent").length; // All 3
+    const forSaleCount = listings.filter(l => l.purpose === "Sell").length;
+    const forRentCount = listings.filter(l => l.purpose === "Rent" || l.monthly_rent_PKR > 0).length;
+
+    if (loading) {
+        return <div className="d-flex justify-content-center align-items-center vh-100">Loading Dashboard...</div>;
+    }
 
     return (
         <div className="dashboard-container">
@@ -101,9 +72,17 @@ const Dashboard: React.FC<DashboardProps> = ({
                     </button>
                     <div className="collapse navbar-collapse" id="dashboardNavbar">
                         <div className="ms-auto d-flex align-items-center gap-3">
+                            <button className="btn btn-link text-secondary p-0 border-0" onClick={() => navigate('/property-owner-messages')} title="Messages">
+                                <MessageSquare size={22} />
+                            </button>
                             {onNavigateToSetting && (
                                 <button className="btn btn-link text-secondary p-0 border-0" onClick={(e) => { e.preventDefault(); onNavigateToSetting(); }} title="Settings">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                </button>
+                            )}
+                            {onNavigateToNotification && (
+                                <button className="btn btn-link text-secondary p-0 border-0" onClick={(e) => { e.preventDefault(); onNavigateToNotification(); }} title="Notifications">
+                                    <Bell size={22} />
                                 </button>
                             )}
                             <button className="btn-standard" onClick={onLogout}>
@@ -128,7 +107,11 @@ const Dashboard: React.FC<DashboardProps> = ({
                         <p className="header-subtitle">Manage your property listings here.</p>
                     </div>
 
-                    <div className="header-stats">
+                    <div className="header-stats d-flex gap-2">
+                        <button className="btn-standard" style={{ background: 'transparent', border: '2px solid var(--primary-color, #D4745E)', color: 'var(--primary-color, #D4745E)' }} onClick={() => navigate('/property-owner-messages')}>
+                            <MessageSquare size={18} />
+                            Messages
+                        </button>
                         <button className="btn-standard" onClick={() => onNavigateToPostListing && onNavigateToPostListing()}>
                             <Plus size={18} strokeWidth={3} />
                             Add Property
@@ -160,7 +143,22 @@ const Dashboard: React.FC<DashboardProps> = ({
                         {/* Other Stats - Right Side Grid */}
                         <div className="col-md-9 ps-md-5">
                             <div className="row g-4">
-                                <div className="col-md-4">
+                                <div className="col-md-6">
+                                    <div
+                                        className="d-flex align-items-center gap-3 hover-scale cursor-pointer p-2 rounded"
+                                        onClick={() => onNavigateToListing && onNavigateToListing('sale')}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        <div className="p-2 rounded-circle stat-mini-icon-bg d-flex align-items-center justify-content-center" style={{ width: '48px', height: '48px' }}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="stat-mini-icon"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                                        </div>
+                                        <div>
+                                            <div className="text-white small">For Sale</div>
+                                            <div className="fw-bold text-white">{forSaleCount}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-md-6">
                                     <div
                                         className="d-flex align-items-center gap-3 hover-scale cursor-pointer p-2 rounded"
                                         onClick={() => onNavigateToListing && onNavigateToListing('rent')}
@@ -175,7 +173,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-4">
+                                <div className="col-md-6">
                                     <div
                                         className="d-flex align-items-center gap-3 hover-scale cursor-pointer p-2 rounded"
                                         onClick={() => onNavigateToListing && onNavigateToListing('pending')}
@@ -190,7 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-4">
+                                <div className="col-md-6">
                                     <div
                                         className="d-flex align-items-center gap-3 hover-scale cursor-pointer p-2 rounded"
                                         style={{ cursor: 'pointer' }}
@@ -218,21 +216,21 @@ const Dashboard: React.FC<DashboardProps> = ({
                         <div className="saved-listings-container" style={{ padding: '0' }}>
                             {listings.map(listing => (
                                 <div
-                                    key={listing._id}
+                                    key={listing._id || listing.id}
                                     className="listing-card-modern"
-                                    onClick={() => onNavigateToDetail && onNavigateToDetail(listing.listing_id)}
+                                    onClick={() => onNavigateToDetail && onNavigateToDetail(listing.listing_id || listing._id || listing.id)}
                                     style={{ cursor: 'pointer' }}
                                 >
-                                    <img src={listing.thumbnail} className="listing-img" alt={listing.city} />
+                                    <img src={listing.thumbnail || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"} className="listing-img" alt={listing.city} />
                                     <div className="listing-details">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <div className="listing-title mb-0">{listing.area}, {listing.city}</div>
+                                            <div className="listing-title mb-0">{listing.area || 'Unknown Area'}, {listing.city || 'Unknown City'}</div>
                                         </div>
-                                        <div className="listing-price">PKR {listing.monthly_rent_PKR.toLocaleString()}/mo</div>
+                                        <div className="listing-price">PKR {(listing.monthly_rent_PKR || 0).toLocaleString()}/mo</div>
 
                                         {/* Optional: Add Rating Badge */}
                                         <div className='d-flex align-items-center gap-1 mt-2' style={{ fontSize: '12px', color: 'var(--drood-text-muted)' }}>
-                                            <span style={{ color: '#FBBF24' }}>★</span> {listing.rating} ({listing.review_count} reviews)
+                                            <span style={{ color: '#FBBF24' }}>★</span> {listing.rating || 'N/A'} ({listing.reviews?.length || 0} reviews)
                                         </div>
                                     </div>
                                 </div>
@@ -243,13 +241,13 @@ const Dashboard: React.FC<DashboardProps> = ({
 
                 </div>
 
-            </main >
+            </main>
             <footer className="footer">
                 <div className="footer-bottom">
                     <p>&copy; 2024 RoomEase. All rights reserved.</p>
                 </div>
             </footer>
-        </div >
+        </div>
     );
 };
 

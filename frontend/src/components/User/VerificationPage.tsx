@@ -3,6 +3,8 @@ import { ShieldCheck, Upload, FileText, CheckCircle, XCircle, AlertCircle } from
 import SharedNavbar from '../shared/SharedNavbar';
 import './VerificationPage.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 interface User {
     email: string;
     fullName: string;
@@ -46,12 +48,30 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-    const [verificationStatus] = useState<VerificationStatus>('none');
+    const [verificationStatus, setVerificationStatus] = useState<VerificationStatus>('none');
+
+    // Fetch current verification status on mount
+    React.useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/verification/status`, {
+                    credentials: 'include'
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status && data.status !== 'none') {
+                        setVerificationStatus(data.status as VerificationStatus);
+                    }
+                }
+            } catch {}
+        };
+        fetchStatus();
+    }, []);
 
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'chat': window.location.href = '/messages'; break;
             case 'profiles': onNavigateToProfiles?.(); break;
             case 'edit-profile': onNavigateToSetting?.(); break;
@@ -60,6 +80,7 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
             case 'map': onNavigateToMap(); break;
             case 'notification': onNavigateToNotification?.(); break;
             case 'red-flag-alert': onNavigateToRedFlagAlert(); break;
+            case 'wishlist': window.location.href = '/wishlist'; break;
         }
     };
 
@@ -100,11 +121,9 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
                 formData.append('student_id', studentId);
             }
 
-            const response = await fetch('http://localhost:8000/api/verification/submit', {
+            const response = await fetch(`${API_BASE_URL}/api/verification/submit`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
+                credentials: 'include',
                 body: formData
             });
 
@@ -115,6 +134,7 @@ export const VerificationPage: React.FC<VerificationPageProps> = ({
             }
 
             setSuccess(true);
+            setVerificationStatus('pending');
         } catch (err: any) {
             setError(err.message || 'An error occurred');
         } finally {

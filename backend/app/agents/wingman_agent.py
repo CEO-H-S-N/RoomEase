@@ -6,7 +6,7 @@ from groq import Groq
 # ----------------------------
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
-    print("⚠ No GROQ_API_KEY found. MatchExplainerAgent will use fallback logic.")
+    print("[WARNING] No GROQ_API_KEY found. MatchExplainerAgent will use fallback logic.")
 
 # Output schema for the explanation agent
 EXPLANATION_OUTPUT_SCHEMA = {
@@ -35,7 +35,7 @@ class MatchExplainerAgent:
     and actionable negotiation checklist using Groq LLM, with a graceful fallback.
     """
 
-    def __init__(self, api_key: Optional[str] = GROQ_API_KEY, model_name: str = "openai/gpt-oss-120b"):
+    def __init__(self, api_key: Optional[str] = GROQ_API_KEY, model_name: str = "llama-3.3-70b-versatile"):
         if not api_key:
             self.client = None
         else:
@@ -48,10 +48,10 @@ class MatchExplainerAgent:
             "You are a compassionate and expert Roommate Match Translator and Negotiator. "
             "Your job is to synthesize the provided Match Score Data and Red Flag Data into "
             "a short, human-friendly summary and actionable negotiation checklist.\n\n"
-            "⚠ OUTPUT RULE: Return JSON exactly matching keys: 'summary_explanation' and "
+            "[WARNING] OUTPUT RULE: Return JSON exactly matching keys: 'summary_explanation' and "
             "'negotiation_checklist'. Each checklist item must have 'suggestion' and 'category'. "
             "Do not add extra commentary.\n\n"
-            "Use only 'HIGH' and 'MEDIUM' severity red flags to create 2–3 actionable suggestions. "
+            "Use only 'HIGH' and 'MEDIUM' severity red flags to create 2-3 actionable suggestions. "
             "If no red flags, return empty checklist."
         )
 
@@ -103,7 +103,7 @@ class MatchExplainerAgent:
         """Main method: generates structured explanation and negotiation checklist."""
         
         if not self.client:
-            print("⚠ Groq client not initialized. Using rule-based fallback.")
+            print("[WARNING] Groq client not initialized. Using rule-based fallback.")
             return self._rule_based_fallback(match_score, match_reasons, red_flags)
 
         system_prompt = self._get_system_prompt()
@@ -139,14 +139,14 @@ class MatchExplainerAgent:
             tool_calls = chat_completion.choices[0].message.tool_calls
             if not tool_calls:
                 # Fallback if LLM doesn't call the tool for some reason
-                print("⚠ LLM did not call tool. Using rule-based fallback.")
+                print("[WARNING] LLM did not call tool. Using rule-based fallback.")
                 return self._rule_based_fallback(match_score, match_reasons, red_flags)
 
             function_args_str = tool_calls[0].function.arguments
             return json.loads(function_args_str)
 
         except Exception as e:
-            print(f"⚠ Groq API/Execution Error: {e}. Falling back to rule-based logic.")
+            print(f"[WARNING] Groq API/Execution Error: {e}. Falling back to rule-based logic.")
             return self._rule_based_fallback(match_score, match_reasons, red_flags)
 
 # Global instance
@@ -154,4 +154,4 @@ match_explainer_agent: Optional[MatchExplainerAgent] = None
 try:
     match_explainer_agent = MatchExplainerAgent(api_key=GROQ_API_KEY)
 except Exception as e:
-    print(f"⚠ Failed to initialize MatchExplainerAgent: {e}")
+    print(f"[WARNING] Failed to initialize MatchExplainerAgent: {e}")

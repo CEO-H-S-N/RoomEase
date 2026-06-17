@@ -30,7 +30,6 @@ export const ProfilesPage: React.FC<ProfilesPageProps> = ({
     onNavigateToProfiles,
     onNavigateToChangePassword,
     onNavigateToVerification,
-    onNavigateToMap,
     onNavigateToProfileDetails
 }) => {
     const [profiles, setProfiles] = useState<ProfileData[]>([]);
@@ -42,27 +41,18 @@ export const ProfilesPage: React.FC<ProfilesPageProps> = ({
         maxBudget: '',
         occupation: ''
     });
-
-    // Parse search query from URL on mount
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const cityParam = params.get('city');
-        const searchParam = params.get('q') || cityParam; // Support 'q' or 'city'
-
-        if (searchParam) {
-            // For profiles, a generic search could be city or occupation
-            // We'll set it to city by default but also help the user out
-            setFilters(prev => ({ ...prev, city: searchParam }));
-            setShowFilters(true);
-        }
-    }, []);
+    const [likedProfileIds, setLikedProfileIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const fetchProfiles = async () => {
             try {
                 setLoading(true);
-                const data = await api.getAllProfiles();
+                const [data, likedProfiles] = await Promise.all([
+                    api.getAllProfiles(),
+                    api.getLikedProfilesDetails()
+                ]);
                 setProfiles(data);
+                setLikedProfileIds(new Set(likedProfiles.map(p => p.id || p._id)));
                 setError(null);
             } catch (err) {
                 console.error("Failed to fetch profiles:", err);
@@ -75,18 +65,27 @@ export const ProfilesPage: React.FC<ProfilesPageProps> = ({
         fetchProfiles();
     }, []);
 
+    const handleToggleWishlist = async (profileId: string) => {
+        try {
+            await api.toggleLikeProfile(profileId);
+            setLikedProfileIds(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(profileId)) {
+                    newSet.delete(profileId);
+                } else {
+                    newSet.add(profileId);
+                }
+                return newSet;
+            });
+        } catch (err) {
+            alert('Failed to update wishlist');
+        }
+    };
+
     const filteredProfiles = profiles.filter(profile => {
-        const searchTerm = filters.city.toLowerCase();
-
-        // If searching from dashboard, we might want to match city OR occupation
-        const matchesCity = !filters.city || profile.city.toLowerCase().includes(searchTerm);
-        const matchesOccupation = !filters.city || profile.occupation?.toLowerCase().includes(searchTerm);
-        const matchesName = !filters.city || profile.full_name?.toLowerCase().includes(searchTerm);
-
-        if (filters.city && !matchesCity && !matchesOccupation && !matchesName) {
+        if (filters.city && !profile.city.toLowerCase().includes(filters.city.toLowerCase())) {
             return false;
         }
-
         if (filters.maxBudget && profile.budget_PKR > parseInt(filters.maxBudget)) {
             return false;
         }
@@ -112,14 +111,14 @@ export const ProfilesPage: React.FC<ProfilesPageProps> = ({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'profiles': onNavigateToProfiles(); break;
             case 'chat': window.location.href = '/messages'; break;
             case 'profile': onNavigateToSetting?.(); break;
             case 'edit-profile': onNavigateToSetting?.(); break;
             case 'change-password': onNavigateToChangePassword?.(); break;
             case 'verification': onNavigateToVerification?.(); break;
-            case 'map': onNavigateToMap(); break;
+            case 'wishlist': window.location.href = '/wishlist'; break;
         }
     };
 
@@ -244,6 +243,8 @@ export const ProfilesPage: React.FC<ProfilesPageProps> = ({
                                         <ProfileCard
                                             profile={profile}
                                             onViewDetails={onNavigateToProfileDetails}
+                                            onToggleWishlist={handleToggleWishlist}
+                                            isLiked={likedProfileIds.has(profile.id || '')}
                                         />
                                     </motion.div>
                                 ))

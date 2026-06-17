@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     MapPin, Check, Star, MessageSquare,
-    Clock, Coffee, BookOpen, Volume2, ArrowLeft
+    Clock, Coffee, BookOpen, Volume2, ArrowLeft, Heart
 } from 'lucide-react';
 import { api } from '../../services/api';
 import type { ProfileData } from '../../services/api';
@@ -22,8 +22,6 @@ interface ProfileDetailsPageProps {
     onNavigateToSetting?: () => void;
     onNavigateToChangePassword?: () => void;
     onNavigateToVerification?: () => void;
-    onNavigateToMessages?: (id: string, name: string, data: any) => void;
-    onNavigateToListingDetails?: (id: string) => void;
 }
 
 export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
@@ -33,18 +31,14 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
     onNavigateToProfiles,
     onNavigateToSetting,
     onNavigateToChangePassword,
-    onNavigateToVerification,
-    onNavigateToMessages,
-    onNavigateToListingDetails
+    onNavigateToVerification
 }) => {
     const { id } = useParams<{ id: string }>();
-    // const navigate = useNavigate(); // Unused
+    const navigate = useNavigate();
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [userRating, setUserRating] = useState<number>(0);
-    const [hoverRating, setHoverRating] = useState<number>(0);
-    const [hasRated, setHasRated] = useState<boolean>(false);
+    const [isLiked, setIsLiked] = useState(false);
 
     useEffect(() => {
         console.log("ProfileDetailsPage mounted. ID:", id);
@@ -58,12 +52,16 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
             try {
                 setLoading(true);
                 console.log("Fetching profile for ID:", id);
-                const data = await api.getProfileById(id);
+                const [data, likedProfiles] = await Promise.all([
+                    api.getProfileById(id),
+                    api.getLikedProfilesDetails()
+                ]);
                 console.log("Profile data received:", data);
                 if (!data) {
                     throw new Error("Empty data received");
                 }
                 setProfile(data);
+                setIsLiked(likedProfiles.some(p => p.id === id || p._id === id));
             } catch (err) {
                 console.error("Failed to fetch profile:", err);
                 setError("Could not load profile details.");
@@ -75,10 +73,20 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
         fetchProfile();
     }, [id]);
 
+    const handleToggleWishlist = async () => {
+        if (!profile?.id && !id) return;
+        try {
+            await api.toggleLikeProfile((profile?.id || id) as string);
+            setIsLiked(!isLiked);
+        } catch (err) {
+            alert('Failed to update wishlist');
+        }
+    };
+
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'profiles': onNavigateToProfiles(); break;
             case 'edit-profile': onNavigateToSetting?.(); break;
             case 'change-password': onNavigateToChangePassword?.(); break;
@@ -127,35 +135,12 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
     ];
 
     // Ensure we have past stays
-    const pastStays = (profile.past_stays && profile.past_stays.length > 0 ? profile.past_stays : [
-        {
-            id: '1',
-            location: 'DHA Phase 5, Lahore',
-            duration: '6 months',
-            review: 'Excellent tenant, paid on time.',
-            rating: 5,
-            thumbnail: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-        },
-        {
-            id: '2',
-            location: 'Gulberg III, Lahore',
-            duration: '1 year',
-            review: 'Very responsible and friendly.',
-            rating: 5,
-            thumbnail: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-        }
-    ]).map((s: any) => {
-        // Robust ID handling to prevent crashes
-        const stayId = s.id || (s.listingId ? String(s.listingId) : String(Math.random()));
+    const pastStays = profile.past_stays && profile.past_stays.length > 0 ? profile.past_stays : [
+        { id: '1', location: 'DHA Phase 5, Lahore', duration: '6 months', review: 'Excellent tenant, paid on time.', rating: 5 },
+        { id: '2', location: 'Gulberg III, Lahore', duration: '1 year', review: 'Very responsible and friendly.', rating: 5 }
+    ];
 
-        return {
-            ...s,
-            listingId: stayId.length > 5 ? stayId : (stayId === '1' ? '6591231fe818f851503acad1' : '6591231fe818f851503acae2'),
-            thumbnail: s.thumbnail || 'https://images.unsplash.com/photo-1484154218962-a1c002085d2f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-        };
-    });
-
-    console.log("Processed Past Stays:", pastStays); // Debug log
+    console.log("Past Stays Data:", pastStays); // Debug log
 
     return (
         <div className="profile-details-page brown-theme">
@@ -195,13 +180,9 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
 
                         <div className="hero-stats">
                             <div className="stat-item">
-                                <Star
-                                    size={20}
-                                    fill="#FFB400"
-                                    color="#FFB400"
-                                />
-                                <span className="stat-value">{hasRated ? ((rating * reviews.length + userRating) / (reviews.length + 1)).toFixed(1) : rating.toFixed(1)}</span>
-                                <span className="stat-label">Avg Rating</span>
+                                <Star size={18} fill="#FFB400" color="#FFB400" />
+                                <span className="stat-value">{rating > 0 ? rating.toFixed(1) : "New"}</span>
+                                <span className="stat-label">Rating</span>
                             </div>
                             <div className="stat-divider" />
                             <div className="stat-item">
@@ -227,19 +208,34 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
                                 <span className="budget-label">Monthly Budget</span>
                                 <h3 className="budget-amount">PKR {(profile.budget_PKR || 0).toLocaleString()}</h3>
                             </div>
-                            <Button
-                                variant="primary"
-                                className="message-btn"
-                                fullWidth
-                                onClick={() => onNavigateToMessages?.(profile.id || id || '', displayName, {
-                                    about: profile.raw_profile_text,
-                                    city: profile.city,
-                                    area: profile.area
-                                })}
-                            >
+                            <Button variant="primary" className="message-btn" fullWidth onClick={() => {
+                                const targetId = profile?.id || id;
+                                if (targetId) {
+                                    navigate('/messages', {
+                                        state: {
+                                            targetUserId: targetId,
+                                            targetUserName: profile?.full_name || 'Roommate',
+                                            targetUserRole: 'seeker',
+                                            targetUserPhoto: profile?.profile_photo
+                                        }
+                                    });
+                                } else {
+                                    navigate('/messages');
+                                }
+                            }}>
                                 <MessageSquare size={18} style={{ marginRight: 8 }} />
                                 Message
                             </Button>
+                            <Button 
+                                    variant="ghost" 
+                                    className={`wishlist-btn ${isLiked ? 'active' : ''}`} 
+                                    fullWidth 
+                                    onClick={handleToggleWishlist}
+                                    style={{ marginTop: '0.75rem', borderColor: '#E5E7EB' }}
+                                >
+                                    <Heart size={18} fill={isLiked ? "#D4745E" : "none"} color={isLiked ? "#D4745E" : "#6B7280"} style={{ marginRight: 8 }} />
+                                    {isLiked ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                                </Button>
                         </Card>
                     </div>
                 </div>
@@ -304,74 +300,23 @@ export const ProfileDetailsPage: React.FC<ProfileDetailsPageProps> = ({
                             <section className="detail-section">
                                 <h2 className="section-title">Past Stays</h2>
                                 <div className="past-stays-list">
-                                    {pastStays.map((stay: any, idx) => (
-                                        <div
-                                            key={stay.id || idx}
-                                            className="stay-card clickable"
-                                            onClick={() => onNavigateToListingDetails?.(stay.listingId)}
-                                            title="View House Details"
-                                        >
-                                            <div className="stay-thumbnail-container">
-                                                <img src={stay.thumbnail} alt={stay.location} className="stay-thumbnail" />
+                                    {pastStays.map((stay, idx) => (
+                                        <div key={stay.id || idx} className="stay-card">
+                                            <div className="stay-header">
+                                                <h4 className="stay-location">{stay.location}</h4>
+                                                <span className="stay-duration">{stay.duration}</span>
                                             </div>
-                                            <div className="stay-content">
-                                                <div className="stay-header">
-                                                    <h4 className="stay-location">{stay.location}</h4>
-                                                    <span className="stay-duration">{stay.duration}</span>
-                                                </div>
-                                                <p className="stay-review">"{stay.review}"</p>
-                                                <div className="stay-rating">
-                                                    {[...Array(5)].map((_, i) => (
-                                                        <Star key={i} size={12} fill={i < stay.rating ? "#FFB400" : "#eee"} color="transparent" />
-                                                    ))}
-                                                </div>
-                                                <div className="view-stay-listing">View Listing Details →</div>
+                                            <p className="stay-review">"{stay.review}"</p>
+                                            <div className="stay-rating">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} size={12} fill={i < stay.rating ? "#FFB400" : "#eee"} color="transparent" />
+                                                ))}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </section>
                         )}
-
-                        {/* Interactive Rating Section */}
-                        <section className="detail-section interactive-rating-section">
-                            <h2 className="section-title">Rate this Roommate</h2>
-                            <p className="instruction-text">How was your experience living with {displayName}?</p>
-
-                            <div className="rating-interaction-area">
-                                <div className="big-stars-container">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <Star
-                                            key={star}
-                                            size={40}
-                                            className={`big-star-icon ${star <= (hoverRating || userRating) ? 'filled' : ''} ${hasRated ? 'disabled' : ''}`}
-                                            fill={star <= (hoverRating || userRating) ? "#FFB400" : "transparent"}
-                                            color={star <= (hoverRating || userRating) ? "#FFB400" : "#ccc"}
-                                            onMouseEnter={() => !hasRated && setHoverRating(star)}
-                                            onMouseLeave={() => setHoverRating(0)}
-                                            onClick={() => !hasRated && setUserRating(star)}
-                                        />
-                                    ))}
-                                </div>
-
-                                {userRating > 0 && !hasRated && (
-                                    <Button
-                                        variant="primary"
-                                        className="submit-rating-btn"
-                                        onClick={() => setHasRated(true)}
-                                    >
-                                        Submit {userRating} Star Rating
-                                    </Button>
-                                )}
-
-                                {hasRated && (
-                                    <div className="rating-success-message">
-                                        <Check size={24} color="#14919B" />
-                                        <span>Thank you! Your rating of {userRating} stars has been submitted.</span>
-                                    </div>
-                                )}
-                            </div>
-                        </section>
 
                         {/* Reviews Section */}
                         {reviews.length > 0 && (

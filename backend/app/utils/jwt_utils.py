@@ -11,7 +11,7 @@ ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/token")
 
 
-def create_access_token(user_id: str, username: str, email: str = None, listing_id: str = None, profile_id: str = None, is_verified: bool = False, expires_delta: timedelta = None) -> str:
+def create_access_token(user_id: str, username: str, email: str = None, listing_id: str = None, profile_id: str = None, is_verified: bool = False, is_admin: bool = False, expires_delta: timedelta = None) -> str:
     payload = {
         "sub": username,
         "id": user_id,
@@ -19,7 +19,11 @@ def create_access_token(user_id: str, username: str, email: str = None, listing_
         "listing_id": listing_id,
         "profile_id": profile_id,
         "is_verified": is_verified,
+        "is_admin": is_admin,
     }
+    
+    print(f"DEBUG: create_access_token called with is_admin={is_admin}")
+    print(f"DEBUG: payload = {payload}")
 
     # Only add expiration if explicitly requested
     if expires_delta:
@@ -41,6 +45,7 @@ def get_user_from_cookie(access_token: str = Cookie(None)):
         listing_id = payload.get("listing_id")
         profile_id = payload.get("profile_id")
         is_verified = payload.get("is_verified", False)
+        is_admin = payload.get("is_admin", False)
 
         if username is None or user_id is None:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
@@ -50,7 +55,8 @@ def get_user_from_cookie(access_token: str = Cookie(None)):
             email=email,
             listing_id=listing_id, 
             profile_id=profile_id,
-            is_verified=is_verified
+            is_verified=is_verified,
+            is_admin=is_admin
         )
     except ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")

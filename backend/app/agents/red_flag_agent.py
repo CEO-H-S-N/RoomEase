@@ -8,7 +8,7 @@ from groq import Groq
 # Global Groq API key check
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
-    print("⚠ No GROQ_API_KEY found. RedFlagAgent will use fallback logic.")
+    print("[WARNING] No GROQ_API_KEY found. RedFlagAgent will use fallback logic.")
 
 # Conflict Output Schema
 CONFLICT_OUTPUT_SCHEMA = {
@@ -36,7 +36,7 @@ class RedFlagAgent:
     Detect potential roommate conflicts between two profiles using Groq LLM with a rule-based fallback.
     """
 
-    def __init__(self, api_key: Optional[str] = GROQ_API_KEY, model_name: str = "openai/gpt-oss-120b"):
+    def __init__(self, api_key: Optional[str] = GROQ_API_KEY, model_name: str = "llama-3.3-70b-versatile"):
         if not api_key:
             self.client = None
         else:
@@ -48,7 +48,7 @@ class RedFlagAgent:
         return (
             "You are the Ultimate Roommate Conflict Analysis Engine. "
             "Your job is to detect and report ALL factual conflicts between two roommate profiles.\n\n"
-            "⚠ OUTPUT RULE: Must return JSON matching schema exactly with keys: "
+            "[WARNING] OUTPUT RULE: Must return JSON matching schema exactly with keys: "
             "'pair_id', 'red_flags'. Each red_flag object must have 'type', 'severity', 'evidence'. "
             "Do not add commentary or extra fields.\n\n"
             "Severity rubric:\n"
@@ -121,7 +121,7 @@ class RedFlagAgent:
         
         # Check if Groq client is available
         if not self.client:
-            print("⚠ Groq client not initialized. Using rule-based fallback.")
+            print("[WARNING] Groq client not initialized. Using rule-based fallback.")
             return self._rule_based_fallback(pair_id, profile_a, profile_b)
         
         # Attempt to use the Groq API
@@ -157,14 +157,14 @@ class RedFlagAgent:
             tool_calls = chat_completion.choices[0].message.tool_calls
             if not tool_calls:
                 # Fallback if LLM doesn't call the tool for some reason
-                print("⚠ LLM did not call tool. Using rule-based fallback.")
+                print("[WARNING] LLM did not call tool. Using rule-based fallback.")
                 return self._rule_based_fallback(pair_id, profile_a, profile_b)
 
             function_args_str = tool_calls[0].function.arguments
             return json.loads(function_args_str)
 
         except Exception as e:
-            print(f"⚠ Groq API/Execution Error: {e}. Falling back to rule-based logic.")
+            print(f"[WARNING] Groq API/Execution Error: {e}. Falling back to rule-based logic.")
             return self._rule_based_fallback(pair_id, profile_a, profile_b)
 
 # Global instance for reuse
@@ -172,4 +172,4 @@ red_flag_agent: Optional[RedFlagAgent] = None
 try:
     red_flag_agent = RedFlagAgent(api_key=GROQ_API_KEY)
 except Exception as e:
-    print(f"⚠ Failed to initialize RedFlagAgent: {e}")
+    print(f"[WARNING] Failed to initialize RedFlagAgent: {e}")

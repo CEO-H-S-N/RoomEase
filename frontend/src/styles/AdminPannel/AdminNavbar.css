@@ -1,0 +1,111 @@
+/* AdminNavbar.css — Shared navbar for all admin pages */
+
+.admin-shared-navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    background-color: #1A1110;
+    border-bottom: 2px solid #3d2b27;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 64px;
+    box-sizing: border-box;
+}
+
+/* Logo */
+.admin-nav-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.admin-nav-logo-text {
+    font-size: 22px;
+    font-weight: 900;
+    color: #FFFFFF;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Center nav links */
+.admin-nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 40px;
+    height: 100%;
+}
+
+.admin-nav-link {
+    text-decoration: none;
+    color: #FFFFFF;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    opacity: 0.7;
+    position: relative;
+    height: 100%;
+    padding: 0 4px;
+    box-sizing: border-box;
+}
+
+.admin-nav-link:hover {
+    color: #D4745E;
+    opacity: 1;
+}
+
+.admin-nav-link.active {
+    color: #D4745E;
+    font-weight: 700;
+    opacity: 1;
+}
+
+/* Underline indicator — perfectly centered under text */
+.admin-nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 3px;
+    background: #D4745E;
+    border-radius: 3px 3px 0 0;
+}
+
+/* Right section */
+.admin-nav-right {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.admin-nav-logout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    background-color: #D4745E;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.admin-nav-logout-btn:hover {
+    background-color: #A85A4A;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}

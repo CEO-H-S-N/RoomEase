@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Home, LogOut, Edit, Lock, ShieldCheck, ChevronDown, AlertTriangle, Bell, MapPin } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Home, LogOut, Edit, Lock, ShieldCheck, ChevronDown, Bell, Sparkles, Heart, Clock } from 'lucide-react';
 import './SharedNavbar.css';
 
 interface SharedNavbarProps {
-    currentPage: 'dashboard' | 'listings' | 'map' | 'chat' | 'profiles' | 'matches' | 'profile' | 'red-flag-alert' | 'other';
+    currentPage: 'dashboard' | 'listings' | 'ai-picks' | 'map' | 'chat' | 'profiles' | 'profile' | 'red-flag-alert' | 'wishlist' | 'other';
     onNavigate: (page: string) => void;
     onLogout: () => void;
     userName?: string;
@@ -17,6 +18,7 @@ const SharedNavbar: React.FC<SharedNavbarProps> = ({
     userName = 'User',
     userAvatar
 }) => {
+    const navigate = useNavigate();
     const [settingsOpen, setSettingsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -45,69 +47,46 @@ const SharedNavbar: React.FC<SharedNavbarProps> = ({
         <nav className="shared-navbar">
             <div className="navbar-container">
                 {/* Center Cluster: Logo + Links */}
-                {/* Left: Logo */}
-                <div className="navbar-logo" onClick={() => onNavigate('dashboard')}>
-                    <Home size={32} className="logo-icon" />
-                    <span className="logo-text">ROOMEASE</span>
-                </div>
+                <div className="navbar-main-group">
+                    <div className="navbar-logo" onClick={() => onNavigate('dashboard')}>
+                        <Home size={32} className="logo-icon" />
+                        <span className="logo-text">ROOMEASE</span>
+                    </div>
 
-                {/* Center: Links */}
-                <div className="navbar-links">
-                    <button
-                        className={`nav-link ${currentPage === 'listings' ? 'active' : ''}`}
-                        onClick={() => onNavigate('listings')}
-                    >
-                        <span>Listings</span>
-                        <ChevronDown size={14} className="nav-chevron" />
-                    </button>
-                    <button
-                        className={`nav-link ${currentPage === 'map' ? 'active' : ''}`}
-                        onClick={() => onNavigate('map')}
-                    >
-                        <MapPin size={18} className="nav-icon-inline" />
-                        <span>Map</span>
-                    </button>
-                    <button
-                        className={`nav-link ${currentPage === 'profiles' ? 'active' : ''}`}
-                        onClick={() => onNavigate('profiles')}
-                    >
-                        <span>People</span>
-                        <ChevronDown size={14} className="nav-chevron" />
-                    </button>
-                    <button
-                        className={`nav-link ${currentPage === 'matches' ? 'active' : 'pulse-link'}`}
-                        onClick={() => onNavigate('matches')}
-                    >
-                        <span>Matches</span>
-                        <ChevronDown size={14} className="nav-chevron" />
-                    </button>
-                    <button
-                        className={`nav-link ${currentPage === 'chat' ? 'active' : ''}`}
-                        onClick={() => onNavigate('chat')}
-                    >
-                        <span>Chats</span>
-                        <ChevronDown size={14} className="nav-chevron" />
-                    </button>
-                    <button
-                        className={`nav-link ${currentPage === 'red-flag-alert' ? 'active' : ''}`}
-                        onClick={() => onNavigate('red-flag-alert')}
-                    >
-                        <AlertTriangle size={18} className="nav-icon-inline" />
-                        <span>Red Flags</span>
-                    </button>
+                    <div className="navbar-links">
+                        <button
+                            className={`nav-link ${currentPage === 'ai-picks' ? 'active' : ''}`}
+                            onClick={() => onNavigate('ai-picks')}
+                        >
+                            <Sparkles size={18} className="nav-icon-inline" />
+                            <span>AI Picks</span>
+                        </button>
+                        <button
+                            className={`nav-link ${currentPage === 'map' ? 'active' : ''}`}
+                            onClick={() => onNavigate('map')}
+                        >
+                            <span>Map</span>
+                            <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                        <button
+                            className={`nav-link ${currentPage === 'profiles' ? 'active' : ''}`}
+                            onClick={() => onNavigate('profiles')}
+                        >
+                            <span>People</span>
+                            <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                        <button
+                            className={`nav-link ${currentPage === 'chat' ? 'active' : ''}`}
+                            onClick={() => onNavigate('chat')}
+                        >
+                            <span>Chats</span>
+                            <ChevronDown size={14} className="nav-chevron" />
+                        </button>
+                    </div>
                 </div>
 
                 {/* User Section with Settings Dropdown */}
                 <div className="navbar-user" ref={dropdownRef}>
-                    <button
-                        className="user-button"
-                        style={{ marginRight: '12px', padding: '8px', border: 'none' }}
-                        onClick={() => onNavigate('notification')}
-                        title="Notifications"
-                    >
-                        <Bell size={22} color="white" />
-                    </button>
-
                     <button
                         className="user-button"
                         onClick={() => setSettingsOpen(!settingsOpen)}
@@ -129,6 +108,16 @@ const SharedNavbar: React.FC<SharedNavbarProps> = ({
                     {/* Settings Dropdown */}
                     {settingsOpen && (
                         <div className="settings-dropdown">
+                            <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                    setSettingsOpen(false);
+                                    onNavigate('notifications');
+                                }}
+                            >
+                                <Bell size={18} />
+                                <span>Notifications</span>
+                            </button>
                             <button
                                 className="dropdown-item"
                                 onClick={() => {
@@ -159,6 +148,26 @@ const SharedNavbar: React.FC<SharedNavbarProps> = ({
                                 <ShieldCheck size={18} />
                                 <span>Get Verified</span>
                             </button>
+                            <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                    setSettingsOpen(false);
+                                    navigate('/wishlist');
+                                }}
+                            >
+                                <Heart size={18} />
+                                <span>Wishlist</span>
+                            </button>
+                            <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                    setSettingsOpen(false);
+                                    navigate('/history');
+                                }}
+                            >
+                                <Clock size={18} />
+                                <span>History</span>
+                            </button>
                             <div className="dropdown-divider"></div>
                             <button
                                 className="dropdown-item logout"
@@ -173,8 +182,8 @@ const SharedNavbar: React.FC<SharedNavbarProps> = ({
                         </div>
                     )}
                 </div>
-            </div >
-        </nav >
+            </div>
+        </nav>
     );
 };
 

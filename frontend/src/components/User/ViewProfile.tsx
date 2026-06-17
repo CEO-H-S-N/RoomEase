@@ -40,7 +40,7 @@ export default function ViewProfile({
     const handleNavigate = (page: string) => {
         switch (page) {
             case 'dashboard': onNavigateToDashboard(); break;
-            case 'listings': onNavigateToListing(); break;
+            case 'ai-picks': onNavigateToListing(); break;
             case 'chat': onNavigateToMessages(); break;
             case 'profiles': onNavigateToProfiles(); break;
             case 'edit-profile': onNavigateToSetting(); break;

@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+from motor.motor_asyncio import AsyncIOMotorClient
 import gridfs
 import os
 from dotenv import load_dotenv
@@ -25,6 +26,17 @@ else:
     db = None
     fs = None
 
+# Async Client for Motor
+try:
+    async_client = AsyncIOMotorClient(MONGO_URI)
+    async_db = async_client[DB_NAME]
+except Exception as e:
+    print(f"Async MongoClient init failed: {e}")
+    async_db = None
+
+def get_database():
+    return async_db
+
 
 # ----- Collection helpers -----
 def get_users_collection():
@@ -47,6 +59,11 @@ def get_profiles_collection():
         raise Exception("Database connection failed")
     return db["profiles"]
 
+def get_wishlist_collection():
+    if db is None:
+        raise Exception("Database connection failed")
+    return db["wishlist"]
+
 def check_connection():
     """Check if MongoDB connection works"""
     if not client:
@@ -55,5 +72,15 @@ def check_connection():
         client.admin.command("ping")
         return True
     except Exception as e:
-        print("❌ MongoDB connection failed:", e)
+        print("[ERROR] MongoDB connection failed:", e)
         return False
+
+def get_stay_history_collection():
+    if db is None:
+        raise Exception("Database connection failed")
+    return db["stay_history"]
+
+def get_ratings_collection():
+    if db is None:
+        raise Exception("Database connection failed")
+    return db["ratings"]

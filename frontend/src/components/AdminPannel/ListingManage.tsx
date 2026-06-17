@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../styles/AdminPannel/ListingManage.css';
-import { Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Trash2, Loader2, MapPin, Home } from 'lucide-react';
+import { AdminNavbar } from './AdminNavbar';
+import { api } from '../../services/api';
 
 interface Listing {
-    id: number;
-    title: string;
-    owner: string;
-    price: string;
-    status: 'Active' | 'Pending' | 'Flagged';
-    views: number;
-    reports?: number;
+    id: string;
+    city: string;
+    area: string;
+    monthly_rent_PKR: number;
+    rooms_available: number;
+    availability: string;
+    amenities: string[];
+    thumbnail?: string;
+    rating?: number;
+    created: string;
 }
 
 interface ListingManageProps {
@@ -17,8 +22,6 @@ interface ListingManageProps {
     onNavigateToListing: () => void;
     onNavigateToVerification: () => void;
     onNavigateToAnalytics: () => void;
-    onNavigateToProfile: () => void;
-    onNavigateToSetting: () => void;
     onLogout: () => void;
 }
 
@@ -27,78 +30,68 @@ export const ListingManage: React.FC<ListingManageProps> = ({
     onNavigateToListing,
     onNavigateToVerification,
     onNavigateToAnalytics,
-    onNavigateToProfile,
-    onNavigateToSetting,
     onLogout
 }) => {
-    // Mock Data based on Screenshot
-    const [listings] = useState<Listing[]>([
-        {
-            id: 1,
-            title: '2BR Apartment Downtown',
-            owner: 'Wisal',
-            price: 'PKR1200/mo',
-            status: 'Active',
-            views: 342
-        },
-        {
-            id: 2,
-            title: 'Flat',
-            owner: 'Azan',
-            price: 'PKR850/mo',
-            status: 'Pending',
-            views: 89
-        },
-        {
-            id: 3,
-            title: 'Ali House',
-            owner: 'Ali',
-            price: 'PKR1800/mo',
-            status: 'Flagged',
-            views: 156,
-            reports: 2
-        }
-    ]);
+    const [listings, setListings] = useState<Listing[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
-    React.useEffect(() => {
-        console.log('ListingManage mounted');
+    useEffect(() => {
+        fetchListings();
     }, []);
+
+    const fetchListings = async () => {
+        try {
+            setLoading(true);
+            setError('');
+            const data = await api.getAdminListings();
+            setListings(data);
+        } catch (err: any) {
+            setError(err.message || 'Failed to load listings');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteListing = async (listingId: string, listingName: string) => {
+        if (!window.confirm(`Are you sure you want to delete listing "${listingName}"? This action cannot be undone.`)) {
+            return;
+        }
+        try {
+            await api.adminDeleteListing(listingId);
+            setListings(listings.filter(l => l.id !== listingId));
+        } catch (err: any) {
+            alert('Error deleting listing: ' + err.message);
+        }
+    };
+
+    const filteredListings = listings.filter(l => {
+        const q = searchQuery.toLowerCase();
+        return (
+            l.city.toLowerCase().includes(q) ||
+            l.area.toLowerCase().includes(q) ||
+            l.availability.toLowerCase().includes(q)
+        );
+    });
+
+    const formatRent = (rent: number) => {
+        if (rent >= 1000) {
+            return `PKR ${(rent / 1000).toFixed(rent % 1000 === 0 ? 0 : 1)}K`;
+        }
+        return `PKR ${rent}`;
+    };
 
     return (
         <div className="listing-manage-container">
-            {/* Top Navbar - Scoped to Listing Manage */}
-            <nav className="listing-manage-navbar">
-                <div className="logo-section">
-                    <span className="logo-text">RoomEase</span>
-                </div>
-
-                <div className="nav-center">
-                    <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); onNavigateToUser(); }}>
-                        User
-                    </a>
-                    <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); onNavigateToListing(); }}>
-                        Listing
-                    </a>
-                    <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); onNavigateToVerification(); }}>
-                        Verification
-                    </a>
-                    <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); onNavigateToAnalytics(); }}>
-                        Analytics
-                    </a>
-                    <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); onNavigateToProfile(); }}>
-                        My Profile
-                    </a>
-                </div>
-
-                <div className="nav-right">
-                    <a href="#" className="nav-link" style={{ marginRight: '20px' }} onClick={(e) => { e.preventDefault(); onNavigateToSetting(); }}>
-                        Setting
-                    </a>
-                    <button className="logout-btn" onClick={onLogout}>
-                        Logout
-                    </button>
-                </div>
-            </nav>
+            <AdminNavbar
+                activePage="listing"
+                onNavigateToUser={onNavigateToUser}
+                onNavigateToListing={onNavigateToListing}
+                onNavigateToVerification={onNavigateToVerification}
+                onNavigateToAnalytics={onNavigateToAnalytics}
+                onLogout={onLogout}
+            />
 
             {/* Main Content */}
             <div className="listing-content">
@@ -108,59 +101,110 @@ export const ListingManage: React.FC<ListingManageProps> = ({
 
                 <div className="listing-section-header">
                     <h2 className="listing-section-title">Listing Management</h2>
-                    <p className="listing-section-subtitle">Review and moderate property listings</p>
+                    <p className="listing-section-subtitle">
+                        Review and moderate property listings
+                        {!loading && <span className="admin-count-badge">{listings.length} total</span>}
+                    </p>
                 </div>
 
                 <div className="listing-management-card">
-
-
-                    <div className="table-container">
-                        <table className="listings-table">
-                            <thead>
-                                <tr>
-                                    <th>Listing</th>
-                                    <th>Owner</th>
-                                    <th>Price</th>
-                                    <th>Status</th>
-                                    <th>Stats</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {listings.map((listing) => (
-                                    <tr key={listing.id}>
-                                        <td>
-                                            <span className="listing-name">{listing.title}</span>
-                                        </td>
-                                        <td>{listing.owner}</td>
-                                        <td>{listing.price}</td>
-                                        <td>
-                                            <span className={`status-badge status-${listing.status.toLowerCase()}`}>
-                                                {listing.status === 'Active' && '● Active'}
-                                                {listing.status === 'Pending' && '● Pending'}
-                                                {listing.status === 'Flagged' && '⚠ Flagged'}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div className="stats-cell">
-                                                <span>{listing.views} views</span>
-                                                {listing.reports && (
-                                                    <span className="stats-reports">{listing.reports} reports</span>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className="actions-cell">
-                                                <Eye className="action-icon action-view" size={18} />
-                                                <CheckCircle className="action-icon action-approve" size={18} />
-                                                <XCircle className="action-icon action-reject" size={18} />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    {/* Search */}
+                    <div className="search-container">
+                        <div className="search-input-wrapper">
+                            <Search size={16} className="search-icon" />
+                            <input
+                                type="text"
+                                className="search-input"
+                                placeholder="Search listings by city, area or availability..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
                     </div>
+
+                    {loading ? (
+                        <div className="admin-loading-state">
+                            <Loader2 size={32} className="spinner" />
+                            <span>Loading listings from database...</span>
+                        </div>
+                    ) : error ? (
+                        <div className="admin-error-state">
+                            <p>{error}</p>
+                            <button onClick={fetchListings} className="retry-btn">Retry</button>
+                        </div>
+                    ) : filteredListings.length === 0 ? (
+                        <div className="admin-empty-state">
+                            <p>{searchQuery ? 'No listings match your search.' : 'No listings found in the database.'}</p>
+                        </div>
+                    ) : (
+                        <div className="table-container">
+                            <table className="listings-table">
+                                <thead>
+                                    <tr>
+                                        <th>Property</th>
+                                        <th>Rent</th>
+                                        <th>Rooms</th>
+                                        <th>Status</th>
+                                        <th>Amenities</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredListings.map((listing) => (
+                                        <tr key={listing.id}>
+                                            <td>
+                                                <div className="listing-cell">
+                                                    <span className="listing-name">
+                                                        <MapPin size={14} className="listing-icon" />
+                                                        {listing.area}
+                                                    </span>
+                                                    <span className="listing-location">{listing.city}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className="rent-text">{formatRent(listing.monthly_rent_PKR)}/mo</span>
+                                            </td>
+                                            <td>
+                                                <span className="rooms-badge">
+                                                    <Home size={13} />
+                                                    {listing.rooms_available}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`status-badge status-${listing.availability.toLowerCase() === 'available' ? 'active' : 'pending'}`}>
+                                                    {listing.availability === 'Available' ? '● Available' : '● ' + listing.availability}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="amenities-cell">
+                                                    {Array.isArray(listing.amenities) && listing.amenities.length > 0
+                                                        ? listing.amenities.slice(0, 3).join(', ')
+                                                        : '—'}
+                                                    {Array.isArray(listing.amenities) && listing.amenities.length > 3 && (
+                                                        <span className="amenities-more">+{listing.amenities.length - 3}</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td>{listing.created}</td>
+                                            <td>
+                                                <div className="actions-cell">
+                                                    <button
+                                                        className="action-btn btn-ban"
+                                                        onClick={() => handleDeleteListing(listing.id, `${listing.area}, ${listing.city}`)}
+                                                        title="Delete listing"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

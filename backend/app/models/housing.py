@@ -15,6 +15,14 @@ class HousingBase(BaseModel):
     images: Optional[List[str]] = Field(default_factory=list, description="List of image URLs")
     rating: Optional[float] = Field(None, description="Average rating of the property")
     reviews: Optional[List[Dict[str, Any]]] = Field(default_factory=list, description="List of reviews")
+    
+    # Lifestyle / Preference fields for matching (Optional)
+    sleep_schedule: Optional[str] = Field(None, description="Preferred sleep schedule (Night owl / Early riser / Flexible)")
+    cleanliness: Optional[str] = Field(None, description="Cleanliness level (Tidy / Average / Messy)")
+    noise_tolerance: Optional[str] = Field(None, description="Noise tolerance level (Quiet / Moderate / Loud ok)")
+    study_habits: Optional[str] = Field(None, description="Study habits (Online classes / Late-night study / Room study / Library)")
+    food_pref: Optional[str] = Field(None, description="Food preference (Flexible / Non-veg / Veg)")
+    owner_id: Optional[str] = Field(None, description="ID of the property owner")
 
 
 # --- Schema for creating a new housing listing ---
@@ -38,6 +46,11 @@ class HousingUpdate(BaseModel):
     images: Optional[List[str]] = None
     rating: Optional[float] = None
     reviews: Optional[List[Dict[str, Any]]] = None
+    sleep_schedule: Optional[str] = None
+    cleanliness: Optional[str] = None
+    noise_tolerance: Optional[str] = None
+    study_habits: Optional[str] = None
+    food_pref: Optional[str] = None
 
 
 # --- Schema returned in responses (including RoomHunter short_reason) ---
@@ -45,6 +58,8 @@ class Housing(HousingBase):
     id: Optional[str] = Field(alias="_id", description="MongoDB ObjectId as string")
     short_reason: Optional[str] = Field(None, description="Concise explanation why this listing matches the profile")
 
-    class Config:
-        populate_by_name = True
-        orm_mode = True
+    model_config = {
+        "populate_by_name": True,
+        "from_attributes": True
+    }
+

@@ -5,7 +5,8 @@ import DashboardPage from "./components/User/DashboardPage";
 import { AnalyticsReportPage } from "./components/User/AnalyticsReportPage";
 import { ResetPasswordPage } from "./components/PublicPages/ResetPasswordPage";
 import { LoginSelectionPage } from "./components/PublicPages/LoginSelectionPage";
-import { MessagePage } from "./components/User/MessagePage";
+import { ChatInbox } from "./components/Chat/ChatInbox";
+import { ListerChatInbox } from "./components/Chat/ListerChatInbox";
 import { CreateProfilePage } from "./components/User/CreateProfilePage";
 import { VerificationPage } from "./components/User/VerificationPage";
 import ChangePasswordPage from "./components/User/ChangePasswordPage";
@@ -15,13 +16,13 @@ import { AdminDashboard } from "./components/AdminPannel/AdminDashboard";
 import { ListingManage } from "./components/AdminPannel/ListingManage";
 import { VerificationPage as AdminVerificationPage } from "./components/AdminPannel/VerificationPage";
 import { AnalyticsPage } from "./components/AdminPannel/AnalyticsPage";
-import { AdminUserProfile } from "./components/AdminPannel/AdminUserProfile";
 import { AdminLoginPage } from "./components/AdminPannel/AdminLoginPage";
 import { AdminSignupPage } from "./components/AdminPannel/AdminSignupPage";
 import { AdminForgotPasswordPage } from "./components/AdminPannel/AdminForgotPasswordPage";
 import { UserLoginPage } from "./components/User/UserLoginPage";
 import { UserSignupPage } from "./components/User/UserSignupPage";
 import { UserForgotPasswordPage } from "./components/User/UserForgotPasswordPage";
+import { NotificationsPage } from "./components/User/NotificationsPage";
 // Property Owner(User) folder was deleted - imports commented out
 // import { PropertyOwnerLoginPage } from "./components/Property Owner(User)/PropertyOwnerLoginPage";
 // import { PropertyOwnerSignupPage } from "./components/Property Owner(User)/PropertyOwnerSignupPage";
@@ -46,8 +47,9 @@ import PropertyOwnerDetailListingPage from "./components/Property Owner/DetailLi
 // ... existing imports ...
 
 
+import WishlistPage from './components/User/WishlistPage';
 import { MapPage } from "./components/User/MapPage";
-import { ListingPage } from "./components/User/ListingPage";
+import { AiRecommendationsPage } from "./components/User/AiRecommendationsPage";
 import ListingDetailsPage from "./components/User/ListingDetailsPage";
 import { NotificationPage } from "./components/User/NotificationPage";
 import ViewProfile from "./components/User/ViewProfile";
@@ -69,6 +71,7 @@ import { MatchesPage } from "./components/User/MatchesPage";
 import { EditProfilePage } from "./components/User/EditProfilePage";
 import { ProfilesPage } from "./components/User/ProfilesPage";
 import { ProfileDetailsPage } from "./components/User/ProfileDetailsPage";
+import HistoryPage from "./components/User/HistoryPage";
 import { api } from "./services/api";
 
 
@@ -119,7 +122,6 @@ export default function App() {
     checkAuth();
   }, []);
   const [resetEmail, setResetEmail] = useState<string | null>(null);
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
 
   // Sync profile_id from backend if missing
   React.useEffect(() => {
@@ -360,8 +362,7 @@ export default function App() {
                 else navigate('/property-owner-for-sale');
               }}
               onNavigateToDetail={(_id: string) => navigate(`/property-owner-detail-listing/${_id}`)}
-              onNavigateToNotification={() => navigate('/property-owner-notification')}
-              onNavigateToMatches={() => navigate('/matches')}
+              onNavigateToNotification={() => alert('Notifications Coming Soon')}
               onNavigateToSetting={() => navigate('/property-owner-setting')}
             />
           </ProtectedRoute>
@@ -392,6 +393,19 @@ export default function App() {
         <Route path="/property-owner-new-matches" element={...} />
         */}
 
+        {/* Property Owner Messages */}
+        <Route path="/property-owner-messages" element={
+          <ProtectedRoute>
+            <ListerChatInbox
+              user={user!}
+              onLogout={handleLogout}
+              onNavigateToDashboard={() => navigate('/property-owner-dashboard')}
+              onNavigateToSetting={() => navigate('/property-owner-setting')}
+              onNavigateToNotification={() => alert('Notifications Coming Soon')}
+            />
+          </ProtectedRoute>
+        } />
+
 
 
         <Route path="/property-owner-view-rent-listing" element={
@@ -413,6 +427,20 @@ export default function App() {
 
 
         <Route path="/property-owner-post-listing" element={
+          <ProtectedRoute>
+            <PropertyOwnerPostListingPage
+              onLogout={handleLogout}
+              onNavigateToDashboard={() => navigate('/property-owner-dashboard')}
+              onNavigateToListing={() => navigate('/property-owner-for-sale')}
+              onNavigateToNotification={() => alert('Notifications Coming Soon')}
+              onNavigateToMap={() => alert('Map Coming Soon')}
+              onNavigateToSetting={() => navigate('/property-owner-setting')}
+              onNavigateToRedFlagAlert={() => alert('Red Flag Coming Soon')}
+            />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/property-owner-edit-listing/:id" element={
           <ProtectedRoute>
             <PropertyOwnerPostListingPage
               onLogout={handleLogout}
@@ -448,21 +476,6 @@ export default function App() {
           </ProtectedRoute>
         } />
 
-        <Route path="/property-owner-notification" element={
-          <ProtectedRoute>
-            <NotificationPage
-              onLogout={handleLogout}
-              onNavigateToDashboard={() => navigate('/property-owner-dashboard')}
-              onNavigateToSetting={() => navigate('/property-owner-setting')}
-              onNavigateToRedFlagAlert={() => alert('Red Flag Coming Soon')}
-              onNavigateToMap={() => alert('Map Coming Soon')}
-              onNavigateToListing={() => navigate('/property-owner-for-sale')}
-              onNavigateToNotification={() => navigate('/property-owner-notification')}
-              onNavigateToMatches={() => navigate('/matches')}
-            />
-          </ProtectedRoute>
-        } />
-
         {/* Protected Dashboard Routes */}
         <Route path="/dashboard" element={
           <ProtectedRoute>
@@ -474,16 +487,15 @@ export default function App() {
               onNavigateToProfiles={() => navigate('/profiles')}
               onNavigateToProfile={(id?: string) => id && navigate(`/profile/${id}`)}
               onNavigateToSetting={() => navigate('/edit-profile')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
+              onNavigateToMap={() => navigate('/map')}
+              onNavigateToNotification={() => navigate('/notifications')}
+              onNavigateToWishlist={() => navigate('/wishlist')}
               onNavigateToListingDetails={(listingId: string) => {
-                setSelectedListingId(listingId);
-                navigate('/listing-details');
+                navigate(`/listing-details/${listingId}`);
               }}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
-              onNavigateToNotification={() => navigate('/notification')}
-              onNavigateToMap={() => navigate('/map')}
             />
           </ProtectedRoute>
         } />
@@ -497,10 +509,9 @@ export default function App() {
               onNavigateToDashboard={() => navigate('/dashboard')}
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToMap={() => navigate('/map')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
             />
           </ProtectedRoute>
@@ -511,29 +522,30 @@ export default function App() {
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
               onNavigateToMessages={() => navigate('/messages')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
-              onNavigateToMap={() => navigate('/map')}
-              onNavigateToListingDetails={(id: string) => {
-                setSelectedListingId(id);
-                navigate('/listing-details');
-              }}
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/notifications" element={
+          <ProtectedRoute>
+            <NotificationsPage
+              user={user!}
+              onLogout={handleLogout}
             />
           </ProtectedRoute>
         } />
         <Route path="/messages" element={
           <ProtectedRoute>
-            <MessagePage
+            <ChatInbox
               user={user!}
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
               onNavigateToMatches={() => navigate('/matches')}
               onNavigateToAnalytics={() => navigate('/analytics-report')}
               onNavigateToSetting={() => navigate('/edit-profile')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
               onNavigateToMap={() => navigate('/map')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
               onNavigateToProfile={(id) => navigate(`/profile/${id}`)}
               onNavigateToChangePassword={() => navigate('/change-password')}
@@ -546,11 +558,10 @@ export default function App() {
             <NewMatchCrt
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
               onNavigateToMap={() => navigate('/map')}
               onNavigateToSetting={() => navigate('/edit-profile')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
               onNavigateToProfiles={() => navigate('/profiles')}
@@ -563,11 +574,10 @@ export default function App() {
               user={user!}
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
               onNavigateToMap={() => navigate('/map')}
               onNavigateToSetting={() => navigate('/edit-profile')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
               onNavigateToProfiles={() => navigate('/profiles')}
               onNavigateToMessages={() => navigate('/messages')}
               onNavigateToProfile={(id) => navigate(`/profile/${id}`)}
@@ -582,7 +592,7 @@ export default function App() {
               user={user!}
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
               onProfileCreated={(profileId) => {
                 setUser(prev => prev ? { ...prev, profile_id: profileId } : null);
@@ -596,7 +606,7 @@ export default function App() {
               user={user!}
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
             />
           </ProtectedRoute>
         } />
@@ -612,8 +622,7 @@ export default function App() {
               onNavigateToCreateProfile={() => navigate('/create-profile')}
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToMap={() => navigate('/map')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
             />
           </ProtectedRoute>
@@ -637,45 +646,57 @@ export default function App() {
               onNavigateToCreateProfile={() => navigate('/create-profile')}
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToMap={() => navigate('/map')}
-              onNavigateToListing={() => navigate('/listing')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
               onNavigateToProfiles={() => navigate('/profiles')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/wishlist" element={
+          <ProtectedRoute>
+            <WishlistPage
+              user={user!}
+              onLogout={handleLogout}
+              onNavigateToDashboard={() => navigate('/dashboard')}
+              onNavigateToSetting={() => navigate('/edit-profile')}
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/history" element={
+          <ProtectedRoute>
+            <HistoryPage
+              user={user!}
+              onLogout={handleLogout}
+              onNavigateToDashboard={() => navigate('/dashboard')}
+              onNavigateToSetting={() => navigate('/edit-profile')}
             />
           </ProtectedRoute>
         } />
         <Route path="/map" element={
           <ProtectedRoute>
             <MapPage
-              onLogout={handleLogout}
-              onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToSetting={() => navigate('/edit-profile')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
-              onNavigateToListing={() => navigate('/listing')}
-              onNavigateToNotification={() => navigate('/notification')}
-            />
-          </ProtectedRoute>
-        } />
-        <Route path="/listing" element={
-          <ProtectedRoute>
-            <ListingPage
               user={user!}
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
               onNavigateToSetting={() => navigate('/edit-profile')}
-              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
-              onNavigateToMap={() => navigate('/map')}
-              onNavigateToListing={() => navigate('/listing')}
-              onNavigateToProfiles={() => navigate('/profiles')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
-              onNavigateToListingDetails={(listingId) => {
-                setSelectedListingId(listingId);
-                navigate('/listing-details');
-              }}
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/ai-picks" element={
+          <ProtectedRoute>
+            <AiRecommendationsPage
+              user={user!}
+              onLogout={handleLogout}
+              onNavigateToDashboard={() => navigate('/dashboard')}
+              onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
+              onNavigateToProfiles={() => navigate('/profiles')}
+              onNavigateToMap={() => navigate('/map')}
             />
           </ProtectedRoute>
         } />
@@ -686,7 +707,7 @@ export default function App() {
               onNavigateToDashboard={() => navigate('/dashboard')}
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToMap={() => navigate('/map')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToProfiles={() => navigate('/profiles')}
               onNavigateToProfileDetails={(profileId: string) => navigate(`/profile/${profileId}`)}
               onNavigateToChangePassword={() => navigate('/change-password')}
@@ -699,27 +720,21 @@ export default function App() {
             <ProfileDetailsPage
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToProfiles={() => navigate('/profiles')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
-              onNavigateToMessages={(id, name, data) => navigate('/messages', { state: { startChatWith: id, name, ...data } })}
-              onNavigateToListingDetails={(listingId) => {
-                setSelectedListingId(listingId);
-                navigate('/listing-details');
-              }}
             />
           </ProtectedRoute>
         } />
-        <Route path="/listing-details" element={
+        <Route path="/listing-details/:id" element={
           <ProtectedRoute>
             <ListingDetailsPage
               user={user!}
-              listingId={selectedListingId || undefined}
-              onNavigateBack={() => navigate('/listing')}
+              onNavigateBack={() => navigate('/ai-picks')}
               onLogout={handleLogout}
               onNavigateToDashboard={() => navigate('/dashboard')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
@@ -734,9 +749,8 @@ export default function App() {
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
               onNavigateToMap={() => navigate('/map')}
-              onNavigateToListing={() => navigate('/listing')}
+              onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
-              onNavigateToMatches={() => navigate('/matches')}
             />
           </ProtectedRoute>
         } />
@@ -751,17 +765,6 @@ export default function App() {
               onNavigateToListing={() => navigate('/listing-manage')}
               onNavigateToVerification={() => navigate('/verification-manage')}
               onNavigateToAnalytics={() => navigate('/admin-analytics')}
-              onNavigateToProfile={() => alert("Profile Coming Soon")}
-              onNavigateToSetting={() => alert("Settings Coming Soon")}
-              onNavigateToUserProfile={(id: number) => navigate(`/admin-user-profile/${id}`)}
-            />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin-user-profile/:id" element={
-          <ProtectedRoute>
-            <AdminUserProfile
-              onLogout={handleLogout}
-              onNavigateBack={() => navigate('/admin-dashboard')}
             />
           </ProtectedRoute>
         } />
@@ -773,8 +776,6 @@ export default function App() {
               onNavigateToListing={() => navigate('/listing-manage')}
               onNavigateToVerification={() => navigate('/verification-manage')}
               onNavigateToAnalytics={() => navigate('/admin-analytics')}
-              onNavigateToProfile={() => alert("Profile Coming Soon")}
-              onNavigateToSetting={() => alert("Settings Coming Soon")}
             />
           </ProtectedRoute>
         } />
@@ -786,8 +787,6 @@ export default function App() {
               onNavigateToListing={() => navigate('/listing-manage')}
               onNavigateToVerification={() => navigate('/verification-manage')}
               onNavigateToAnalytics={() => navigate('/admin-analytics')}
-              onNavigateToProfile={() => alert("Profile Coming Soon")}
-              onNavigateToSetting={() => alert("Settings Coming Soon")}
             />
           </ProtectedRoute>
         } />
@@ -799,8 +798,6 @@ export default function App() {
               onNavigateToListing={() => navigate('/listing-manage')}
               onNavigateToVerification={() => navigate('/verification-manage')}
               onNavigateToAnalytics={() => navigate('/admin-analytics')}
-              onNavigateToProfile={() => alert("Profile Coming Soon")}
-              onNavigateToSetting={() => alert("Settings Coming Soon")}
             />
           </ProtectedRoute>
         } />

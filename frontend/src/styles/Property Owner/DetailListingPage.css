@@ -78,6 +78,40 @@
     color: white;
 }
 
+.btn-manage-light {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-manage-light:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--drood-accent);
+    color: var(--drood-text);
+}
+
+.btn-manage-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-manage-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #fff;
+}
+
 .action-icon-btn {
     width: 40px;
     height: 40px;

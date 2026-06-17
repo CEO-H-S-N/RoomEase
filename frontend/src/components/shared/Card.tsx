@@ -7,6 +7,7 @@ export interface CardProps {
     variant?: 'default' | 'glass' | 'elevated';
     hover?: boolean;
     className?: string;
+    style?: React.CSSProperties;
     onClick?: () => void;
 }
 
@@ -15,6 +16,7 @@ export const Card: React.FC<CardProps> = ({
     variant = 'default',
     hover = false,
     className = '',
+    style,
     onClick
 }) => {
     const baseClass = 'card-modern';
@@ -31,6 +33,7 @@ export const Card: React.FC<CardProps> = ({
     return (
         <motion.div
             className={classes}
+            style={style}
             onClick={onClick}
             {...hoverAnimation}
         >

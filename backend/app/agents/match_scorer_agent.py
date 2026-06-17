@@ -15,12 +15,12 @@ class MatchResult(BaseModel):
 
 # --- Main Agent ---
 class MatchScorerAgent:
-    GROQ_MODEL = "openai/gpt-oss-120b"
+    GROQ_MODEL = "llama-3.3-70b-versatile"
 
     def __init__(self):  # <-- fix here
         if "GROQ_API_KEY" not in os.environ:
             # We don't raise an error here to allow the fallback to work.
-            print("⚠ GROQ_API_KEY not found. Agent will use fallback logic.")
+            print("[WARNING] GROQ_API_KEY not found. Agent will use fallback logic.")
             self.client = None
         else:
             self.client = Groq(api_key=os.environ["GROQ_API_KEY"])
@@ -124,11 +124,11 @@ class MatchScorerAgent:
                 return {"score": score, "reasons": reasons}
             except Exception as e:
                 # Tier 2: Fallback to rule-based scoring on API failure
-                print(f"⚠ Groq API call failed for scoring: {e}. Falling back to rule-based logic.")
+                print(f"[WARNING] Groq API call failed for scoring: {e}. Falling back to rule-based logic.")
                 return self._rule_based_fallback(profile_a_dict, profile_b)
         else:
             # Tier 3: Use rule-based scoring directly if no API key is available
-            print("⚠ No Groq client. Using rule-based scoring.")
+            print("[WARNING] No Groq client. Using rule-based scoring.")
             return self._rule_based_fallback(profile_a_dict, profile_b)
 
     def get_best_matches(
@@ -180,5 +180,5 @@ match_scorer_agent: MatchScorerAgent | None = None
 try:
     match_scorer_agent = MatchScorerAgent()
 except Exception as e:
-    print(f"⚠ Failed to initialize MatchScorerAgent: {e}")
+    print(f"[WARNING] Failed to initialize MatchScorerAgent: {e}")
 
