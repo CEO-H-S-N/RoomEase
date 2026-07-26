@@ -4,7 +4,6 @@ import { Clock, Star, MapPin, User as UserIcon, Home as HomeIcon, ChevronRight }
 import { api } from '../../services/api';
 import SharedNavbar from '../shared/SharedNavbar';
 import { Card } from '../shared/Card';
-import { Button } from '../shared/Button';
 import './HistoryPage.css';
 
 interface StayHistoryItem {

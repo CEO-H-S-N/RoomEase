@@ -31,11 +31,19 @@ app = FastAPI(
 )
 
 # ------------------ CORS ------------------
+# Allow localhost for development + production frontend from env
+FRONTEND_URL = os.getenv("FRONTEND_URL", "")
+
 origins = [
     "http://localhost:5173",  # Frontend origin (Vite default)
     "http://localhost:5174",  # Frontend alternative port
     "http://localhost:9002",  # Legacy frontend origin
 ]
+
+if FRONTEND_URL:
+    origins.append(FRONTEND_URL)
+    # Also allow without trailing slash
+    origins.append(FRONTEND_URL.rstrip("/"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -82,3 +90,9 @@ app.include_router(room_hunter_router)  # NEW: Housing matches
 app.include_router(wingman_router)
 app.include_router(google_auth_router)  # NEW: Google OAuth
 app.include_router(housing_router)
+
+# ------------------ Entry Point ------------------
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

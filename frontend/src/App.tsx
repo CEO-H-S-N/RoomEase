@@ -513,6 +513,7 @@ export default function App() {
               onNavigateToVerification={() => navigate('/verification')}
               onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
+              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
             />
           </ProtectedRoute>
         } />
@@ -550,6 +551,7 @@ export default function App() {
               onNavigateToProfile={(id) => navigate(`/profile/${id}`)}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
+              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
             />
           </ProtectedRoute>
         } />
@@ -565,6 +567,7 @@ export default function App() {
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
               onNavigateToProfiles={() => navigate('/profiles')}
+              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
             />
           </ProtectedRoute>
         } />
@@ -624,6 +627,7 @@ export default function App() {
               onNavigateToMap={() => navigate('/map')}
               onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
+              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
             />
           </ProtectedRoute>
         } />
@@ -651,6 +655,7 @@ export default function App() {
               onNavigateToProfiles={() => navigate('/profiles')}
               onNavigateToChangePassword={() => navigate('/change-password')}
               onNavigateToVerification={() => navigate('/verification')}
+              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
             />
           </ProtectedRoute>
         } />
@@ -683,6 +688,7 @@ export default function App() {
               onNavigateToSetting={() => navigate('/edit-profile')}
               onNavigateToListing={() => navigate('/ai-picks')}
               onNavigateToNotification={() => navigate('/notification')}
+              onNavigateToRedFlagAlert={() => navigate('/red-flag-alert')}
             />
           </ProtectedRoute>
         } />

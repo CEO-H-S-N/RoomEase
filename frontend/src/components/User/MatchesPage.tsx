@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Heart, X, Sparkles, AlertTriangle } from 'lucide-react';
+import { Heart, X, Sparkles } from 'lucide-react';
 // ... rest of imports
 import { api } from '../../services/api';
 import { Button } from '../shared/Button';

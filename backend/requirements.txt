@@ -12,7 +12,6 @@ google-auth
 requests
 # Database 
 pymongo
-psycopg2-binary
 
 #Agents
 groq

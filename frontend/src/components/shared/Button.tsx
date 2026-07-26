@@ -36,7 +36,7 @@ export const Button: React.FC<ButtonProps> = ({
             whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
             whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
             transition={{ duration: 0.2 }}
-            {...props}
+            {...(props as any)}
         >
             {isLoading ? (
                 <span className="btn-loader">

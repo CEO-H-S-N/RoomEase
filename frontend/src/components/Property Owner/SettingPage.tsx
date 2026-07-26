@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Home, Bell, User, Settings, Lock, Camera, Trash2, UploadCloud, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Home, Bell, User, Settings, Lock, Camera, Trash2, UploadCloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../services/api';
 import '../../styles/Property Owner/SettingPage.css';
 
 interface UserData {
@@ -19,9 +18,9 @@ interface SettingPageProps {
 
 export const SettingPage: React.FC<SettingPageProps> = ({
     user: initialUser = { email: 'owner@example.com', fullName: 'Property Owner' },
-    onLogout,
-    onNavigateToDashboard,
-    onNavigateToNotification
+    onLogout: _onLogout,
+    onNavigateToDashboard: _onNavigateToDashboard,
+    onNavigateToNotification: _onNavigateToNotification
 }) => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'user-settings' | 'preferences' | 'change-password'>('user-settings');

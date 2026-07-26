@@ -94,7 +94,9 @@ export const PostListingPage: React.FC<PostListingPageProps> = ({
                         mobile: listing.mobile || '',
                         landline: listing.landline || '',
                         thumbnail: listing.thumbnail || '',
-                        images: listing.images || []
+                        images: listing.images || [],
+                        latitude: listing.latitude ?? listing.lat ?? 31.5204,
+                        longitude: listing.longitude ?? listing.lng ?? 74.3587
                     });
                     setPurpose(listing.purpose || 'Sell');
                     setPropertyCategory(listing.propertyCategory || 'Home');
