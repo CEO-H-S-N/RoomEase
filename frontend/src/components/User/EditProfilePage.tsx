@@ -261,7 +261,7 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
                                         name="city"
                                         value={formData.city}
                                         onChange={handleCityChange}
-                                        className="form-select"
+                                        className="profile-form-select"
                                     >
                                         <option value="">Select City</option>
                                         {Object.keys(CITY_AREAS).map(city => (
@@ -276,7 +276,7 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
                                         name="area"
                                         value={formData.area}
                                         onChange={handleInputChange}
-                                        className="form-select"
+                                        className="profile-form-select"
                                         disabled={!formData.city}
                                     >
                                         <option value="">Select Area</option>
