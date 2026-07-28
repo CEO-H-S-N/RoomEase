@@ -152,7 +152,7 @@ def send_verification_email(request: EmailRequest):
 
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
             server.starttls()
             server.login(sender, password)
             server.sendmail(sender, receiver, msg.as_string())
@@ -160,7 +160,8 @@ def send_verification_email(request: EmailRequest):
         return {"status": "success", "message": f"Verification email sent to {receiver}"}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"[WARNING] Email sending failed (non-fatal): {e}")
+        return {"status": "error", "message": str(e)}
 
 @router.get("/verify")
 def verify_email(token: str = Query(...), email: str = Query(...)):
