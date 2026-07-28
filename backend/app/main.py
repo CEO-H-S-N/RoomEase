@@ -38,6 +38,9 @@ origins = [
     "http://localhost:5173",  # Frontend origin (Vite default)
     "http://localhost:5174",  # Frontend alternative port
     "http://localhost:9002",  # Legacy frontend origin
+    "https://roomease.net",   # Production custom domain
+    "https://www.roomease.net",  # www variant
+    "https://roomease-one.vercel.app",  # Vercel deployment
 ]
 
 if FRONTEND_URL:

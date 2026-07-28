@@ -13,8 +13,9 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -23,13 +24,19 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
             return;
         }
 
-        onLoginSuccess?.(email, password);
+        setIsLoading(true);
+        try {
+            await onLoginSuccess?.(email, password);
+        } catch (err: any) {
+            setError(err.message || 'Login failed. Please check your credentials.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <div className="animated-login-wrapper bg-admin">
             <div className="box">
-                {/* Back Button matching User Login */}
                 <button
                     onClick={() => navigate('/login-selection')}
                     className="absolute-back-btn"
@@ -55,6 +62,7 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="admin@roomease.com"
+                                disabled={isLoading}
                             />
                         </div>
 
@@ -67,6 +75,7 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
                                     placeholder="••••••••"
+                                    disabled={isLoading}
                                 />
                                 <button
                                     type="button"
@@ -88,8 +97,9 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
                             type="submit"
                             className="btn-standard"
                             style={{ width: '100%', justifyContent: 'center' }}
+                            disabled={isLoading}
                         >
-                            Login
+                            {isLoading ? 'Logging in...' : 'Login'}
                         </button>
 
                         <div className="footer-links" style={{ marginTop: '1.5rem' }}>
