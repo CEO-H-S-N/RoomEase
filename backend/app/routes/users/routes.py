@@ -114,7 +114,7 @@ def register_user(request: UserCreate):
     except Exception as e:
         print(f"[WARNING] Email sending failed: {e}")
         # In dev, print the link manually
-        verification_link = f"http://localhost:9002/verify-email?token={verification_token}&email={db_user['email']}"
+        verification_link = f"https://roomease.net/verify-email?token={verification_token}&email={db_user['email']}"
         print(f" Verification Link: {verification_link}")
 
     return UserResponse(
@@ -124,7 +124,7 @@ def register_user(request: UserCreate):
         profile_id=db_user.get("profile_id"),
         email=db_user["email"],
         is_verified=db_user.get("is_verified", False),
-        is_admin=db_user.get("is_admin", True) # Default to True
+        is_admin=db_user.get("is_admin", False)
     )
 
 
@@ -147,8 +147,8 @@ def send_verification_email(request: EmailRequest):
         msg["To"] = receiver
         msg["Subject"] = "Verify your email"
 
-        verification_link = f"http://localhost:9002/verify-email?token={request.token}&email={receiver}"
-        body = f"Click here to verify your email: {verification_link}"
+        verification_link = f"https://roomease.net/verify-email?token={request.token}&email={receiver}"
+        body = f"Click here to verify your RoomEase email: {verification_link}"
 
         msg.attach(MIMEText(body, "plain"))
 
@@ -256,23 +256,7 @@ def check_verification_status(email: str):
         "username": user.get("username")
     }
 
-@router.post("/register-user")
-def register_user_public(username: str, password: str, listing_id: str = None, profile_id: str = None, email: str = None):
-    users_collection = get_users_collection()
-    if users_collection.find_one({"username": username}):
-        raise HTTPException(status_code=400, detail="Username already exists")
-
-    hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    user = {
-        "_id": ObjectId(),
-        "username": username,
-        "password": hashed_password,
-        "email": email,
-        "listing_id": listing_id,
-        "profile_id": profile_id,
-    }
-    users_collection.insert_one(user)
-    return {"message": "User registered successfully"}
+# /register-user endpoint removed — use /register instead
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -307,8 +291,8 @@ def login_user(request: LoginRequest, response: Response):
         key="access_token",
         value=token,
         httponly=False,
-        secure=False,   # Set True if HTTPS
-        samesite="lax"  # Or "none" if cross-site
+        secure=True,
+        samesite="none"
     )
 
     # [OK] Return response
@@ -320,7 +304,7 @@ def login_user(request: LoginRequest, response: Response):
         listing_id=user_data.get("listing_id"),
         profile_id=user_data.get("profile_id"),
         is_verified=user_data.get("is_verified", False),
-        is_admin=user_data.get("is_admin", True) # Default to True
+        is_admin=user_data.get("is_admin", False)
     )
 
 
@@ -477,8 +461,8 @@ def google_login(payload: GoogleAuthSchema, response: Response):
         key="access_token",
         value=token,
         httponly=False,
-        secure=False,   # Set True if HTTPS
-        samesite="lax"  # Or 'none' if cross-site
+        secure=True,
+        samesite="none"
     )
 
     return {"access_token": token, "token_type": "bearer"}

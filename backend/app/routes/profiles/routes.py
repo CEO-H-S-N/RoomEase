@@ -214,6 +214,7 @@ def get_profile(profile_id: str = Path(..., description="Profile ID"), current_u
 @router.delete("/{profile_id}")
 def delete_profile(profile_id: str = Path(..., description="Profile ID"), current_user: UserResponse = Depends(get_user_from_cookie)):
     profiles_collection = get_profiles_collection()
+    users_collection = get_users_collection()
     try:
         obj_id = ObjectId(profile_id)
     except Exception:
@@ -222,7 +223,15 @@ def delete_profile(profile_id: str = Path(..., description="Profile ID"), curren
     result = profiles_collection.delete_one({"_id": obj_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Profile not found")
+
+    # Clear profile_id from the owning user so they can create a new profile
+    users_collection.update_one(
+        {"profile_id": profile_id},
+        {"$set": {"profile_id": ""}}
+    )
+
     return {"detail": "Profile deleted successfully"}
+
 
 
 # --- Update Profile ---
