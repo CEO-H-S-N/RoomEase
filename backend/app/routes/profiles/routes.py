@@ -157,7 +157,7 @@ def get_profiles():
         result.append(
              ProfileResponse(
                 id=pid,
-                raw_profile_text=profile["raw_profile_text"],
+                raw_profile_text=profile.get("raw_profile_text"),
                 city=profile["city"],
                 area=profile["area"],
                 budget_PKR=profile["budget_PKR"],
@@ -215,7 +215,7 @@ def get_profile(profile_id: str = Path(..., description="Profile ID")):
 
     return ProfileResponse(
         id=str(profile["_id"]),
-        raw_profile_text=profile["raw_profile_text"],
+        raw_profile_text=profile.get("raw_profile_text"),
         city=profile["city"],
         area=profile["area"],
         budget_PKR=profile["budget_PKR"],
