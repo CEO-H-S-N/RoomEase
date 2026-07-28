@@ -110,13 +110,14 @@ export const CreateProfilePage: React.FC<CreateProfilePageProps> = ({
                 onProfileCreated(response.id);
             }
             onNavigateToDashboard();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to create profile:', error);
-            alert('Failed to create profile. Please try again.');
+            alert(error.message || 'Failed to create profile. Please try again.');
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="dashboard-container create-profile-page">

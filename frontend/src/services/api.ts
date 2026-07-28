@@ -252,13 +252,16 @@ export const api = {
 
     // User Profile Management
     async createProfile(profileData: ProfileData) {
-        const response = await fetch(`${API_BASE_URL}/profiles`, {
+        const response = await fetch(`${API_BASE_URL}/profiles/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(profileData),
             credentials: 'include',
         });
-        if (!response.ok) throw new Error('Failed to create profile');
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.detail || 'Failed to create profile');
+        }
         return response.json();
     },
 
