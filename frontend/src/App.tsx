@@ -207,6 +207,8 @@ export default function App() {
      LOGOUT
   ========================== */
   const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('token');
     setUser(null);
     handleNavigation("/");
   };

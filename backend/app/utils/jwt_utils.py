@@ -33,12 +33,18 @@ def create_access_token(user_id: str, username: str, email: str = None, listing_
     encoded_jwt = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-# Dependency to get user from cookie
-def get_user_from_cookie(access_token: str = Cookie(None)):
-    if not access_token:
+# Dependency to get user from cookie or Authorization header
+from fastapi import Header
+
+def get_user_from_cookie(access_token: str = Cookie(None), authorization: str = Header(None)):
+    token = access_token
+    if not token and authorization and authorization.startswith("Bearer "):
+        token = authorization.split(" ")[1]
+
+    if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:
-        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         user_id: str = payload.get("id")
         email: str = payload.get("email")

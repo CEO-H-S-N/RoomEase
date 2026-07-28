@@ -1,5 +1,25 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
+// Global fetch interceptor to inject Authorization header if access_token is in localStorage
+// This bypasses Safari/Chrome third-party cookie blocking for cross-origin setups.
+const originalFetch = window.fetch;
+window.fetch = function (input, init) {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+    if (url.startsWith(API_BASE_URL)) {
+        const token = localStorage.getItem('access_token') || localStorage.getItem('token');
+        if (token) {
+            init = init || {};
+            const headers = new Headers(init.headers || {});
+            if (!headers.has('Authorization')) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            init.headers = headers;
+        }
+    }
+    return originalFetch(input, init);
+};
+
+
 export interface User {
     id: string;
     username: string;
@@ -69,6 +89,9 @@ export const api = {
         }
 
         const data = await response.json();
+        if (data.token) {
+            localStorage.setItem('access_token', data.token);
+        }
         return data;
     },
 
@@ -288,6 +311,9 @@ export const api = {
         });
         if (!response.ok) throw new Error('Google authentication failed');
         const data = await response.json();
+        if (data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+        }
         return data.user;
     },
 
