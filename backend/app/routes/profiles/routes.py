@@ -47,23 +47,43 @@ def create_profile(
     user_doc = users_collection.find_one({"_id": ObjectId(current_user.id)})
     if not user_doc:
         raise HTTPException(status_code=404, detail="User not found")
-    if user_doc.get("profile_id"):
-        raise HTTPException(status_code=400, detail="User already has a profile")
+    existing_profile_id = user_doc.get("profile_id")
+    if existing_profile_id:
+        try:
+            p_obj_id = ObjectId(existing_profile_id)
+            existing_p = profiles_collection.find_one({"_id": p_obj_id})
+        except Exception:
+            existing_p = None
 
-    # Insert the new profile
-    result = profiles_collection.insert_one(request.dict())
-    db_profile = profiles_collection.find_one({"_id": result.inserted_id})
-    new_profile_id = str(result.inserted_id)
+        if existing_p:
+            # Update existing profile instead of crashing
+            profiles_collection.update_one({"_id": p_obj_id}, {"$set": request.dict()})
+            db_profile = profiles_collection.find_one({"_id": p_obj_id})
+            new_profile_id = existing_profile_id
+        else:
+            # Profile reference was stale/broken, create new
+            result = profiles_collection.insert_one(request.dict())
+            db_profile = profiles_collection.find_one({"_id": result.inserted_id})
+            new_profile_id = str(result.inserted_id)
+            users_collection.update_one(
+                {"_id": ObjectId(current_user.id)},
+                {"$set": {"profile_id": new_profile_id}}
+            )
+    else:
+        # Insert new profile
+        result = profiles_collection.insert_one(request.dict())
+        db_profile = profiles_collection.find_one({"_id": result.inserted_id})
+        new_profile_id = str(result.inserted_id)
 
-    # Update the user's profile_id in the users collection
-    update_result = users_collection.update_one(
-        {"_id": ObjectId(current_user.id)},
-        {"$set": {"profile_id": new_profile_id}}
-    )
-    if update_result.matched_count == 0:
-        # Rollback: delete the profile if user update fails
-        profiles_collection.delete_one({"_id": result.inserted_id})
-        raise HTTPException(status_code=500, detail="Failed to assign profile to user")
+        # Update the user's profile_id in the users collection
+        update_result = users_collection.update_one(
+            {"_id": ObjectId(current_user.id)},
+            {"$set": {"profile_id": new_profile_id}}
+        )
+        if update_result.matched_count == 0:
+            # Rollback: delete the profile if user update fails
+            profiles_collection.delete_one({"_id": result.inserted_id})
+            raise HTTPException(status_code=500, detail="Failed to assign profile to user")
 
     # Re-issue the JWT with the updated profile_id so AI picks works immediately
     new_token = create_access_token(
