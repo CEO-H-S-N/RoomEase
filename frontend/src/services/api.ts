@@ -283,9 +283,29 @@ export const api = {
         });
         if (!response.ok) {
             const errorData = await response.json().catch(() => null);
-            throw new Error(errorData?.detail || 'Failed to create profile');
+            let errorMessage = 'Failed to create profile';
+            if (errorData?.detail) {
+                if (Array.isArray(errorData.detail)) {
+                    errorMessage = errorData.detail.map((e: any) => `${e.loc.join('.')} - ${e.msg}`).join('\n');
+                } else {
+                    errorMessage = String(errorData.detail);
+                }
+            }
+            throw new Error(errorMessage);
         }
-        return response.json();
+        const data = await response.json();
+        // The backend re-issues a JWT with the new profile_id in Set-Cookie.
+        // We also need to update localStorage so the global fetch interceptor
+        // sends the correct token immediately (without requiring a re-login).
+        // Parse the new token from the cookie that was just set:
+        const newToken = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('access_token='))
+            ?.split('=')[1];
+        if (newToken) {
+            localStorage.setItem('access_token', newToken);
+        }
+        return data;
     },
 
     async updateProfile(profileId: string, profileData: Partial<ProfileData>) {

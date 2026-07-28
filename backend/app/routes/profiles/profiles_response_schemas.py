@@ -3,7 +3,7 @@ from typing import Optional
 
 class ProfileResponse(BaseModel):
     id: str
-    raw_profile_text: str
+    raw_profile_text: Optional[str] = None
     city: str
     area: str
     budget_PKR: int

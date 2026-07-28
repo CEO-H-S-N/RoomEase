@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException, Path, Depends, Body
+from fastapi import APIRouter, HTTPException, Path, Depends, Body, Response
 from models.profile import ProfileCreate
 from routes.profiles.profiles_response_schemas import ProfileResponse
 from db.mongo import get_profiles_collection, get_users_collection
 from bson import ObjectId
 from typing import List
-from utils.jwt_utils import get_user_from_cookie
+from utils.jwt_utils import get_user_from_cookie, create_access_token
 from routes.users.users_response_schemas import UserResponse
 
 router = APIRouter(prefix="/profiles", tags=["Profiles"])
@@ -37,6 +37,7 @@ def get_locations():
 @router.post("/", response_model=ProfileResponse)
 def create_profile(
     request: ProfileCreate,
+    response: Response,
     current_user: UserResponse = Depends(get_user_from_cookie)
 ):
     profiles_collection = get_profiles_collection()
@@ -52,21 +53,45 @@ def create_profile(
     # Insert the new profile
     result = profiles_collection.insert_one(request.dict())
     db_profile = profiles_collection.find_one({"_id": result.inserted_id})
+    new_profile_id = str(result.inserted_id)
 
     # Update the user's profile_id in the users collection
     update_result = users_collection.update_one(
         {"_id": ObjectId(current_user.id)},
-        {"$set": {"profile_id": str(result.inserted_id)}}
+        {"$set": {"profile_id": new_profile_id}}
     )
     if update_result.matched_count == 0:
         # Rollback: delete the profile if user update fails
         profiles_collection.delete_one({"_id": result.inserted_id})
         raise HTTPException(status_code=500, detail="Failed to assign profile to user")
 
+    # Re-issue the JWT with the updated profile_id so AI picks works immediately
+    new_token = create_access_token(
+        current_user.id,
+        user_doc["username"],
+        user_doc.get("email"),
+        user_doc.get("listing_id"),
+        new_profile_id,
+        user_doc.get("is_verified", False),
+        user_doc.get("is_admin", False),
+    )
+    # Persist new token in DB and refresh cookie
+    users_collection.update_one(
+        {"_id": ObjectId(current_user.id)},
+        {"$set": {"token": new_token}}
+    )
+    response.set_cookie(
+        key="access_token",
+        value=new_token,
+        httponly=False,
+        secure=True,
+        samesite="none",
+    )
+
     # Return the created profile
     return ProfileResponse(
         id=str(db_profile["_id"]),
-        raw_profile_text=db_profile["raw_profile_text"],
+        raw_profile_text=db_profile.get("raw_profile_text"),
         city=db_profile["city"],
         area=db_profile["area"],
         budget_PKR=db_profile["budget_PKR"],
