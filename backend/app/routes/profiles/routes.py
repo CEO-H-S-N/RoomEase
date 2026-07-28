@@ -87,7 +87,7 @@ def create_profile(
 
 # --- Get All Profiles ---
 @router.get("/", response_model=List[ProfileResponse])
-def get_profiles(current_user: UserResponse = Depends(get_user_from_cookie)):
+def get_profiles():
     profiles_collection = get_profiles_collection()
     users_collection = get_users_collection()
     
@@ -157,7 +157,7 @@ def get_profiles(current_user: UserResponse = Depends(get_user_from_cookie)):
 
 # --- Get Profile by ID ---
 @router.get("/{profile_id}", response_model=ProfileResponse)
-def get_profile(profile_id: str = Path(..., description="Profile ID"), current_user: UserResponse = Depends(get_user_from_cookie)):
+def get_profile(profile_id: str = Path(..., description="Profile ID")):
     profiles_collection = get_profiles_collection()
     try:
         obj_id = ObjectId(profile_id)

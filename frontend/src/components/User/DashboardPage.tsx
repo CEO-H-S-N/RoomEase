@@ -54,12 +54,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [listingsData, profilesData] = await Promise.all([
+        // Fetch independently so one failure doesn't blank the entire dashboard
+        const [listingsResult, profilesResult] = await Promise.allSettled([
           api.getListings(),
           api.getAllProfiles()
         ]);
-        setListings(listingsData.slice(0, 12)); // Fetch more for carousel
-        setProfiles(profilesData.slice(0, 12));
+
+        if (listingsResult.status === 'fulfilled') {
+          setListings(listingsResult.value.slice(0, 12));
+        } else {
+          console.error("Error fetching listings:", listingsResult.reason);
+        }
+
+        if (profilesResult.status === 'fulfilled') {
+          setProfiles(profilesResult.value.slice(0, 12));
+        } else {
+          console.error("Error fetching profiles:", profilesResult.reason);
+        }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {
