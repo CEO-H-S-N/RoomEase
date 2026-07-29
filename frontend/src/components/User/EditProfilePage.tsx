@@ -173,7 +173,7 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
             // api.createProfile handles both create and update seamlessly on backend
             await api.createProfile(formData);
             setSuccessMsg('Profile saved successfully! Redirecting...');
-            setTimeout(() => onNavigateToDashboard(), 1200);
+            setTimeout(() => onNavigateToDashboard(), 300);
         } catch (error: any) {
             console.error('Failed to save profile:', error);
             setErrors({ _form: `Failed to save profile: ${error.message || 'Please try again.'}` });

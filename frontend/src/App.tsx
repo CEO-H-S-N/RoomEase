@@ -142,11 +142,7 @@ export default function App() {
 
   // Unused params prefixed with underscore
   const handleNavigation = (path: string) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      navigate(path);
-      setIsLoading(false);
-    }, 1000);
+    navigate(path);
   };
 
   /* =========================

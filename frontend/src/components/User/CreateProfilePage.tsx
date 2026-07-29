@@ -128,7 +128,7 @@ export const CreateProfilePage: React.FC<CreateProfilePageProps> = ({
             if (onProfileCreated && response.id) {
                 onProfileCreated(response.id);
             }
-            setTimeout(() => onNavigateToDashboard(), 1200);
+            setTimeout(() => onNavigateToDashboard(), 300);
         } catch (error: any) {
             console.error('Failed to create profile:', error);
             setErrors({ _form: error.message || 'Failed to create profile. Please try again.' });
