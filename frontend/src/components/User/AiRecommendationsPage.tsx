@@ -487,7 +487,12 @@ export const AiRecommendationsPage: React.FC<AiRecommendationsPageProps> = ({
                                     <div className="ai-empty-icon">
                                         <Sparkles size={36} color="var(--primary-color)" />
                                     </div>
-                                    <h3>Profile Completion Needed ({percent}%)</h3>
+                                    <h3>
+                                        {missingCount === 0
+                                            ? "Profile 100% Complete — AI Match Engine Active"
+                                            : `Profile Completion Needed (${percent}%)`
+                                        }
+                                    </h3>
                                     <p>
                                         {missingCount === 0
                                             ? "Your profile is set up! AI agents are scanning the candidate pool for your best matches."
@@ -517,7 +522,7 @@ export const AiRecommendationsPage: React.FC<AiRecommendationsPageProps> = ({
 
                                     <button className="ai-complete-profile-btn" onClick={() => onNavigateToSetting()}>
                                         <Sparkles size={16} />
-                                        Update Profile Details
+                                        {missingCount === 0 ? "Edit Profile Settings" : "Update Profile Details"}
                                     </button>
                                 </div>
                             );

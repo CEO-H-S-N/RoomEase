@@ -119,6 +119,15 @@ class MatchPipeline:
             query["city"] = {"$regex": f"^{user_city}$", "$options": "i"}
 
         candidate_docs = list(profiles_col.find(query))
+        
+        # Check if we have valid candidate profiles in the user's city (excluding self)
+        valid_city_candidates = [
+            doc for doc in candidate_docs 
+            if str(doc["_id"]) != user_profile.get("id") and (doc.get("full_name") or doc.get("name"))
+        ]
+        if not valid_city_candidates:
+            print(f"[INFO] No candidates found in city '{user_city}'. Falling back to all profiles.")
+            candidate_docs = list(profiles_col.find({}))
 
         # Hard-cap to avoid runaway costs / latency
         candidates = [
@@ -135,12 +144,12 @@ class MatchPipeline:
                 "food_pref":       doc.get("food_pref"),
                 "age":             doc.get("age"),
                 "occupation":      doc.get("occupation"),
-                "full_name":       doc.get("full_name"),
-                "profile_photo":   doc.get("profile_photo"),
+                "full_name":       doc.get("full_name") or doc.get("name", "User"),
+                "profile_photo":   doc.get("profile_photo") or doc.get("profile_pic"),
             }
             for doc in candidate_docs
             if str(doc["_id"]) != user_profile.get("id")        # skip self
-            and doc.get("full_name") and doc.get("city")         # skip invalid
+            and (doc.get("full_name") or doc.get("name"))        # skip invalid
         ][:MAX_CANDIDATES]
 
         print(f"[INFO] Scoring {len(candidates)} candidates in parallel (workers={MAX_WORKERS})")
