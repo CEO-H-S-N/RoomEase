@@ -366,11 +366,11 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
                                             name="city"
                                             value={formData.city}
                                             onChange={(e) => handleCityChange(e.target.value)}
-                                            className={`cp-select ${errors.city ? 'cp-input-error' : ''}`}
+                                            className={`cp-select ${!formData.city ? 'cp-select-empty' : ''} ${errors.city ? 'cp-input-error' : ''}`}
                                         >
-                                            <option value="">Select City</option>
+                                            <option value="" disabled className="cp-option-placeholder">Select City</option>
                                             {Object.keys(CITY_AREAS).map(city => (
-                                                <option key={city} value={city}>{city}</option>
+                                                <option key={city} value={city} className="cp-option-item">{city}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -384,12 +384,12 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
                                             name="area"
                                             value={formData.area}
                                             onChange={handleInputChange}
-                                            className={`cp-select ${errors.area ? 'cp-input-error' : ''}`}
+                                            className={`cp-select ${!formData.area ? 'cp-select-empty' : ''} ${errors.area ? 'cp-input-error' : ''}`}
                                             disabled={!formData.city}
                                         >
-                                            <option value="">Select Area</option>
+                                            <option value="" disabled className="cp-option-placeholder">Select Area</option>
                                             {availableAreas.map(area => (
-                                                <option key={area} value={area}>{area}</option>
+                                                <option key={area} value={area} className="cp-option-item">{area}</option>
                                             ))}
                                         </select>
                                     </div>

@@ -290,7 +290,7 @@
 .cp-label {
     font-size: 0.875rem;
     font-weight: 600;
-    color: #5a3c30;
+    color: #1e293b !important;
 }
 
 .cp-input,
@@ -298,11 +298,12 @@
 .cp-textarea {
     width: 100%;
     padding: 12px 14px;
-    border: 2px solid #e8ddd8;
+    border: 1.5px solid #cbd5e1 !important;
     border-radius: 10px;
     font-size: 0.95rem;
-    color: #2d1812;
-    background: #fff;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    background-color: #ffffff !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
     font-family: inherit;
     box-sizing: border-box;
@@ -312,29 +313,33 @@
 .cp-input:focus,
 .cp-select:focus,
 .cp-textarea:focus {
-    border-color: #B85D47;
-    box-shadow: 0 0 0 3px rgba(184, 93, 71, 0.12);
+    border-color: #B85D47 !important;
+    box-shadow: 0 0 0 3px rgba(184, 93, 71, 0.15) !important;
 }
 
 .cp-input::placeholder,
 .cp-textarea::placeholder {
-    color: #c4a59a;
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+    opacity: 1 !important;
 }
 
 .cp-input-error {
     border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
 }
 
 .cp-field-error {
     font-size: 0.8rem;
     color: #dc2626;
     margin: 0;
+    font-weight: 500;
 }
 
-/* Select arrow */
+/* Select styling & arrow */
 .cp-select-wrap {
     position: relative;
+    width: 100%;
 }
 
 .cp-select-wrap::after {
@@ -345,20 +350,49 @@
     transform: translateY(-50%);
     color: #B85D47;
     pointer-events: none;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 2;
 }
 
 .cp-select {
-    appearance: none;
-    -webkit-appearance: none;
-    padding-right: 38px;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    padding-right: 40px !important;
     cursor: pointer;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+}
+
+.cp-select.cp-select-empty {
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+}
+
+.cp-select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    -webkit-text-fill-color: #0f172a !important;
+    padding: 10px;
+    font-size: 0.95rem;
+}
+
+.cp-select option:disabled,
+.cp-select option.cp-option-placeholder {
+    color: #94a3b8 !important;
+    -webkit-text-fill-color: #94a3b8 !important;
+    background-color: #f8fafc !important;
 }
 
 .cp-select:disabled {
-    background: #f8f3ef;
-    color: #c4a59a;
+    background-color: #f1f5f9 !important;
+    color: #64748b !important;
+    -webkit-text-fill-color: #64748b !important;
+    border-color: #e2e8f0 !important;
     cursor: not-allowed;
+    opacity: 0.9;
 }
 
 /* Input with PKR prefix */
@@ -366,7 +400,9 @@
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
+
 
 .cp-input-prefix {
     position: absolute;
