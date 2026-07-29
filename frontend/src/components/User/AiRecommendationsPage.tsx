@@ -307,14 +307,25 @@ export const AiRecommendationsPage: React.FC<AiRecommendationsPageProps> = ({
     const [loadingHousing, setLoadingHousing] = useState(true);
     const [roommateError, setRoommateError] = useState<string | null>(null);
     const [housingError, setHousingError] = useState<string | null>(null);
+    const [userProfile, setUserProfile] = useState<any>(null);
     const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
     const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
+        fetchUserProfile();
         fetchRoommateMatches();
         fetchHousingMatches();
         fetchWishlist();
     }, []);
+
+    const fetchUserProfile = async () => {
+        try {
+            const p = await api.getMyProfile();
+            setUserProfile(p);
+        } catch (e) {
+            console.error('Failed to fetch user profile:', e);
+        }
+    };
 
     const fetchWishlist = async () => {
         try {
@@ -453,15 +464,64 @@ export const AiRecommendationsPage: React.FC<AiRecommendationsPageProps> = ({
                             </div>
                         )}
 
-                        {!loadingRoommates && !roommateError && roommateMatches.length === 0 && (
-                            <div className="ai-empty-state">
-                                <div className="ai-empty-icon">
-                                    <Sparkles size={36} color="var(--primary-color)" />
+                        {!loadingRoommates && !roommateError && roommateMatches.length === 0 && (() => {
+                            const checklist = [
+                                { key: 'full_name', label: 'Full Name', done: !!(userProfile?.full_name && userProfile.full_name.trim()) },
+                                { key: 'city', label: 'Preferred City', done: !!(userProfile?.city && userProfile.city.trim()) },
+                                { key: 'area', label: 'Preferred Area', done: !!(userProfile?.area && userProfile.area.trim()) },
+                                { key: 'budget_PKR', label: 'Monthly Budget (PKR)', done: !!(userProfile?.budget_PKR && userProfile.budget_PKR > 0) },
+                                { key: 'occupation', label: 'Occupation', done: !!(userProfile?.occupation && userProfile.occupation.trim()) },
+                                { key: 'age', label: 'Age', done: !!(userProfile?.age && userProfile.age >= 16) },
+                                { key: 'sleep_schedule', label: 'Sleep Schedule', done: !!userProfile?.sleep_schedule },
+                                { key: 'cleanliness', label: 'Cleanliness Preference', done: !!userProfile?.cleanliness },
+                                { key: 'noise_tolerance', label: 'Noise Tolerance', done: !!userProfile?.noise_tolerance },
+                                { key: 'study_habits', label: 'Study / Work Habits', done: !!userProfile?.study_habits },
+                                { key: 'food_pref', label: 'Food Preference', done: !!userProfile?.food_pref },
+                            ];
+                            const completedCount = checklist.filter(f => f.done).length;
+                            const percent = Math.round((completedCount / checklist.length) * 100);
+                            const missingCount = checklist.length - completedCount;
+
+                            return (
+                                <div className="ai-empty-state ai-profile-checklist-card">
+                                    <div className="ai-empty-icon">
+                                        <Sparkles size={36} color="var(--primary-color)" />
+                                    </div>
+                                    <h3>Profile Completion Needed ({percent}%)</h3>
+                                    <p>
+                                        {missingCount === 0
+                                            ? "Your profile is set up! AI agents are scanning the candidate pool for your best matches."
+                                            : `Please complete the ${missingCount} missing field${missingCount > 1 ? 's' : ''} below so our AI multi-agent pipeline can compute your compatibility scores:`
+                                        }
+                                    </p>
+
+                                    <div className="ai-profile-progress-bar">
+                                        <div className="ai-profile-progress-fill" style={{ width: `${percent}%` }} />
+                                    </div>
+
+                                    <div className="ai-checklist-grid">
+                                        {checklist.map(item => (
+                                            <div key={item.key} className={`ai-checklist-item ${item.done ? 'done' : 'missing'}`}>
+                                                {item.done ? (
+                                                    <CheckCircle size={16} color="#10B981" />
+                                                ) : (
+                                                    <AlertTriangle size={16} color="#EF4444" />
+                                                )}
+                                                <span>{item.label}</span>
+                                                <span className={`ai-item-tag ${item.done ? 'tag-done' : 'tag-missing'}`}>
+                                                    {item.done ? '✓ Done' : 'Missing'}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <button className="ai-complete-profile-btn" onClick={() => onNavigateToSetting()}>
+                                        <Sparkles size={16} />
+                                        Update Profile Details
+                                    </button>
                                 </div>
-                                <h3>No Matches Yet</h3>
-                                <p>Complete your profile so the AI agents can find your ideal roommates.</p>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {!loadingRoommates && !roommateError && roommateMatches.map((match, index) => {
                             const cardId = match.profile.id || `match-${index}`;

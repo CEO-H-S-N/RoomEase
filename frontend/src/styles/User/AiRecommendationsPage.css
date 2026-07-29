@@ -418,6 +418,111 @@
     font-size: 0.95rem;
 }
 
+/* Profile Checklist Card */
+.ai-profile-checklist-card {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+}
+
+.ai-profile-progress-bar {
+    width: 100%;
+    max-width: 480px;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    margin: 1.25rem auto 1.75rem;
+    overflow: hidden;
+}
+
+.ai-profile-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #B85D47, #d4745e);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+}
+
+.ai-checklist-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 1.5rem 0 2rem;
+    text-align: left;
+}
+
+.ai-checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.ai-checklist-item.done {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.ai-checklist-item.missing {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.ai-checklist-item span {
+    flex: 1;
+}
+
+.ai-item-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.ai-item-tag.tag-done {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.ai-item-tag.tag-missing {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.ai-complete-profile-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #B85D47, #d4745e);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(184, 93, 71, 0.35);
+}
+
+.ai-complete-profile-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(184, 93, 71, 0.45);
+}
+
+@media (max-width: 640px) {
+    .ai-checklist-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ==============================
    ROOMMATE MATCH CARD
 ============================== */
