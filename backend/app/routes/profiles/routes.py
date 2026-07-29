@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Path, Depends, Body, Response
+from fastapi import APIRouter, HTTPException, Path, Depends, Body, Response, Query
 from models.profile import ProfileCreate
 from routes.profiles.profiles_response_schemas import ProfileResponse
 from db.mongo import get_profiles_collection, get_users_collection
 from bson import ObjectId
-from typing import List
+from typing import List, Optional
+import re
 from utils.jwt_utils import get_user_from_cookie, create_access_token
 from routes.users.users_response_schemas import UserResponse
 
@@ -33,7 +34,78 @@ def get_locations():
     locations = {item["city"]: sorted(item["areas"]) for item in results if item["city"]}
     return locations
 
-# --- Create Profile ---
+
+# --- Search Profiles ---
+@router.get("/search", response_model=List[ProfileResponse])
+def search_profiles(q: str = Query("", description="Search query"), limit: int = Query(10, le=50)):
+    """Full-text regex search across profile fields: full_name, city, area, occupation."""
+    profiles_collection = get_profiles_collection()
+    users_collection = get_users_collection()
+
+    if not q or not q.strip():
+        return []
+
+    # Case-insensitive regex search across key text fields
+    pattern = re.compile(re.escape(q.strip()), re.IGNORECASE)
+    query_filter = {
+        "$or": [
+            {"full_name": {"$regex": pattern}},
+            {"name": {"$regex": pattern}},
+            {"city": {"$regex": pattern}},
+            {"area": {"$regex": pattern}},
+            {"occupation": {"$regex": pattern}},
+        ]
+    }
+
+    profiles = list(profiles_collection.find(query_filter).limit(limit))
+
+    # Fetch all users with profiles for name/photo fallback
+    profile_ids = [str(p["_id"]) for p in profiles]
+    users_with_profile = list(users_collection.find({"profile_id": {"$in": profile_ids}}))
+    profile_user_map = {u["profile_id"]: u for u in users_with_profile}
+
+    result = []
+    for profile in profiles:
+        pid = str(profile["_id"])
+        related_user = profile_user_map.get(pid)
+
+        db_name = profile.get("name") or profile.get("full_name")
+        db_pic = profile.get("profile_pic") or profile.get("profile_photo")
+
+        full_name = db_name
+        if not full_name and related_user:
+            full_name = related_user.get("username")
+
+        profile_photo = db_pic
+        rating = profile.get("rating", 0.0)
+        verified = profile.get("verified", False)
+        if not verified and related_user:
+            verified = related_user.get("is_verified", False)
+
+        result.append(ProfileResponse(
+            id=pid,
+            raw_profile_text=profile.get("raw_profile_text"),
+            city=profile.get("city", ""),
+            area=profile.get("area", ""),
+            budget_PKR=profile.get("budget_PKR", 0),
+            sleep_schedule=profile.get("sleep_schedule"),
+            cleanliness=profile.get("cleanliness"),
+            noise_tolerance=profile.get("noise_tolerance"),
+            study_habits=profile.get("study_habits"),
+            food_pref=profile.get("food_pref"),
+            age=profile.get("age"),
+            occupation=profile.get("occupation"),
+            full_name=full_name,
+            profile_photo=profile_photo,
+            rating=rating,
+            verified=verified,
+            reviews=profile.get("reviews", []),
+            past_stays=profile.get("past_stays", []),
+        ))
+
+    return result
+
+
 @router.post("/", response_model=ProfileResponse)
 def create_profile(
     request: ProfileCreate,

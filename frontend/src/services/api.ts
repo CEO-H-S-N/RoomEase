@@ -142,6 +142,31 @@ export const api = {
         return response.json();
     },
 
+    async searchProfiles(q: string): Promise<ProfileData[]> {
+        if (!q || !q.trim()) return [];
+        const response = await fetch(`${API_BASE_URL}/profiles/search?q=${encodeURIComponent(q.trim())}&limit=10`, {
+            credentials: 'include'
+        });
+        if (!response.ok) return [];
+        return response.json();
+    },
+
+    async searchListings(q: string): Promise<any[]> {
+        if (!q || !q.trim()) return [];
+        // Filter client-side from all listings since there is no dedicated search endpoint
+        try {
+            const allListings = await api.getListings();
+            const lower = q.trim().toLowerCase();
+            return allListings.filter((l: any) =>
+                l.city?.toLowerCase().includes(lower) ||
+                l.area?.toLowerCase().includes(lower) ||
+                String(l.monthly_rent_PKR).includes(lower)
+            ).slice(0, 10);
+        } catch {
+            return [];
+        }
+    },
+
     // Matches
     async getBestMatches(topN: number = 5) {
         const response = await fetch(`${API_BASE_URL}/ai/best_matches?top_n=${topN}`, {

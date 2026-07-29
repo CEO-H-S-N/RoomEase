@@ -555,8 +555,22 @@
     text-align: center;
     color: #999;
     font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
 }
 
 .search-no-results strong {
     color: #555;
 }
+
+.search-spinner {
+    animation: spin 0.8s linear infinite;
+    color: #B85D47;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

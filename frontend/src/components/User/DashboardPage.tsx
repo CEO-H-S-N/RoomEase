@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Star, MapPin, Briefcase, Search, X } from 'lucide-react';
+import { Heart, Star, MapPin, Briefcase, Search, X, Loader } from 'lucide-react';
 import { api, type ProfileData } from '../../services/api';
 import SharedNavbar from '../shared/SharedNavbar';
 import './DashboardPage.css';
@@ -43,7 +43,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
   const [profiles, setProfiles] = useState<ProfileData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showResults, setShowResults] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<{ listings: any[]; profiles: ProfileData[] }>({ listings: [], profiles: [] });
   const searchRef = useRef<HTMLDivElement>(null);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Carousel Scroll States
   const [listingScroll, setListingScroll] = useState(0);
@@ -61,12 +64,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         ]);
 
         if (listingsResult.status === 'fulfilled') {
+          // Keep up to 12 for carousel display
           setListings(listingsResult.value.slice(0, 12));
         } else {
           console.error("Error fetching listings:", listingsResult.reason);
         }
 
         if (profilesResult.status === 'fulfilled') {
+          // Keep up to 12 for carousel display
           setProfiles(profilesResult.value.slice(0, 12));
         } else {
           console.error("Error fetching profiles:", profilesResult.reason);
@@ -78,6 +83,29 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
       }
     };
     fetchData();
+  }, []);
+
+  // Server-side search with debounce
+  const runSearch = useCallback(async (q: string, type: 'housing' | 'people') => {
+    if (!q.trim()) {
+      setSearchResults({ listings: [], profiles: [] });
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    try {
+      if (type === 'housing') {
+        const results = await api.searchListings(q);
+        setSearchResults(prev => ({ ...prev, listings: results }));
+      } else {
+        const results = await api.searchProfiles(q);
+        setSearchResults(prev => ({ ...prev, profiles: results }));
+      }
+    } catch (e) {
+      console.error('Search error:', e);
+    } finally {
+      setSearching(false);
+    }
   }, []);
 
   // Close search results when clicking outside
@@ -128,37 +156,31 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     }
   };
 
-  // Search filtering
-  const q = searchQuery.toLowerCase().trim();
-
-  const filteredListings = q
-    ? listings.filter(l =>
-        l.city?.toLowerCase().includes(q) ||
-        l.area?.toLowerCase().includes(q) ||
-        String(l.monthly_rent_PKR).includes(q)
-      )
-    : [];
-
-  const filteredProfiles = q
-    ? profiles.filter(p =>
-        p.full_name?.toLowerCase().includes(q) ||
-        p.city?.toLowerCase().includes(q) ||
-        p.area?.toLowerCase().includes(q) ||
-        p.occupation?.toLowerCase().includes(q)
-      )
-    : [];
-
-  const searchResults = searchType === 'housing' ? filteredListings : filteredProfiles;
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setShowResults(e.target.value.trim().length > 0);
+    const val = e.target.value;
+    setSearchQuery(val);
+    setShowResults(val.trim().length > 0);
+    // Clear existing debounce
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    if (val.trim()) {
+      searchDebounceRef.current = setTimeout(() => {
+        runSearch(val, searchType);
+      }, 300);
+    } else {
+      setSearchResults({ listings: [], profiles: [] });
+      setSearching(false);
+    }
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     setShowResults(false);
+    setSearchResults({ listings: [], profiles: [] });
+    setSearching(false);
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
   };
+
+  const activeSearchResults = searchType === 'housing' ? searchResults.listings : searchResults.profiles;
 
   const handleNavigate = (page: string) => {
     switch (page) {
@@ -229,13 +251,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
               <div className="search-type-tabs">
                 <button
                   className={`search-tab ${searchType === 'housing' ? 'active' : ''}`}
-                  onClick={() => { setSearchType('housing'); if (q) setShowResults(true); }}
+                  onClick={() => { setSearchType('housing'); if (searchQuery.trim()) { setShowResults(true); runSearch(searchQuery, 'housing'); } }}
                 >
                   Housing
                 </button>
                 <button
                   className={`search-tab ${searchType === 'people' ? 'active' : ''}`}
-                  onClick={() => { setSearchType('people'); if (q) setShowResults(true); }}
+                  onClick={() => { setSearchType('people'); if (searchQuery.trim()) { setShowResults(true); runSearch(searchQuery, 'people'); } }}
                 >
                   People
                 </button>
@@ -246,7 +268,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                   placeholder={searchType === 'housing' ? "City, area, or rent amount..." : "Search by name, occupation or city..."}
                   value={searchQuery}
                   onChange={handleSearchChange}
-                  onFocus={() => { if (q) setShowResults(true); }}
+                  onFocus={() => { if (searchQuery.trim()) setShowResults(true); }}
                 />
                 {searchQuery && (
                   <button className="search-clear-btn" onClick={clearSearch}>
@@ -258,21 +280,26 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 </button>
               </div>
 
-              {/* Search Results Dropdown */}
-              {showResults && q && (
+              {/* Search Results Dropdown - Server-side results */}
+              {showResults && searchQuery.trim() && (
                 <div className="search-results-dropdown">
-                  {searchResults.length === 0 ? (
+                  {searching ? (
+                    <div className="search-no-results">
+                      <Loader size={16} className="search-spinner" />
+                      <p>Searching...</p>
+                    </div>
+                  ) : activeSearchResults.length === 0 ? (
                     <div className="search-no-results">
                       <p>No {searchType === 'housing' ? 'listings' : 'people'} found for "<strong>{searchQuery}</strong>"</p>
                     </div>
                   ) : (
                     <>
                       <div className="search-results-header">
-                        <span>{searchResults.length} result{searchResults.length !== 1 ? 's' : ''}</span>
+                        <span>{activeSearchResults.length} result{activeSearchResults.length !== 1 ? 's' : ''} from database</span>
                       </div>
                       <div className="search-results-list">
                         {searchType === 'housing'
-                          ? filteredListings.slice(0, 6).map((listing: any, index: number) => (
+                          ? (searchResults.listings as any[]).map((listing: any, index: number) => (
                               <div
                                 key={listing.id || index}
                                 className="search-result-item"
@@ -297,7 +324,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                 </div>
                               </div>
                             ))
-                          : filteredProfiles.slice(0, 6).map((profile: ProfileData, index: number) => (
+                          : (searchResults.profiles as ProfileData[]).map((profile: ProfileData, index: number) => (
                               <div
                                 key={profile.id || index}
                                 className="search-result-item"
