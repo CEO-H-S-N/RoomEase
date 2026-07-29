@@ -52,7 +52,12 @@ export function PropertyOwnerSignupPage({ onSignupSuccess }: PropertyOwnerSignup
                 onSignupSuccess?.(user);
             }, 1500);
         } catch (error: any) {
-            alert(error.message || "Signup failed");
+            const msg = error.message || '';
+            if (msg.includes('already exists') || msg.includes('400') || msg.toLowerCase().includes('duplicate') || msg.includes('Username')) {
+                alert('An account with the same name exists already. Please choose a different name or sign in.');
+            } else {
+                alert(msg || "Signup failed");
+            }
         } finally {
             setIsLoading(false);
         }

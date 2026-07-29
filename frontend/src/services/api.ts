@@ -118,20 +118,32 @@ export const api = {
     },
 
     // Profiles
-    async getProfile(userId: string) {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}/profile`, {
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch profile');
-        return response.json();
+    async getMyProfile(): Promise<ProfileData | null> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/profiles/my_profile`, {
+                credentials: 'include'
+            });
+            if (!response.ok) return null;
+            return await response.json();
+        } catch {
+            return null;
+        }
     },
 
-    async getProfileById(profileId: string): Promise<ProfileData> {
-        const response = await fetch(`${API_BASE_URL}/profiles/${profileId}`, {
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error('Failed to fetch profile details');
-        return response.json();
+    async getProfile(_userId: string): Promise<ProfileData | null> {
+        return this.getMyProfile();
+    },
+
+    async getProfileById(profileId: string): Promise<ProfileData | null> {
+        try {
+            const response = await fetch(`${API_BASE_URL}/profiles/${profileId}`, {
+                credentials: 'include'
+            });
+            if (!response.ok) return null;
+            return await response.json();
+        } catch {
+            return null;
+        }
     },
 
     async getAllProfiles(): Promise<ProfileData[]> {

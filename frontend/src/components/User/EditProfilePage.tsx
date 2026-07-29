@@ -60,52 +60,35 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [successMsg, setSuccessMsg] = useState('');
-    const [profileNotFound, setProfileNotFound] = useState(false);
 
-    // Fetch existing profile data — using profile_id directly to avoid stale user doc chain
+    // Fetch existing profile data using getMyProfile
     useEffect(() => {
         let isMounted = true;
         const fetchProfile = async () => {
             setLoading(true);
-            setProfileNotFound(false);
-
-            // Strategy 1: Use profile_id if available (direct lookup — most reliable)
-            if (user?.profile_id) {
-                try {
-                    const profile = await api.getProfileById(user.profile_id);
-                    if (isMounted && profile) {
-                        applyProfileToForm(profile);
-                        return;
-                    }
-                } catch (e) {
-                    console.warn('Direct profile_id lookup failed, trying user route...', e);
+            try {
+                // Try getMyProfile first
+                let profile = await api.getMyProfile();
+                
+                // Fallback to getProfileById if profile_id exists on user object
+                if (!profile && user?.profile_id) {
+                    profile = await api.getProfileById(user.profile_id);
                 }
-            }
 
-            // Strategy 2: Fall back to user route (looks up profile_id from user doc in DB)
-            if (user?.id) {
-                try {
-                    const profile = await api.getProfile(user.id);
-                    if (isMounted && profile) {
-                        applyProfileToForm(profile);
-                        return;
-                    }
-                } catch (e) {
-                    console.warn('User profile lookup also failed:', e);
+                if (isMounted && profile) {
+                    applyProfileToForm(profile);
                 }
-            }
-
-            // No profile found
-            if (isMounted) {
-                setProfileNotFound(true);
-                setLoading(false);
+            } catch (e) {
+                console.warn('Failed to fetch profile:', e);
+            } finally {
+                if (isMounted) setLoading(false);
             }
         };
 
         const applyProfileToForm = (profile: ProfileData) => {
             if (!isMounted) return;
             setFormData({
-                full_name: profile.full_name || '',
+                full_name: profile.full_name || user?.username || '',
                 city: profile.city || '',
                 area: profile.area || '',
                 budget_PKR: profile.budget_PKR || 0,
@@ -122,7 +105,6 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
             if (profile.city && CITY_AREAS[profile.city]) {
                 setAvailableAreas(CITY_AREAS[profile.city]);
             }
-            setLoading(false);
         };
 
         fetchProfile();
@@ -185,21 +167,16 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
             return;
         }
 
-        const profileId = user?.profile_id;
-        if (!profileId) {
-            setErrors({ _form: 'No profile linked to your account. Please create a profile first.' });
-            return;
-        }
-
         try {
             setSaving(true);
             setErrors({});
-            await api.updateProfile(profileId, formData);
-            setSuccessMsg('Profile updated successfully! Redirecting...');
+            // api.createProfile handles both create and update seamlessly on backend
+            await api.createProfile(formData);
+            setSuccessMsg('Profile saved successfully! Redirecting...');
             setTimeout(() => onNavigateToDashboard(), 1200);
         } catch (error: any) {
-            console.error('Failed to update profile:', error);
-            setErrors({ _form: `Failed to update profile: ${error.message || 'Please try again.'}` });
+            console.error('Failed to save profile:', error);
+            setErrors({ _form: `Failed to save profile: ${error.message || 'Please try again.'}` });
         } finally {
             setSaving(false);
         }
@@ -237,19 +214,13 @@ export const EditProfilePage: React.FC<EditProfilePageProps> = ({
                     <div className="cp-header-content">
                         <h1 className="cp-title">
                             <Edit3 size={28} style={{ display: 'inline', marginRight: 10, verticalAlign: 'middle' }} />
-                            Edit Your Profile
+                            Your Roommate Profile
                         </h1>
-                        <p className="cp-subtitle">Update your preferences to keep your roommate matches accurate.</p>
+                        <p className="cp-subtitle">Set or update your profile details to get the best roommate matches.</p>
                     </div>
                 </div>
 
-                {/* Profile not found warning */}
-                {profileNotFound && (
-                    <div className="cp-alert cp-alert-error">
-                        <AlertCircle size={18} />
-                        <span>No profile found for your account. <button onClick={onNavigateToDashboard} style={{ background: 'none', border: 'none', color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}>Go back to dashboard</button> to create one.</span>
-                    </div>
-                )}
+
 
                 {/* Success / Error Banners */}
                 {successMsg && (

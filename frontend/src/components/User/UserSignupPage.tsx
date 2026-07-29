@@ -66,7 +66,12 @@ export const UserSignupPage: React.FC<UserSignupPageProps> = ({ onSignupSuccess 
             // Call parent success handler with backend user data
             onSignupSuccess(user);
         } catch (err: any) {
-            setError(err.message || 'Registration failed. Please try again.');
+            const msg = err.message || '';
+            if (msg.includes('already exists') || msg.includes('400') || msg.toLowerCase().includes('duplicate') || msg.includes('Username')) {
+                setError('An account with the same name exists already. Please choose a different username or sign in.');
+            } else {
+                setError(msg || 'Registration failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }

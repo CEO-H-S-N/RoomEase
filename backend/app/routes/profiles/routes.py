@@ -272,6 +272,52 @@ def get_profiles():
     return result
 
 
+# --- Get Logged-in User's Profile ---
+@router.get("/my_profile", response_model=ProfileResponse)
+def get_my_profile(current_user: UserResponse = Depends(get_user_from_cookie)):
+    users_collection = get_users_collection()
+    profiles_collection = get_profiles_collection()
+
+    user_doc = users_collection.find_one({"_id": ObjectId(current_user.id)})
+    if not user_doc or not user_doc.get("profile_id"):
+        raise HTTPException(status_code=404, detail="No profile found for current user")
+
+    p_id = user_doc.get("profile_id")
+    try:
+        profile = profiles_collection.find_one({"_id": ObjectId(p_id)})
+    except Exception:
+        profile = None
+
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile document not found")
+
+    db_name = profile.get("name") or profile.get("full_name") or user_doc.get("username")
+    db_pic = profile.get("profile_pic") or profile.get("profile_photo")
+    rating = profile.get("rating", 0.0)
+    verified = profile.get("verified", False) or user_doc.get("is_verified", False)
+
+    return ProfileResponse(
+        id=str(profile["_id"]),
+        raw_profile_text=profile.get("raw_profile_text"),
+        city=profile.get("city", ""),
+        area=profile.get("area", ""),
+        budget_PKR=profile.get("budget_PKR", 0),
+        sleep_schedule=profile.get("sleep_schedule"),
+        cleanliness=profile.get("cleanliness"),
+        noise_tolerance=profile.get("noise_tolerance"),
+        study_habits=profile.get("study_habits"),
+        food_pref=profile.get("food_pref"),
+        age=profile.get("age"),
+        occupation=profile.get("occupation"),
+        full_name=db_name,
+        profile_photo=db_pic,
+        rating=rating,
+        verified=verified,
+        reviews=profile.get("reviews", []),
+        past_stays=profile.get("past_stays", []),
+    )
+
+
 # --- Get Profile by ID ---
 @router.get("/{profile_id}", response_model=ProfileResponse)
 def get_profile(profile_id: str = Path(..., description="Profile ID")):
